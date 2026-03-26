@@ -1,73 +1,37 @@
 services:
   db:
-    # Motor de base de datos principal del proyecto.
     image: mysql:8.0
-    # Nombre explícito para facilitar inspección con docker ps/logs.
-    container_name: tenda_db
-    # Reinicio automático salvo parada manual.
+    container_name: php_mysql
     restart: unless-stopped
     environment:
-      # Credenciales de arranque para entorno de prototipo.
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: tenda_dodaqui
-      MYSQL_USER: tenda_user
-      MYSQL_PASSWORD: tenda_pass
+      MYSQL_DATABASE: app
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_pass
     ports:
-      # Puerto local para depuración directa con cliente SQL.
-      - "3306:3306"
+      - "${DB_PORT:-3306}:3306"
     volumes:
-      # Volumen persistente: mantiene datos aunque se reinicien contenedores.
       - mysql_data:/var/lib/mysql
-      # Script de inicialización del esquema y datos semilla.
       - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
-  backend:
+  web:
     build:
-      # Construye API PHP desde carpeta backend.
       context: ./backend
       dockerfile: Dockerfile
-    container_name: dodaqui-backend
+    container_name: php_web
     restart: unless-stopped
     environment:
-      # Parámetros de conexión usados por backend/src/Database.php.
       DB_HOST: db
       DB_PORT: 3306
-      DB_DATABASE: tenda_dodaqui
-      DB_USERNAME: tenda_user
-      DB_PASSWORD: tenda_pass
+      DB_DATABASE: app
+      DB_USERNAME: app_user
+      DB_PASSWORD: app_pass
     depends_on:
-      # Espera a que la base de datos exista antes de iniciar backend.
       - db
     ports:
-      # Exposición de API REST.
-      - "8080:80"
+      - "${WEB_PORT:-8080}:80"
     volumes:
-      # Bind mount para desarrollo en caliente de código PHP.
       - ./backend:/var/www/html
 
-  frontend:
-    build:
-      # Construye servidor Node/Express que entrega HTML/CSS/JS del cliente.
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: dodaqui-frontend
-    restart: unless-stopped
-    environment:
-      # URL base de API que se inyecta en /config.js.
-      API_BASE_URL: http://localhost:8080/api
-      PORT: 3000
-    depends_on:
-      # Front depende de backend para tener API disponible al probar flujo completo.
-      - backend
-    ports:
-      # Exposición de la web.
-      - "3000:3000"
-    volumes:
-      # Bind mount para iterar frontend sin reconstruir imagen en cada cambio.
-      - ./frontend:/app
-      # Volumen anónimo para evitar sobreescribir node_modules del contenedor.
-      - /app/node_modules
-
 volumes:
-  # Volumen nombrado para persistir datos MySQL entre reinicios.
   mysql_data:

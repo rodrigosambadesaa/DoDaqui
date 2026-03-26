@@ -48,9 +48,60 @@ Esta combinación busca unha identidade visual moderna, clara e coherente en mó
 
 ## Deseño de Base de Datos
 
-Diagrama ER en formato Mermaid (almacenado no cartafol de imaxes/documentación):
+Para maior comodidade especifícase en texto en vez en de diagramas.
 
-![Diagrama da base de datos](../img/diagrama_bd.png)
+### Modelo Entidade - Relación
 
-- [Diagrama da base de datos](../img/diagrama_bd.png)
+#### 1. Entidades e atributos
 
+**usuarios**
+- `id_usuario` (PK)
+- `nome`
+- `email` (UNIQUE)
+- `contrasinal` (hash)
+- `enderezo` (para o envío)
+- `rol` (cliente/admin)
+
+**produtos**
+- `id_produto` (PK)
+- `nome`
+- `descripcion`
+- `prezo`
+- `stock`
+- `categoria` (atributo de texto para filtrar)
+- `imaxe_url`
+
+**pedidos**
+- `id_pedido` (PK)
+- `id_usuario` (FK → usuarios)
+- `data_pedido`
+- `total`
+- `estado` (pendente/enviado)
+
+**pedido_liñas**
+- `id_lina` (PK)
+- `id_pedido` (FK → pedidos)
+- `id_produto` (FK → produtos)
+- `cantidade`
+- `prezo_unitario` (para conxelar o prezo da venda)
+
+#### 2. Relacións e cardinalidades
+
+- **Usuarios (1) — (N) Pedidos**: Un usuario pode realizar moitos pedidos; un pedido pertence a un só usuario.
+- **Pedidos (1) — (N) Pedido_liñas**: Un pedido divídese en varias liñas de detalle.
+- **Produtos (1) — (N) Pedido_liñas**: Un produto pode aparecer en moitas liñas de diferentes pedidos.
+
+#### 3. Modelo relacional
+
+```
+usuarios (id_usuario, nome, email, contrasinal, enderezo, rol)
+
+produtos (id_produto, nome, descripcion, prezo, stock, categoria, imaxe_url)
+
+pedidos (id_pedido, id_usuario, data_pedido, total, estado)
+    FK: id_usuario → usuarios
+
+pedido_liñas (id_lina, id_pedido, id_produto, cantidade, prezo_unitario)
+    FK: id_pedido → pedidos
+    FK: id_produto → produtos
+```
