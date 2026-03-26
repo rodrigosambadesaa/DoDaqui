@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoDaqui - Checkout</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Página dedicada al flujo de pago, separada del home para cumplir el requisito del prototipo. -->
+    <div class="site-shell">
+        <header class="topbar">
+            <div class="brand">DoDaqui</div>
+            <nav class="desktop-nav">
+                <a href="index.html">Inicio</a>
+                <a href="productos-frescos.html">Productos frescos</a>
+                <a href="artesania.html">Artesanía</a>
+                <a href="especialidades-locales.html">Especialidades locales</a>
+                <a href="bebidas.html">Bebidas</a>
+            </nav>
+            <div class="top-actions">
+                <span class="signin-state" id="signin-state">Iniciar sesión</span>
+                <button type="button" class="btn-light hidden" id="logout-button">Cerrar sesión</button>
+                <button type="button" class="btn-light" id="go-home">Volver a tienda</button>
+            </div>
+        </header>
+
+        <section class="mobile-checkout checkout-page checkout-visible">
+            <div class="phone-frame">
+                <div class="mobile-topbar">
+                    <strong>DoDaqui</strong>
+                    <span>Carrito</span>
+                    <span>Pago seguro</span>
+                </div>
+
+                <div class="checkout-layout">
+                    <section class="checkout-items">
+                        <p class="breadcrumbs">Carrito > Envío > Pago</p>
+                        <h2>Tu carrito (<span id="mobile-cart-count">0</span>)</h2>
+                        <ul id="mobile-cart-items" class="mobile-items"></ul>
+
+                        <div class="payment-block">
+                            <h3>Método de pago</h3>
+                            <label class="pay-option active" data-method="card">
+                                <input type="radio" name="payment-method" value="card" checked>
+                                <span>Tarjeta</span>
+                            </label>
+                            <label class="pay-option" data-method="pix">
+                                <input type="radio" name="payment-method" value="pix">
+                                <span>Pix</span>
+                            </label>
+                            <label class="pay-option" data-method="boleto">
+                                <input type="radio" name="payment-method" value="boleto">
+                                <span>Boleto Bancario</span>
+                            </label>
+
+                            <div class="payment-fields" id="card-fields">
+                                <input id="cardholder-name" type="text" placeholder="Titular de la tarjeta">
+                                <input id="card-number" type="text" inputmode="numeric" placeholder="Número de tarjeta (16 dígitos)">
+                                <div class="payment-row">
+                                    <input id="card-expiry" type="text" placeholder="MM/AA">
+                                    <input id="card-cvv" type="text" inputmode="numeric" placeholder="CVV">
+                                </div>
+                            </div>
+
+                            <div class="payment-fields payment-hidden" id="pix-fields">
+                                <input id="pix-email" type="email" placeholder="Email para confirmación Pix">
+                            </div>
+
+                            <div class="payment-fields payment-hidden" id="boleto-fields">
+                                <input id="boleto-id" type="text" placeholder="DNI/NIF para boleto">
+                            </div>
+
+                            <small class="gateway-note">Pasarela de prueba: para simular fallo en tarjeta usa 4000000000000002.</small>
+                        </div>
+                    </section>
+
+                    <aside class="order-summary">
+                        <h3>Resumen del pedido</h3>
+                        <p>Subtotal <strong id="mobile-subtotal">0.00 EUR</strong></p>
+                        <p>Envío <strong>0.00 EUR</strong></p>
+                        <p>Impuestos locales <strong>Incl.</strong></p>
+                        <hr>
+                        <p class="summary-total">Total <strong id="mobile-total">0.00 EUR</strong></p>
+                        <button id="mobile-confirm-order" class="btn-dark full">Confirmar</button>
+                        <small>Pago seguro cifrado SSL</small>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <div class="api-debug">API backend: <span id="api-url"></span></div>
+    </div>
+
+    <script src="/config.js"></script>
+    <script src="checkout.js"></script>
+</body>
+
+</html>

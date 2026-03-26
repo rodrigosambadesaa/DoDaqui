@@ -1,0 +1,61 @@
+services:
+  db:
+    build:
+      # Imagen custom de MySQL con init.sql embebido (sin bind mount del host).
+      context: ./docker/mysql
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # Variables parametrizables por entorno, con defaults seguros para aula.
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-tenda_dodaqui}
+      MYSQL_USER: ${MYSQL_USER:-tenda_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-tenda_pass}
+    volumes:
+      # Volumen persistente independiente del modo normal.
+      - mysql_data_restricted:/var/lib/mysql
+    healthcheck:
+      # Comprobación activa para que backend no arranque antes de tiempo.
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # El backend recibe credenciales por variables para desacoplar del archivo SQL.
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${MYSQL_DATABASE:-tenda_dodaqui}
+      DB_USERNAME: ${MYSQL_USER:-tenda_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-tenda_pass}
+    depends_on:
+      db:
+        # Arranca solo cuando el healthcheck de MySQL está en verde.
+        condition: service_healthy
+    ports:
+      # Puerto configurable para evitar colisiones en equipos compartidos.
+      - "${BACKEND_PORT:-8080}:80"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # URL API construida en función del puerto externo elegido para backend.
+      API_BASE_URL: http://localhost:${BACKEND_PORT:-8080}/api
+      PORT: 3000
+    depends_on:
+      - backend
+    ports:
+      # Puerto configurable para entorno de instituto.
+      - "${FRONTEND_PORT:-3000}:3000"
+
+volumes:
+  # Volumen persistente dedicado para modo restringido.
+  mysql_data_restricted:

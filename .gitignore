@@ -1,0 +1,36 @@
+# Documentos de planificacion interna
+/doc/planificacion_gitlab_prototipos.md
+/doc/diseno_base_datos.md
+/doc/img/diagrama_bd.mmd
+
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Dependencias
+frontend/node_modules/
+backend/vendor/
+
+# Logs y temporales
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tmp
+*.temp
+
+# Cobertura / build
+coverage/
+dist/
+build/
+
+# IDE / sistema operativo
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docker overrides locales
+docker-compose.override.yml
