@@ -17,7 +17,6 @@ declare(strict_types=1);
     <main>
         <h1>Base PHP lista para empezar</h1>
         <p>Este contenedor sirve archivos PHP desde backend/public.</p>
-        <p>Puedes crear nuevas páginas .php y enlazar tus scripts en el head o antes del cierre de body.</p>
     </main>
 
     <!-- Ejemplo para scripts al final del body. -->

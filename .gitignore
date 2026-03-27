@@ -3,6 +3,7 @@
 /doc/diseno_base_datos.md
 /doc/img/diagrama_bd.mmd
 /doc/instalacion_contorna_desenvolvemento.md
+/doc/configuracion_basica_docker.md
 
 # Entorno y secretos
 .env

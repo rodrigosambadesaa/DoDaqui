@@ -1,2 +1,0 @@
--- Base intencionadamente vacía.
--- Añade aquí tus tablas iniciales si quieres preconfigurar el entorno.
