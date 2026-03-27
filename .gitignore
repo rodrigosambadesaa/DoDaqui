@@ -2,6 +2,7 @@
 /doc/planificacion_gitlab_prototipos.md
 /doc/diseno_base_datos.md
 /doc/img/diagrama_bd.mmd
+/doc/instalacion_contorna_desenvolvemento.md
 
 # Entorno y secretos
 .env
