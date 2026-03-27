@@ -17,23 +17,33 @@ En principio, a aplicación estará publicada no dominio `rodrigosambade.gal`. A
 
 ### Requirimentos funcionais
 
-1. **Rexistro de usuario**  
+1. **Rexistro de usuario**
+Non é preciso ter iniciada sesión previamente  
 
 2. **Inicio e peche de sesión**  
+Non é preciso ter iniciada sesión previamente para o inicio de sesión, si para o peche
 
 3. **Consulta do catálogo de produtos**  
+Non é preciso ter iniciada sesión previamente  
 
-4. **Filtrado e busca de produtos**  
+4. **Filtrado e busca de produtos**
+Non é preciso ter iniciada sesión previamente  
 
 5. **Visualización do detalle de produto**  
+Non é preciso ter iniciada sesión previamente  
 
-6. **Xestión do carriño da compra**  
+6. **Xestión do carriño da compra**
+É preciso ter iniciada sesión previamente  
 
-7. **Realización de pedido**  
+7. **Realización de pedido**
+É preciso ter iniciada sesión previamente  
 
-8. **Consulta do historial de pedidos**  
+8. **Consulta do historial de pedidos**
+É preciso ter iniciada sesión previamente  
 
-9. **Xestión do perfil de usuario**  
+9. **Xestión do perfil de usuario**
+É preciso ter iniciada sesión previamente  
+
 ---
 
 ### Requirimentos non funcionais

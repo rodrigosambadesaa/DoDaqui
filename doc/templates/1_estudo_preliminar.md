@@ -31,7 +31,7 @@ A aplicación contará, como mínimo, coas seguintes funcionalidades:
 - Navegación polo catálogo de produtos.
 - Filtrado de produtos por categoría, prezo ou produtor.
 - Visualización do detalle dun produto (descrición, prezo, orixe, produtor).
-- Xestión do carriño da compra.
+- Xestión do carriño da compra. Por exemplo, engadir outro kg de tomates.
 - Realización de pedidos.
 - Consulta do historial de pedidos.
 - Xestión do perfil de usuario.
