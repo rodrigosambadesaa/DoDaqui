@@ -1,5 +1,7 @@
 # Planificación
 
+- [Ver ficheiro de planificación e orzamento](../planificacion_orzamento.xlsx)
+
 ## Metodoloxía prevista
 
 ## Fases planificadas
