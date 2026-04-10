@@ -60,7 +60,7 @@ $user = currentUser();
                     <section class="catalog" id="catalogo-destacados">
                         <div class="catalog-head">
                             <h3 style="font-size: 20px; font-weight: 750;">Productos destacados</h3>
-                            <a href="#catalogo-destacados" class="muted-xs" id="ver-todo-productos">Ver todo</a>
+                            <a href="products.php" class="muted-xs" id="ver-todo-productos">Ver todo</a>
                         </div>
                         <div class="catalog-grid">
                             <article class="product-card" data-name="Tarro de miel ecológica" data-origin="Granja Abeja Feliz" data-price="12.50" data-summary="Miel cruda de producción local, sin mezclas industriales y con cosecha de temporada.">

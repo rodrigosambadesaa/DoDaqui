@@ -87,9 +87,15 @@ function wireProductInlineDetails() {
 
 function wireViewAll() {
     const link = document.getElementById('ver-todo-productos');
-    const section = document.getElementById('catalogo-destacados');
+    if (!link) return;
 
-    if (!link || !section) return;
+    // Si enlaza a otra página, se deja navegación normal.
+    if (!link.getAttribute('href') || !link.getAttribute('href').startsWith('#')) {
+        return;
+    }
+
+    const section = document.querySelector(link.getAttribute('href'));
+    if (!section) return;
 
     link.addEventListener('click', (event) => {
         event.preventDefault();
