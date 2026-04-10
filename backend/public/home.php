@@ -7,11 +7,22 @@ require_once __DIR__ . '/bootstrap.php';
 
 $user = currentUser();
 ?>
+<!DOCTYPE html>
+<html lang="gl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoDaqui | Storefront</title>
+    <link rel="stylesheet" href="assets/styles.css">
+</head>
+
+<body>
     <div class="page-wrap">
         <div class="main-grid">
             <div class="desktop-shell">
                 <header class="top-nav">
-                    <a class="brand" href="home.php">DoDaquí</a>
+                    <a class="brand" href="home.php">DoDaqui</a>
                     <nav class="nav-links desktop-only">
                         <a href="#">Fresh Produce</a>
                         <a href="#">Artisan Goods</a>
@@ -80,17 +91,17 @@ $user = currentUser();
 
                     <section class="benefits">
                         <article class="benefit">
-                            <p>🚚</p>
+                            <p>Delivery</p>
                             <h4>Local Delivery</h4>
                             <p>Fast and eco-friendly delivery inside your community limits.</p>
                         </article>
                         <article class="benefit">
-                            <p>🌿</p>
+                            <p>Green</p>
                             <h4>Sustainable Sourcing</h4>
                             <p>Reducing carbon footprint by connecting you to nearby producers.</p>
                         </article>
                         <article class="benefit">
-                            <p>❤</p>
+                            <p>Care</p>
                             <h4>Support Neighbors</h4>
                             <p>Every purchase directly supports small businesses in your area.</p>
                         </article>
@@ -98,7 +109,7 @@ $user = currentUser();
 
                     <section class="footer-grid">
                         <div>
-                            <h4>DoDaquí</h4>
+                            <h4>DoDaqui</h4>
                             <p>The premier marketplace for local treasures, bringing your community best products right to your doorstep.</p>
                         </div>
                         <div>
@@ -106,7 +117,7 @@ $user = currentUser();
                             <ul>
                                 <li>All Products</li>
                                 <li>Fresh Food</li>
-                                <li>Home & Living</li>
+                                <li>Home and Living</li>
                                 <li>Gift Cards</li>
                             </ul>
                         </div>
@@ -134,9 +145,9 @@ $user = currentUser();
             <aside class="phone-shell">
                 <div class="phone-screen">
                     <div class="phone-top">
-                        <span>☰</span>
+                        <span>Menu</span>
                         <strong>NEXUS</strong>
-                        <span>👜</span>
+                        <span>Bag</span>
                     </div>
                     <div style="padding: 8px 4px 10px;">
                         <h3 style="font-size: 34px; line-height: 1.03; margin-bottom: 8px;">Future of Tech.</h3>
@@ -169,14 +180,6 @@ $user = currentUser();
     </div>
 
     <script src="assets/app.js" defer></script>
-            </div>
-        </div>
+</body>
 
-        <div class="footer-bottom">
-            <p>&copy; 2024 DoDaquí. All rights reserved.</p>
-            <div class="footer-links">
-                <a href="#privacy">Privacy Policy</a>
-                <a href="#terms">Terms of Service</a>
-            </div>
-        </div>
-    </footer>
+</html>
