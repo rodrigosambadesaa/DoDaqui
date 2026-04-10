@@ -29,6 +29,24 @@ docker compose -f docker-compose.restricted.yml up --build
 - web: PHP 8.2 + Apache en http://localhost:8080
 - db: MySQL 8.0 en localhost:3306
 
+## Acceso á aplicación
+
+- Portada da tenda: `http://localhost:8080`
+- Acceso e rexistro: `http://localhost:8080/auth.php`
+
+Usuario de proba (sempre dispoñible):
+
+- Correo: `demo@tenda.gal`
+- Contrasinal: `Demo1234!`
+
+Requisitos de contrasinal para rexistro:
+
+- Mínimo 10 caracteres.
+- Polo menos unha maiúscula.
+- Polo menos unha minúscula.
+- Polo menos un número.
+- Polo menos un símbolo.
+
 Podes cambiar os portos temporalmente:
 
 ```bash

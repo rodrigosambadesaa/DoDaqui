@@ -1,32 +1,28 @@
 # URL da páxina web
 
-- Frontend: `http://localhost:3000`
-- Backend (API): `http://localhost:8080/api`
-- Estado API: `http://localhost:8080/api/health`
+- Tenda web: `http://localhost:8080`
+- Login e rexistro: `http://localhost:8080/auth.php`
 
 # Deseño dos prototipos 
 
 ## Prototipo 1
 ### Data de entrega: 16/03/2026
 ### Funcionalidades implementadas:
-- RF-01 Rexistro de usuario (`POST /api/register`).
-- RF-02 Inicio de sesion (`POST /api/login`).
-- RF-03 Consulta do catalogo (`GET /api/products`).
-- RF-05 Detalle de produto (`GET /api/products/{id}`).
-- RF-06 Xestion basica do carriño (`GET /api/cart`, `POST /api/cart/items`, `DELETE /api/cart/items`).
-- RF-07 Realizacion de pedido (`POST /api/orders`).
-- RF-15 Integracion frontend-backend mediante API REST.
+- RF-01 Rexistro de usuario con validación forte de contrasinal.
+- RF-02 Inicio e peche de sesión.
+- RF-03 Consulta visual de catálogo na portada.
+- RF-05 Vista de detalle resumida de produtos no layout.
+- RF-06 Base de xestión de carriño para fluxo a checkout.
 
 ### Observacións:
-- Arquitectura completamente separada entre frontend e backend.
-- Todo o contorno esta dockerizado e arranca cun so comando: `docker compose up --build`.
-- Base de datos SQL (MySQL 8) inicializada automaticamente con `docker/mysql/init.sql`.
-- Credenciais de proba para avaliacion: `demo@tenda.gal` / `demo123`.
-- Tamén se permite rexistro de usuario novo desde a interface.
+- Todo o contorno está dockerizado e arranca cun só comando: `docker compose up --build`.
+- A base de datos SQL inicialízase automaticamente con `docker/mysql/init.sql`.
+- Usuario de proba permanente para avaliación: `demo@tenda.gal` / `Demo1234!`.
+- O rexistro esixe contrasinal forte: 10+ caracteres, maiúscula, minúscula, número e símbolo.
 
 ### Innovación:
-- Contorno reproducible en calquera equipo con Docker sen instalacion manual de dependencias.
-- Estrutura preparada para evolucion por prototipos mantendo desacoplamento entre capas.
+- Contorno reproducible en calquera equipo con Docker sen instalación manual de dependencias.
+- Interface visual de tenda aliñada co mockup e preparada para evolución por prototipos.
 
 ## Prototipo 2
 ### Data de entrega: 
