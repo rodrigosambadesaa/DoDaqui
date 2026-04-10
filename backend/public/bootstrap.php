@@ -98,5 +98,5 @@ function validateStrongPassword(string $password): array
 
 function formatoEuro(float $importe): string
 {
-    return number_format($importe, 2, ',', '.') . ' EUR';
+    return number_format($importe, 2, ',', '.') . ' €';
 }
