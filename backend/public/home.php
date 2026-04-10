@@ -141,41 +141,6 @@ $user = currentUser();
                     </section>
                 </main>
             </div>
-
-            <aside class="phone-shell">
-                <div class="phone-screen">
-                    <div class="phone-top">
-                        <span>Menu</span>
-                        <strong>NEXUS</strong>
-                        <span>Bag</span>
-                    </div>
-                    <div style="padding: 8px 4px 10px;">
-                        <h3 style="font-size: 34px; line-height: 1.03; margin-bottom: 8px;">Future of Tech.</h3>
-                        <p class="muted-xs" style="margin-bottom: 10px;">Experience the next generation of mobile computing and productivity tools.</p>
-                        <button class="btn btn-light" style="font-size: 10px; padding: 6px 10px;">Shop Collection</button>
-                    </div>
-                    <div style="height: 96px;" class="placeholder"></div>
-
-                    <h4 class="phone-section-title">Featured Categories</h4>
-                    <div class="phone-card-grid">
-                        <div class="phone-mini-card">Phones</div>
-                        <div class="phone-mini-card">Laptops</div>
-                        <div class="phone-mini-card">Audio</div>
-                        <div class="phone-mini-card">Watches</div>
-                    </div>
-
-                    <h4 class="phone-section-title">New Arrivals</h4>
-                    <div class="phone-list">
-                        <div class="phone-list-item"><div class="phone-thumb"></div><div><strong style="font-size: 10px;">Nexus Pro 14</strong><p class="muted-xs">$1,299.00</p></div></div>
-                        <div class="phone-list-item"><div class="phone-thumb"></div><div><strong style="font-size: 10px;">Sonic Buds X</strong><p class="muted-xs">$199.00</p></div></div>
-                    </div>
-
-                    <div class="mini-footer">
-                        <strong>NEXUS</strong>
-                        <p class="muted-xs">2026 Nexus Tech. All rights reserved.</p>
-                    </div>
-                </div>
-            </aside>
         </div>
     </div>
 
