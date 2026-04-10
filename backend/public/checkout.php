@@ -31,7 +31,42 @@ $total = $subtotal + $tax;
 </head>
 
 <body>
-    <div class="checkout-wrap" style="grid-template-columns: 1fr;">
+    <div class="checkout-wrap">
+        <aside class="checkout-side">
+            <header class="top-nav" style="height: 44px; border: none; padding: 0; background: transparent; margin-bottom: 8px;">
+                <a class="brand" href="home.php">DoDaqui</a>
+                <div class="nav-grow"></div>
+                <span class="muted-xs">Marketplace</span>
+            </header>
+
+            <h3 style="font-size: 24px; margin-bottom: 10px;">Your Shopping Cart (<?php echo count($cart); ?>)</h3>
+
+            <?php if (count($cart) > 0): ?>
+                <?php foreach ($cart as $item): ?>
+                    <div class="box" style="display: grid; grid-template-columns: 38px 1fr auto; gap: 8px; align-items: center;">
+                        <div class="placeholder" style="height: 36px;"></div>
+                        <div>
+                            <strong style="font-size: 11px;"><?php echo htmlspecialchars($item['name'] ?? 'Product', ENT_QUOTES, 'UTF-8'); ?></strong>
+                            <p class="muted-xs">Qty <?php echo (int) ($item['quantity'] ?? 1); ?></p>
+                        </div>
+                        <span style="font-size: 11px;">$<?php echo number_format((float) ($item['price'] ?? 0), 2); ?></span>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="box">
+                    <p class="muted-xs">No items in cart. The panel keeps the same visual structure as the mobile checkout mock.</p>
+                </div>
+            <?php endif; ?>
+
+            <div class="box">
+                <h4 style="font-size: 13px; margin-bottom: 8px;">Payment Method</h4>
+                <div class="radio-row"><span>Credit Card</span><span>◉</span></div>
+                <div class="radio-row alt"><span>Pix</span><span>◌</span></div>
+                <div class="radio-row alt" style="margin-bottom: 0;"><span>Bank Slip</span><span>◌</span></div>
+                <button class="btn btn-dark" style="width: 100%; margin-top: 10px;">Confirm</button>
+            </div>
+        </aside>
+
         <main class="checkout-main">
             <div class="stepbar">
                 <span>Cart</span>
