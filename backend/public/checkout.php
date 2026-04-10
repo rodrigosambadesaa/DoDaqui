@@ -28,7 +28,7 @@ if ($user === null) {
     <nav class="navbar">
         <div class="navbar-container">
             <div class="navbar-brand">
-                <a href="home.php" class="logo" style="text-decoration: none;">DoDaquí</a>
+                <a href="home.php" class="logo" style="text-decoration: none; color: var(--primary);">DoDaquí</a>
             </div>
             <div class="navbar-menu">
                 <a href="home.php#featured" class="nav-link">Featured</a>
