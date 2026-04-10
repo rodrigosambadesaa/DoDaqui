@@ -98,3 +98,9 @@ docker compose -f docker-compose.restricted.yml up --build
 4. [Planificación e Orzamento](doc/templates/a3_orzamento.md)
 5. [Codificación e Probas](doc/templates/4_codificacion_probas.md)
 6. [Futuro e comercialización](doc/templates/5_manuais.md)
+
+## Despregamento en Internet
+
+- Plataforma seleccionada para este proxecto: **DigitalOcean App Platform**.
+- Especificación da app: `.do/app.yaml`.
+- Guía paso a paso: [doc/despregamento_digitalocean.md](doc/despregamento_digitalocean.md).
