@@ -48,15 +48,16 @@ $user = currentUser();
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
+            <span class="hero-badge">DIRECTLY FROM THE SOURCE</span>
             <h2>Support Local Craftsmen & Farmers</h2>
             <p>Discover unique products made right in your neighborhood. Quality you can trust, people you know.</p>
             <div class="hero-actions">
-                <a href="#products" class="btn btn-primary btn-lg">Shop Now</a>
+                <a href="#featured" class="btn btn-primary btn-lg">Shop Now</a>
                 <a href="#about" class="btn btn-secondary btn-lg">Learn More</a>
             </div>
         </div>
         <div class="hero-image">
-            <div class="placeholder-img"></div>
+            <div class="placeholder-img hero-img-large"></div>
         </div>
     </section>
 
@@ -64,8 +65,11 @@ $user = currentUser();
     <section id="featured" class="featured-section">
         <div class="container">
             <div class="section-header">
-                <h2>Featured Products</h2>
-                <a href="#products" class="view-all">View all</a>
+                <div>
+                    <h2>Featured Products</h2>
+                    <p style="color: var(--text-light); margin-top: 8px;">Handpicked items from local artisans and farmers</p>
+                </div>
+                <a href="#products" class="view-all">View all →</a>
             </div>
             <div class="products-grid">
                 <article class="product-card">
