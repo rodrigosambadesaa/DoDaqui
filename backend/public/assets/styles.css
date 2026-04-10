@@ -594,32 +594,41 @@ body {
 }
 
 .payment-options {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .payment-option {
-    flex: 1;
+    position: relative;
 }
 
 .payment-option input[type="radio"] {
-    display: none;
+    position: absolute;
+    opacity: 0;
 }
 
 .payment-option label {
     display: block;
-    padding: 16px;
+    padding: 24px 16px;
     border: 2px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 12px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
+    background-color: white;
 }
 
 .payment-option input[type="radio"]:checked + label {
     border-color: var(--secondary);
-    background-color: rgba(192, 160, 128, 0.05);
+    background-color: rgba(192, 160, 128, 0.08);
+    box-shadow: 0 4px 12px rgba(192, 160, 128, 0.15);
+    transform: translateY(-2px);
+}
+
+.payment-option label:hover {
+    border-color: var(--secondary-light);
 }
 
 .order-summary {
