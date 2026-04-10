@@ -57,35 +57,82 @@ $user = currentUser();
                         <div class="hero-image placeholder"></div>
                     </section>
 
-                    <section class="catalog">
+                    <section class="catalog" id="catalogo-destacados">
                         <div class="catalog-head">
                             <h3 style="font-size: 20px; font-weight: 750;">Productos destacados</h3>
-                            <a href="#" class="muted-xs">Ver todo</a>
+                            <a href="#catalogo-destacados" class="muted-xs" id="ver-todo-productos">Ver todo</a>
                         </div>
                         <div class="catalog-grid">
-                            <article class="product-card">
+                            <article class="product-card" data-name="Tarro de miel ecológica" data-origin="Granja Abeja Feliz" data-price="12.50" data-summary="Miel cruda de producción local, sin mezclas industriales y con cosecha de temporada.">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name">Tarro de miel ecológica</p>
                                 <p class="product-meta">Granja Abeja Feliz</p>
-                                <div class="product-row"><span>$12.50</span><button class="plus-btn add-cart">+</button></div>
+                                <div class="product-row">
+                                    <span>$12.50</span>
+                                    <div class="product-row-actions">
+                                        <button class="plus-btn view-product" type="button">Ver</button>
+                                        <button class="plus-btn add-cart" type="button">+</button>
+                                    </div>
+                                </div>
+                                <div class="product-detail-inline" hidden>
+                                    <p class="detail-meta">Origen: Granja Abeja Feliz</p>
+                                    <p class="detail-meta">Precio: $12.50</p>
+                                    <p class="detail-summary">Miel cruda de producción local, sin mezclas industriales y con cosecha de temporada.</p>
+                                </div>
                             </article>
-                            <article class="product-card">
+
+                            <article class="product-card" data-name="Cesta de mimbre artesanal" data-origin="Colectivo Artesano" data-price="45.00" data-summary="Pieza trenzada a mano con fibras naturales, ideal para almacenaje y decoración.">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name">Cesta de mimbre artesanal</p>
                                 <p class="product-meta">Colectivo Artesano</p>
-                                <div class="product-row"><span>$45.00</span><button class="plus-btn add-cart">+</button></div>
+                                <div class="product-row">
+                                    <span>$45.00</span>
+                                    <div class="product-row-actions">
+                                        <button class="plus-btn view-product" type="button">Ver</button>
+                                        <button class="plus-btn add-cart" type="button">+</button>
+                                    </div>
+                                </div>
+                                <div class="product-detail-inline" hidden>
+                                    <p class="detail-meta">Origen: Colectivo Artesano</p>
+                                    <p class="detail-meta">Precio: $45.00</p>
+                                    <p class="detail-summary">Pieza trenzada a mano con fibras naturales, ideal para almacenaje y decoración.</p>
+                                </div>
                             </article>
-                            <article class="product-card">
+
+                            <article class="product-card" data-name="Aceite de oliva prensado en frío" data-origin="Valle del Sol" data-price="18.00" data-summary="Aceite virgen extra de primera prensada, con perfil afrutado y acidez baja.">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name">Aceite de oliva prensado en frío</p>
                                 <p class="product-meta">Valle del Sol</p>
-                                <div class="product-row"><span>$18.00</span><button class="plus-btn add-cart">+</button></div>
+                                <div class="product-row">
+                                    <span>$18.00</span>
+                                    <div class="product-row-actions">
+                                        <button class="plus-btn view-product" type="button">Ver</button>
+                                        <button class="plus-btn add-cart" type="button">+</button>
+                                    </div>
+                                </div>
+                                <div class="product-detail-inline" hidden>
+                                    <p class="detail-meta">Origen: Valle del Sol</p>
+                                    <p class="detail-meta">Precio: $18.00</p>
+                                    <p class="detail-summary">Aceite virgen extra de primera prensada, con perfil afrutado y acidez baja.</p>
+                                </div>
                             </article>
-                            <article class="product-card">
+
+                            <article class="product-card" data-name="Pan de masa madre" data-origin="Panadería Local" data-price="6.50" data-summary="Pan de fermentación lenta, corteza crujiente y miga alveolada elaborado cada mañana.">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name">Pan de masa madre</p>
                                 <p class="product-meta">Panadería Local</p>
-                                <div class="product-row"><span>$6.50</span><button class="plus-btn add-cart">+</button></div>
+                                <div class="product-row">
+                                    <span>$6.50</span>
+                                    <div class="product-row-actions">
+                                        <button class="plus-btn view-product" type="button">Ver</button>
+                                        <button class="plus-btn add-cart" type="button">+</button>
+                                    </div>
+                                </div>
+                                <div class="product-detail-inline" hidden>
+                                    <p class="detail-meta">Origen: Panadería Local</p>
+                                    <p class="detail-meta">Precio: $6.50</p>
+                                    <p class="detail-summary">Pan de fermentación lenta, corteza crujiente y miga alveolada elaborado cada mañana.</p>
+                                </div>
                             </article>
                         </div>
                     </section>

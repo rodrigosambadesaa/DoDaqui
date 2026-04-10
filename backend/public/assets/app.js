@@ -1,24 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     wireCartCount();
     wirePlusButtons();
+    wireProductInlineDetails();
+    wireViewAll();
     wireCheckoutBits();
 });
 
-function getCart() {
-    return JSON.parse(localStorage.getItem('cart') || '[]');
-}
-
-function setCart(cart) {
-    localStorage.setItem('cart', JSON.stringify(cart));
-    localStorage.setItem('cartCount', String(cart.length));
-}
-
-function wireCartCount() {
+async function wireCartCount() {
     const counter = document.getElementById('cart-count');
     if (!counter) return;
 
-    const count = Number(localStorage.getItem('cartCount') || '0');
-    counter.textContent = String(count);
+    try {
+        const response = await fetch('cart_api.php?action=count');
+        const data = await response.json();
+        counter.textContent = String(data.count ?? 0);
+    } catch (error) {
+        counter.textContent = '0';
+    }
 }
 
 function wirePlusButtons() {
@@ -35,24 +33,67 @@ function wirePlusButtons() {
             const price = Number(priceText.replace('$', '')) || 0;
             const id = `product-${index + 1}`;
 
-            const cart = getCart();
-            const existing = cart.find((item) => item.id === id);
-
-            if (existing) {
-                existing.quantity += 1;
-            } else {
-                cart.push({
+            fetch('cart_api.php?action=add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
                     id,
-                    name: nameEl ? nameEl.textContent : 'Product',
+                    name: nameEl ? nameEl.textContent : 'Producto',
                     price,
-                    quantity: 1,
+                }),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.ok) {
+                        wireCartCount();
+                        flashButton(button);
+                    }
+                })
+                .catch(() => {
+                    flashButton(button);
                 });
-            }
-
-            setCart(cart);
-            wireCartCount();
-            flashButton(button);
         });
+    });
+}
+
+function wireProductInlineDetails() {
+    const cards = document.querySelectorAll('.product-card');
+    if (!cards.length) return;
+
+    cards.forEach((card) => {
+        const trigger = card.querySelector('.view-product');
+        const detail = card.querySelector('.product-detail-inline');
+        if (!trigger || !detail) return;
+
+        trigger.addEventListener('click', () => {
+            const isOpen = !detail.hasAttribute('hidden');
+
+            cards.forEach((candidate) => {
+                const section = candidate.querySelector('.product-detail-inline');
+                if (!section) return;
+                section.setAttribute('hidden', 'hidden');
+                candidate.classList.remove('is-expanded');
+            });
+
+            if (!isOpen) {
+                detail.removeAttribute('hidden');
+                card.classList.add('is-expanded');
+            }
+        });
+    });
+}
+
+function wireViewAll() {
+    const link = document.getElementById('ver-todo-productos');
+    const section = document.getElementById('catalogo-destacados');
+
+    if (!link || !section) return;
+
+    link.addEventListener('click', (event) => {
+        event.preventDefault();
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 }
 
@@ -87,9 +128,10 @@ function wireCheckoutBits() {
             completeBtn.textContent = 'Processing...';
             completeBtn.disabled = true;
             setTimeout(() => {
-                localStorage.removeItem('cart');
-                localStorage.setItem('cartCount', '0');
-                window.location.href = 'home.php';
+                fetch('cart_api.php?action=clear', { method: 'POST' })
+                    .finally(() => {
+                        window.location.href = 'home.php';
+                    });
             }, 900);
         });
     }
