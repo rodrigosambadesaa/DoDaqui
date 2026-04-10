@@ -460,6 +460,11 @@ a {
     margin: 16px auto;
 }
 
+.checkout-wrap.checkout-single {
+    grid-template-columns: minmax(0, 1fr);
+    width: min(980px, 96%);
+}
+
 .checkout-side,
 .checkout-main {
     border: 1px solid var(--line);
@@ -476,6 +481,10 @@ a {
 .checkout-main {
     padding: 14px 14px 18px;
     background: #f6f8fa;
+}
+
+.checkout-main-full {
+    min-height: 640px;
 }
 
 .stepbar {

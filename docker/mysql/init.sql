@@ -32,3 +32,34 @@ CREATE TABLE IF NOT EXISTS carrito_items (
 		FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 		ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS pedidos (
+	id_pedido INT AUTO_INCREMENT PRIMARY KEY,
+	id_usuario INT NOT NULL,
+	estado_pedido VARCHAR(32) NOT NULL DEFAULT 'confirmado',
+	metodo_pagamento VARCHAR(24) NOT NULL,
+	importe_subtotal DECIMAL(10,2) NOT NULL,
+	importe_ive DECIMAL(10,2) NOT NULL,
+	importe_total DECIMAL(10,2) NOT NULL,
+	nome_facturacion VARCHAR(120) NOT NULL,
+	enderezo_facturacion VARCHAR(200) NOT NULL,
+	cidade_facturacion VARCHAR(120) NOT NULL,
+	codigo_postal_facturacion VARCHAR(20) NOT NULL,
+	pais_facturacion VARCHAR(80) NOT NULL,
+	creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT fk_pedido_usuario
+		FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+		ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS pedido_linas (
+	id_lina INT AUTO_INCREMENT PRIMARY KEY,
+	id_pedido INT NOT NULL,
+	id_produto VARCHAR(80) NOT NULL,
+	nome_produto VARCHAR(150) NOT NULL,
+	prezo_unitario DECIMAL(10,2) NOT NULL,
+	cantidade INT NOT NULL,
+	CONSTRAINT fk_lina_pedido
+		FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido)
+		ON DELETE CASCADE
+);

@@ -122,23 +122,100 @@ function wireCheckoutBits() {
         });
     }
 
+    const form = document.getElementById('checkout-form');
+    const paymentRadios = document.querySelectorAll('input[name="metodo_pagamento"]');
+    const cardFields = document.getElementById('card-fields');
+    const paypalFields = document.getElementById('paypal-fields');
+
+    function syncPaymentUI() {
+        if (!form || paymentRadios.length === 0) return;
+
+        const selected = form.querySelector('input[name="metodo_pagamento"]:checked')?.value;
+        const cardInputs = cardFields ? cardFields.querySelectorAll('input') : [];
+        const paypalInputs = paypalFields ? paypalFields.querySelectorAll('input') : [];
+
+        const isCard = selected !== 'paypal';
+
+        if (cardFields) {
+            cardFields.hidden = !isCard;
+            cardInputs.forEach((input) => {
+                input.disabled = !isCard;
+                input.required = isCard;
+            });
+        }
+
+        if (paypalFields) {
+            paypalFields.hidden = isCard;
+            paypalInputs.forEach((input) => {
+                input.disabled = isCard;
+                input.required = !isCard;
+            });
+        }
+    }
+
+    if (paymentRadios.length > 0) {
+        paymentRadios.forEach((radio) => radio.addEventListener('change', syncPaymentUI));
+        syncPaymentUI();
+    }
+
+    const billingEditBtn = document.getElementById('billing-edit-btn');
+    const billingFields = document.getElementById('billing-fields');
+    if (billingEditBtn && billingFields) {
+        billingEditBtn.addEventListener('click', () => {
+            const hidden = billingFields.hasAttribute('hidden');
+            if (hidden) {
+                billingFields.removeAttribute('hidden');
+                billingEditBtn.textContent = 'Ocultar';
+            } else {
+                billingFields.setAttribute('hidden', 'hidden');
+                billingEditBtn.textContent = 'Editar';
+            }
+        });
+    }
+
     const completeBtn = document.getElementById('complete-btn');
     if (completeBtn) {
-        completeBtn.addEventListener('click', () => {
-            const form = document.getElementById('checkout-form');
+        completeBtn.addEventListener('click', async () => {
             if (form && !form.checkValidity()) {
                 form.reportValidity();
                 return;
             }
 
-            completeBtn.textContent = 'Processing...';
+            const payload = new URLSearchParams();
+            if (form) {
+                const data = new FormData(form);
+                for (const [key, value] of data.entries()) {
+                    payload.append(key, String(value));
+                }
+            }
+
+            payload.set('action', 'realizar_pedido');
+
+            completeBtn.textContent = 'Procesando...';
             completeBtn.disabled = true;
-            setTimeout(() => {
-                fetch('cart_api.php?action=clear', { method: 'POST' })
-                    .finally(() => {
-                        window.location.href = 'home.php';
-                    });
-            }, 900);
+
+            try {
+                const response = await fetch('checkout.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                        Accept: 'application/json',
+                    },
+                    body: payload.toString(),
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.ok) {
+                    throw new Error(data.message || 'No se pudo completar la compra.');
+                }
+
+                alert(`Pedido #${data.id_pedido} confirmado. Total: ${data.total}`);
+                window.location.href = 'home.php';
+            } catch (error) {
+                alert(error instanceof Error ? error.message : 'No se pudo completar la compra.');
+                completeBtn.textContent = 'Completar compra';
+                completeBtn.disabled = false;
+            }
         });
     }
 }
