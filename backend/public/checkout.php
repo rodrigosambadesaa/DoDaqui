@@ -152,8 +152,16 @@ $total = $subtotal + $tax;
 
                     <button id="complete-btn" class="btn btn-dark" style="width: 100%; margin-top: 12px;">Complete Purchase</button>
                     <button id="back-btn" class="btn btn-ghost" style="width: 100%; margin-top: 8px;">Back to Cart</button>
+
+                    <p class="security-note">Secure checkout · Buyer Protection included</p>
                 </aside>
             </div>
+
+            <footer class="checkout-footer-line">
+                <span>Terms</span>
+                <span>Privacy</span>
+                <span>Support</span>
+            </footer>
         </main>
     </div>
 

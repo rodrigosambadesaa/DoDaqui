@@ -158,6 +158,11 @@ $user = currentUser();
                         <div class="phone-list-item"><div class="phone-thumb"></div><div><strong style="font-size: 10px;">Nexus Pro 14</strong><p class="muted-xs">$1,299.00</p></div></div>
                         <div class="phone-list-item"><div class="phone-thumb"></div><div><strong style="font-size: 10px;">Sonic Buds X</strong><p class="muted-xs">$199.00</p></div></div>
                     </div>
+
+                    <div class="mini-footer">
+                        <strong>NEXUS</strong>
+                        <p class="muted-xs">2026 Nexus Tech. All rights reserved.</p>
+                    </div>
                 </div>
             </aside>
         </div>
