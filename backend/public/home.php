@@ -68,7 +68,7 @@ $user = currentUser();
                                 <p class="product-name">Tarro de miel ecológica</p>
                                 <p class="product-meta">Granja Abeja Feliz</p>
                                 <div class="product-row">
-                                    <span>$12.50</span>
+                                    <span><?php echo formatoEuro(12.5); ?></span>
                                     <div class="product-row-actions">
                                         <button class="plus-btn view-product" type="button">Ver</button>
                                         <button class="plus-btn add-cart" type="button">+</button>
@@ -76,7 +76,7 @@ $user = currentUser();
                                 </div>
                                 <div class="product-detail-inline" hidden>
                                     <p class="detail-meta">Origen: Granja Abeja Feliz</p>
-                                    <p class="detail-meta">Precio: $12.50</p>
+                                    <p class="detail-meta">Precio: <?php echo formatoEuro(12.5); ?></p>
                                     <p class="detail-summary">Miel cruda de producción local, sin mezclas industriales y con cosecha de temporada.</p>
                                 </div>
                             </article>
@@ -86,7 +86,7 @@ $user = currentUser();
                                 <p class="product-name">Cesta de mimbre artesanal</p>
                                 <p class="product-meta">Colectivo Artesano</p>
                                 <div class="product-row">
-                                    <span>$45.00</span>
+                                    <span><?php echo formatoEuro(45); ?></span>
                                     <div class="product-row-actions">
                                         <button class="plus-btn view-product" type="button">Ver</button>
                                         <button class="plus-btn add-cart" type="button">+</button>
@@ -94,7 +94,7 @@ $user = currentUser();
                                 </div>
                                 <div class="product-detail-inline" hidden>
                                     <p class="detail-meta">Origen: Colectivo Artesano</p>
-                                    <p class="detail-meta">Precio: $45.00</p>
+                                    <p class="detail-meta">Precio: <?php echo formatoEuro(45); ?></p>
                                     <p class="detail-summary">Pieza trenzada a mano con fibras naturales, ideal para almacenaje y decoración.</p>
                                 </div>
                             </article>
@@ -104,7 +104,7 @@ $user = currentUser();
                                 <p class="product-name">Aceite de oliva prensado en frío</p>
                                 <p class="product-meta">Valle del Sol</p>
                                 <div class="product-row">
-                                    <span>$18.00</span>
+                                    <span><?php echo formatoEuro(18); ?></span>
                                     <div class="product-row-actions">
                                         <button class="plus-btn view-product" type="button">Ver</button>
                                         <button class="plus-btn add-cart" type="button">+</button>
@@ -112,7 +112,7 @@ $user = currentUser();
                                 </div>
                                 <div class="product-detail-inline" hidden>
                                     <p class="detail-meta">Origen: Valle del Sol</p>
-                                    <p class="detail-meta">Precio: $18.00</p>
+                                    <p class="detail-meta">Precio: <?php echo formatoEuro(18); ?></p>
                                     <p class="detail-summary">Aceite virgen extra de primera prensada, con perfil afrutado y acidez baja.</p>
                                 </div>
                             </article>
@@ -122,7 +122,7 @@ $user = currentUser();
                                 <p class="product-name">Pan de masa madre</p>
                                 <p class="product-meta">Panadería Local</p>
                                 <div class="product-row">
-                                    <span>$6.50</span>
+                                    <span><?php echo formatoEuro(6.5); ?></span>
                                     <div class="product-row-actions">
                                         <button class="plus-btn view-product" type="button">Ver</button>
                                         <button class="plus-btn add-cart" type="button">+</button>
@@ -130,7 +130,7 @@ $user = currentUser();
                                 </div>
                                 <div class="product-detail-inline" hidden>
                                     <p class="detail-meta">Origen: Panadería Local</p>
-                                    <p class="detail-meta">Precio: $6.50</p>
+                                    <p class="detail-meta">Precio: <?php echo formatoEuro(6.5); ?></p>
                                     <p class="detail-summary">Pan de fermentación lenta, corteza crujiente y miga alveolada elaborado cada mañana.</p>
                                 </div>
                             </article>

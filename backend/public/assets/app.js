@@ -29,8 +29,8 @@ function wirePlusButtons() {
             if (!card) return;
 
             const nameEl = card.querySelector('.product-name');
-            const priceText = card.querySelector('.product-row span')?.textContent || '$0.00';
-            const price = Number(priceText.replace('$', '')) || 0;
+            const rawPrice = card.dataset.price || '0';
+            const price = Number(rawPrice) || 0;
             const id = `product-${index + 1}`;
 
             fetch('cart_api.php?action=add', {

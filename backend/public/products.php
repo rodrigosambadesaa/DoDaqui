@@ -98,7 +98,7 @@ $products = [
                                 <p class="product-name"><?php echo safe($product['name']); ?></p>
                                 <p class="product-meta"><?php echo safe($product['meta']); ?></p>
                                 <div class="product-row">
-                                    <span>$<?php echo safe($product['price']); ?></span>
+                                    <span><?php echo formatoEuro((float) $product['price']); ?></span>
                                     <div class="product-row-actions">
                                         <button class="plus-btn view-product" type="button">Ver</button>
                                         <button class="plus-btn add-cart" type="button">+</button>
@@ -106,7 +106,7 @@ $products = [
                                 </div>
                                 <div class="product-detail-inline" hidden>
                                     <p class="detail-meta">Origen: <?php echo safe($product['meta']); ?></p>
-                                    <p class="detail-meta">Precio: $<?php echo safe($product['price']); ?></p>
+                                    <p class="detail-meta">Precio: <?php echo formatoEuro((float) $product['price']); ?></p>
                                     <p class="detail-summary"><?php echo safe($product['summary']); ?></p>
                                 </div>
                             </article>

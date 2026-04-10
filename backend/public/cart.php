@@ -113,17 +113,17 @@ if ($user !== null) {
                         <div class="placeholder" style="height: 42px;"></div>
                         <div>
                             <h4 style="font-size: 12px;"><?php echo htmlspecialchars($item['name'] ?? 'Product', ENT_QUOTES, 'UTF-8'); ?></h4>
-                            <p class="muted-xs">Cant. <?php echo $qty; ?> · $<?php echo number_format($unitPrice, 2); ?></p>
+                            <p class="muted-xs">Cant. <?php echo $qty; ?> · <?php echo formatoEuro($unitPrice); ?></p>
                         </div>
-                        <strong style="font-size: 12px;">$<?php echo number_format($itemTotal, 2); ?></strong>
+                        <strong style="font-size: 12px;"><?php echo formatoEuro($itemTotal); ?></strong>
                     </article>
                 <?php endforeach; ?>
 
                 <div class="box">
-                    <div class="summary-item"><span>Subtotal</span><span>$<?php echo number_format($subtotal, 2); ?></span></div>
-                    <div class="summary-item"><span>IVA (10%)</span><span>$<?php echo number_format($subtotal * 0.1, 2); ?></span></div>
-                    <div class="summary-item"><span>Envío</span><span>$0.00</span></div>
-                    <div class="summary-total" style="font-size: 20px;"><span>Total</span><span>$<?php echo number_format($subtotal * 1.1, 2); ?></span></div>
+                    <div class="summary-item"><span>Subtotal</span><span><?php echo formatoEuro($subtotal); ?></span></div>
+                    <div class="summary-item"><span>IVA (10%)</span><span><?php echo formatoEuro($subtotal * 0.1); ?></span></div>
+                    <div class="summary-item"><span>Envío</span><span><?php echo formatoEuro(0); ?></span></div>
+                    <div class="summary-total" style="font-size: 20px;"><span>Total</span><span><?php echo formatoEuro($subtotal * 1.1); ?></span></div>
                     <a href="checkout.php" class="btn btn-dark" style="width: 100%; margin-top: 10px;">Continuar al pago</a>
                 </div>
             <?php endif; ?>
