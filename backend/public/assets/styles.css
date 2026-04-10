@@ -50,25 +50,25 @@ a {
 }
 
 .top-nav {
-    height: 56px;
+    height: 52px;
     border-bottom: 1px solid var(--line);
     display: flex;
     align-items: center;
-    gap: 18px;
-    padding: 0 20px;
+    gap: 16px;
+    padding: 0 16px;
     background: #fbfcfd;
 }
 
 .brand {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.2px;
 }
 
 .nav-links {
     display: flex;
-    gap: 22px;
-    font-size: 12px;
+    gap: 20px;
+    font-size: 11px;
     color: var(--muted);
 }
 
@@ -77,12 +77,12 @@ a {
 }
 
 .search {
-    width: 260px;
-    height: 32px;
+    width: 248px;
+    height: 30px;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     background: #f4f6f8;
-    font-size: 11px;
+    font-size: 10px;
     padding: 0 10px;
 }
 
@@ -143,8 +143,8 @@ a {
 
 .main-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
-    gap: 22px;
+    grid-template-columns: minmax(0, 1fr) 282px;
+    gap: 18px;
     padding: 18px;
 }
 
@@ -160,7 +160,7 @@ a {
 }
 
 .section-title {
-    font-size: 26px;
+    font-size: 49px;
     line-height: 1.12;
     font-weight: 800;
     letter-spacing: -0.3px;
@@ -168,15 +168,15 @@ a {
 }
 
 .section-sub {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--muted);
 }
 
 .hero {
     display: grid;
     grid-template-columns: 1.5fr 1fr;
-    gap: 18px;
-    padding: 20px;
+    gap: 16px;
+    padding: 18px;
     background: #f0f2f5;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
@@ -201,11 +201,11 @@ a {
 }
 
 .hero-image {
-    min-height: 190px;
+    min-height: 200px;
 }
 
 .catalog {
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 .catalog-head {
@@ -218,7 +218,7 @@ a {
 .catalog-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
+    gap: 12px;
 }
 
 .product-card {
@@ -229,7 +229,7 @@ a {
 }
 
 .product-thumb {
-    height: 120px;
+    height: 126px;
     margin-bottom: 8px;
 }
 
@@ -272,13 +272,13 @@ a {
     border: 1px solid var(--line);
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding: 14px;
+    gap: 2px;
+    padding: 20px 14px;
 }
 
 .benefit {
     text-align: center;
-    font-size: 10px;
+    font-size: 9px;
     color: var(--muted);
 }
 
@@ -289,13 +289,13 @@ a {
 }
 
 .footer-grid {
-    margin-top: 18px;
+    margin-top: 16px;
     border-top: 1px solid var(--line);
     padding: 20px 4px 6px;
     display: grid;
     grid-template-columns: 1.2fr 1fr 1fr 1.2fr;
-    gap: 18px;
-    font-size: 11px;
+    gap: 16px;
+    font-size: 10px;
     color: var(--muted);
 }
 
@@ -329,18 +329,18 @@ a {
 
 .phone-shell {
     border: 1px solid #b9c0c8;
-    border-radius: 34px;
-    padding: 10px;
+    border-radius: 30px;
+    padding: 8px;
     background: #f8f9fb;
     box-shadow: var(--shadow-soft);
 }
 
 .phone-screen {
     border: 1px solid var(--line);
-    border-radius: 24px;
+    border-radius: 22px;
     background: #fff;
-    min-height: 590px;
-    padding: 12px;
+    min-height: 620px;
+    padding: 10px;
 }
 
 .phone-top {
