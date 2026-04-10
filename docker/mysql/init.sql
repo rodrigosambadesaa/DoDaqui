@@ -18,3 +18,17 @@ ON DUPLICATE KEY UPDATE
 	nome = VALUES(nome),
 	contrasinal = VALUES(contrasinal),
 	rol = VALUES(rol);
+
+CREATE TABLE IF NOT EXISTS carrito_items (
+	id_item INT AUTO_INCREMENT PRIMARY KEY,
+	id_usuario INT NOT NULL,
+	product_id VARCHAR(80) NOT NULL,
+	name VARCHAR(150) NOT NULL,
+	price DECIMAL(10,2) NOT NULL,
+	quantity INT NOT NULL DEFAULT 1,
+	actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	UNIQUE KEY unique_user_product (id_usuario, product_id),
+	CONSTRAINT fk_carrito_usuario
+		FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+		ON DELETE CASCADE
+);

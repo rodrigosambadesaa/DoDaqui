@@ -7,6 +7,52 @@ require_once __DIR__ . '/bootstrap.php';
 
 $user = currentUser();
 $cart = $_SESSION['cart'] ?? [];
+
+if ($user !== null) {
+    try {
+        $pdo = db();
+        $pdo->exec(
+            "CREATE TABLE IF NOT EXISTS carrito_items (
+                id_item INT AUTO_INCREMENT PRIMARY KEY,
+                id_usuario INT NOT NULL,
+                product_id VARCHAR(80) NOT NULL,
+                name VARCHAR(150) NOT NULL,
+                price DECIMAL(10,2) NOT NULL,
+                quantity INT NOT NULL DEFAULT 1,
+                actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY unique_user_product (id_usuario, product_id)
+            )"
+        );
+
+        $stmt = $pdo->prepare(
+            'SELECT product_id, name, price, quantity
+             FROM carrito_items
+             WHERE id_usuario = :id_usuario
+             ORDER BY actualizado_en DESC, id_item DESC'
+        );
+        $stmt->execute(['id_usuario' => (int) $user['id_usuario']]);
+
+        $cart = [];
+        foreach (($stmt->fetchAll() ?: []) as $row) {
+            $id = (string) ($row['product_id'] ?? '');
+            if ($id === '') {
+                continue;
+            }
+
+            $cart[$id] = [
+                'id' => $id,
+                'name' => (string) ($row['name'] ?? ''),
+                'price' => (float) ($row['price'] ?? 0),
+                'quantity' => (int) ($row['quantity'] ?? 0),
+            ];
+        }
+
+        // Mantiene el resto del flujo compatible con sesion.
+        $_SESSION['cart'] = $cart;
+    } catch (Throwable $exception) {
+        // Si falla DB, seguimos usando la sesion actual.
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
