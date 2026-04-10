@@ -158,7 +158,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="form-group" style="margin-top: 10px;">
                             <label for="register-password">Contraseña</label>
-                            <input id="register-password" name="password" type="password" required>
+                            <input
+                                id="register-password"
+                                name="password"
+                                type="password"
+                                minlength="10"
+                                pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{10,}"
+                                title="Mínimo 10 caracteres con mayúscula, minúscula, número y símbolo"
+                                required
+                            >
                         </div>
                         <p class="muted-xs" style="margin-top: 8px;">Mínimo 10 caracteres con mayúscula, minúscula, número y símbolo.</p>
                         <button class="btn btn-dark" style="width: 100%; margin-top: 12px;">Registrarme</button>
