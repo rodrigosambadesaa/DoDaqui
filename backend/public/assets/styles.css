@@ -413,10 +413,12 @@ a {
 
 .checkout-side {
     padding: 14px;
+    background: #fbfcfd;
 }
 
 .checkout-main {
     padding: 14px 14px 18px;
+    background: #f6f8fa;
 }
 
 .stepbar {
@@ -443,7 +445,7 @@ a {
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     background: #fff;
-    padding: 12px;
+    padding: 11px;
     margin-bottom: 10px;
 }
 
@@ -455,7 +457,7 @@ a {
 .radio-row {
     border: 1px solid var(--line-strong);
     border-radius: var(--radius-sm);
-    padding: 10px;
+    padding: 9px 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -506,7 +508,7 @@ a {
     padding-top: 10px;
     display: flex;
     justify-content: space-between;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 800;
     color: #1d2432;
 }
@@ -514,6 +516,18 @@ a {
 .muted-xs {
     font-size: 10px;
     color: var(--muted);
+}
+
+.checkout-side .summary-total {
+    font-size: 18px;
+}
+
+.checkout-side .box {
+    box-shadow: 0 2px 8px rgba(28, 35, 44, 0.04);
+}
+
+.checkout-main .box {
+    box-shadow: 0 1px 4px rgba(28, 35, 44, 0.04);
 }
 
 .desktop-only {
