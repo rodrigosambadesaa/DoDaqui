@@ -26,10 +26,20 @@
 - Interface visual de tenda aliñada co mockup e preparada para evolución por prototipos.
 
 ## Prototipo 2
-### Data de entrega: 
+### Data de entrega: Pendente de peche
 ### Funcionalidades implementadas:
-### Observacións: 
-### Innovación: 
+- Filtrado e busca de produtos no catálogo.
+- Consulta do historial de pedidos para usuarios rexistrados.
+- Xestión do perfil de usuario.
+
+### Observacións:
+- Este prototipo engade máis dos requirimentos funcionais que quedan pendentes no documento de análise.
+- A base técnica segue sendo PHP + Docker + MySQL, reutilizando o contorno do primeiro prototipo.
+
+### Innovación:
+- Navegación máis orientada á experiencia de compra real, con busca e filtros para atopar produtos antes de engadilos ao carriño.
+- Separación clara entre catálogo público, conta de usuario e seguimento dos pedidos.
+- Persistencia de información clave para dar continuidade ao uso da aplicación entre sesións.
 
 ## Prototipo 3
 ### Data de entrega: 
