@@ -6,13 +6,14 @@
 # Deseño dos prototipos 
 
 ## Prototipo 1
-### Data de entrega: 16/03/2026
+### Data de entrega: 10/04/2026
 ### Funcionalidades implementadas:
-- RF-01 Rexistro de usuario con validación forte de contrasinal.
-- RF-02 Inicio e peche de sesión.
-- RF-03 Consulta visual de catálogo na portada.
-- RF-05 Vista de detalle resumida de produtos no layout.
-- RF-06 Base de xestión de carriño para fluxo a checkout.
+- Rexistro de usuario con validación forte de contrasinal.
+- Inicio e peche de sesión.
+- Consulta visual de catálogo na portada.
+- Vista de detalle resumida de produtos no layout.
+- Base de xestión de carriño para fluxo a checkout.
+- Realización de pedido
 
 ### Observacións:
 - Todo o contorno está dockerizado e arranca cun só comando: `docker compose up --build`.
