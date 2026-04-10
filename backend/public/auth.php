@@ -5,39 +5,56 @@ declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/bootstrap.php';
 
-if (currentUser() !== null) {
-    redirect('home.php');
-}
-
 function ensureAuthSchema(PDO $pdo): void
 {
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS usuarios (
             id_usuario INT AUTO_INCREMENT PRIMARY KEY,
             nome VARCHAR(120) NOT NULL,
-            email VARCHAR(160) NOT NULL UNIQUE,
+            correo_electronico VARCHAR(160) NOT NULL UNIQUE,
             contrasinal VARCHAR(255) NOT NULL,
-            rol ENUM('cliente', 'admin') NOT NULL DEFAULT 'cliente',
+            rol_usuario ENUM('cliente', 'admin') NOT NULL DEFAULT 'cliente',
             creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )"
     );
 
+    $columnCheck = $pdo->query('SHOW COLUMNS FROM usuarios');
+    $columns = array_column($columnCheck->fetchAll(), 'Field');
+
+    if (in_array('email', $columns, true) && !in_array('correo_electronico', $columns, true)) {
+        $pdo->exec('ALTER TABLE usuarios CHANGE COLUMN email correo_electronico VARCHAR(160) NOT NULL');
+    }
+
+    if (in_array('rol', $columns, true) && !in_array('rol_usuario', $columns, true)) {
+        $pdo->exec("ALTER TABLE usuarios CHANGE COLUMN rol rol_usuario ENUM('cliente','admin') NOT NULL DEFAULT 'cliente'");
+    }
+
+    $indexCheck = $pdo->query('SHOW INDEX FROM usuarios');
+    $indexNames = array_column($indexCheck->fetchAll(), 'Key_name');
+    if (!in_array('unique_correo_electronico', $indexNames, true)) {
+        $pdo->exec('ALTER TABLE usuarios ADD UNIQUE KEY unique_correo_electronico (correo_electronico)');
+    }
+
     $stmt = $pdo->prepare(
-        'INSERT INTO usuarios (nome, email, contrasinal, rol)
-         VALUES (:nome, :email, :contrasinal, :rol)
-         ON DUPLICATE KEY UPDATE nome = VALUES(nome), contrasinal = VALUES(contrasinal), rol = VALUES(rol)'
+        'INSERT INTO usuarios (nome, correo_electronico, contrasinal, rol_usuario)
+         VALUES (:nome, :correo_electronico, :contrasinal, :rol_usuario)
+         ON DUPLICATE KEY UPDATE nome = VALUES(nome), contrasinal = VALUES(contrasinal), rol_usuario = VALUES(rol_usuario)'
     );
 
     $stmt->execute([
         'nome' => 'Usuario Demo',
-        'email' => 'demo@tenda.gal',
+        'correo_electronico' => 'demo@tenda.gal',
         'contrasinal' => '$2y$10$nZ24rn1voj52FXBw4hezpOtXJAovRyHrNSVfv9zKIyKy5RrUbi2Z6',
-        'rol' => 'cliente',
+        'rol_usuario' => 'cliente',
     ]);
 }
 
 $pdo = db();
 ensureAuthSchema($pdo);
+
+if (currentUser() !== null) {
+    redirect('home.php');
+}
 
 $error = '';
 $ok = '';
@@ -52,16 +69,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($email === '' || $password === '') {
             $error = 'Debes completar correo y contraseña.';
         } else {
-            $stmt = $pdo->prepare('SELECT id_usuario, nome, email, rol, contrasinal FROM usuarios WHERE email = :email LIMIT 1');
-            $stmt->execute(['email' => $email]);
+            $stmt = $pdo->prepare('SELECT id_usuario, nome, correo_electronico, rol_usuario, contrasinal FROM usuarios WHERE correo_electronico = :correo LIMIT 1');
+            $stmt->execute(['correo' => $email]);
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['contrasinal'])) {
                 $_SESSION['user'] = [
                     'id_usuario' => (int) $user['id_usuario'],
                     'nome' => $user['nome'],
-                    'email' => $user['email'],
-                    'rol' => $user['rol'],
+                    'email' => $user['correo_electronico'],
+                    'rol' => $user['rol_usuario'],
                 ];
                 redirect('home.php');
             }
@@ -83,18 +100,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (count($passwordErrors) > 0) {
                 $error = implode(' ', $passwordErrors);
             } else {
-                $exists = $pdo->prepare('SELECT id_usuario FROM usuarios WHERE email = :email LIMIT 1');
-                $exists->execute(['email' => $email]);
+                $exists = $pdo->prepare('SELECT id_usuario FROM usuarios WHERE correo_electronico = :correo LIMIT 1');
+                $exists->execute(['correo' => $email]);
 
                 if ($exists->fetch()) {
                     $error = 'El correo ya está registrado.';
                 } else {
-                    $insert = $pdo->prepare('INSERT INTO usuarios (nome, email, contrasinal, rol) VALUES (:nome, :email, :contrasinal, :rol)');
+                    $insert = $pdo->prepare('INSERT INTO usuarios (nome, correo_electronico, contrasinal, rol_usuario) VALUES (:nome, :correo_electronico, :contrasinal, :rol_usuario)');
                     $insert->execute([
                         'nome' => $name,
-                        'email' => $email,
+                        'correo_electronico' => $email,
                         'contrasinal' => password_hash($password, PASSWORD_BCRYPT),
-                        'rol' => 'cliente',
+                        'rol_usuario' => 'cliente',
                     ]);
                     $ok = 'Registro correcto. Ya puedes iniciar sesión.';
                 }

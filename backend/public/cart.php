@@ -15,17 +15,36 @@ if ($user !== null) {
             "CREATE TABLE IF NOT EXISTS carrito_items (
                 id_item INT AUTO_INCREMENT PRIMARY KEY,
                 id_usuario INT NOT NULL,
-                product_id VARCHAR(80) NOT NULL,
-                name VARCHAR(150) NOT NULL,
-                price DECIMAL(10,2) NOT NULL,
-                quantity INT NOT NULL DEFAULT 1,
+                id_produto VARCHAR(80) NOT NULL,
+                nome_produto VARCHAR(150) NOT NULL,
+                prezo_unitario DECIMAL(10,2) NOT NULL,
+                cantidade INT NOT NULL DEFAULT 1,
                 actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                UNIQUE KEY unique_user_product (id_usuario, product_id)
+                UNIQUE KEY unique_user_product (id_usuario, id_produto)
             )"
         );
 
+        $columnCheck = $pdo->query('SHOW COLUMNS FROM carrito_items');
+        $columns = array_column($columnCheck->fetchAll(), 'Field');
+
+        if (in_array('product_id', $columns, true) && !in_array('id_produto', $columns, true)) {
+            $pdo->exec('ALTER TABLE carrito_items CHANGE COLUMN product_id id_produto VARCHAR(80) NOT NULL');
+        }
+
+        if (in_array('name', $columns, true) && !in_array('nome_produto', $columns, true)) {
+            $pdo->exec('ALTER TABLE carrito_items CHANGE COLUMN name nome_produto VARCHAR(150) NOT NULL');
+        }
+
+        if (in_array('price', $columns, true) && !in_array('prezo_unitario', $columns, true)) {
+            $pdo->exec('ALTER TABLE carrito_items CHANGE COLUMN price prezo_unitario DECIMAL(10,2) NOT NULL');
+        }
+
+        if (in_array('quantity', $columns, true) && !in_array('cantidade', $columns, true)) {
+            $pdo->exec('ALTER TABLE carrito_items CHANGE COLUMN quantity cantidade INT NOT NULL DEFAULT 1');
+        }
+
         $stmt = $pdo->prepare(
-            'SELECT product_id, name, price, quantity
+            'SELECT id_produto, nome_produto, prezo_unitario, cantidade
              FROM carrito_items
              WHERE id_usuario = :id_usuario
              ORDER BY actualizado_en DESC, id_item DESC'
@@ -34,16 +53,16 @@ if ($user !== null) {
 
         $cart = [];
         foreach (($stmt->fetchAll() ?: []) as $row) {
-            $id = (string) ($row['product_id'] ?? '');
+            $id = (string) ($row['id_produto'] ?? '');
             if ($id === '') {
                 continue;
             }
 
             $cart[$id] = [
                 'id' => $id,
-                'name' => (string) ($row['name'] ?? ''),
-                'price' => (float) ($row['price'] ?? 0),
-                'quantity' => (int) ($row['quantity'] ?? 0),
+                'name' => (string) ($row['nome_produto'] ?? ''),
+                'price' => (float) ($row['prezo_unitario'] ?? 0),
+                'quantity' => (int) ($row['cantidade'] ?? 0),
             ];
         }
 

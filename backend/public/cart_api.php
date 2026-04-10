@@ -19,14 +19,33 @@ function ensureCartTable(PDO $pdo): void
         "CREATE TABLE IF NOT EXISTS carrito_items (
             id_item INT AUTO_INCREMENT PRIMARY KEY,
             id_usuario INT NOT NULL,
-            product_id VARCHAR(80) NOT NULL,
-            name VARCHAR(150) NOT NULL,
-            price DECIMAL(10,2) NOT NULL,
-            quantity INT NOT NULL DEFAULT 1,
+            id_produto VARCHAR(80) NOT NULL,
+            nome_produto VARCHAR(150) NOT NULL,
+            prezo_unitario DECIMAL(10,2) NOT NULL,
+            cantidade INT NOT NULL DEFAULT 1,
             actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            UNIQUE KEY unique_user_product (id_usuario, product_id)
+            UNIQUE KEY unique_user_product (id_usuario, id_produto)
         )"
     );
+
+    $columnCheck = $pdo->query('SHOW COLUMNS FROM carrito_items');
+    $columns = array_column($columnCheck->fetchAll(), 'Field');
+
+    if (in_array('product_id', $columns, true) && !in_array('id_produto', $columns, true)) {
+        $pdo->exec('ALTER TABLE carrito_items CHANGE COLUMN product_id id_produto VARCHAR(80) NOT NULL');
+    }
+
+    if (in_array('name', $columns, true) && !in_array('nome_produto', $columns, true)) {
+        $pdo->exec('ALTER TABLE carrito_items CHANGE COLUMN name nome_produto VARCHAR(150) NOT NULL');
+    }
+
+    if (in_array('price', $columns, true) && !in_array('prezo_unitario', $columns, true)) {
+        $pdo->exec('ALTER TABLE carrito_items CHANGE COLUMN price prezo_unitario DECIMAL(10,2) NOT NULL');
+    }
+
+    if (in_array('quantity', $columns, true) && !in_array('cantidade', $columns, true)) {
+        $pdo->exec('ALTER TABLE carrito_items CHANGE COLUMN quantity cantidade INT NOT NULL DEFAULT 1');
+    }
 }
 
 function getDbCartCount(PDO $pdo, int $userId): int
@@ -97,16 +116,16 @@ if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             ensureCartTable($pdo);
 
             $upsert = $pdo->prepare(
-                'INSERT INTO carrito_items (id_usuario, product_id, name, price, quantity)
-                 VALUES (:id_usuario, :product_id, :name, :price, 1)
-                 ON DUPLICATE KEY UPDATE quantity = quantity + 1, name = VALUES(name), price = VALUES(price)'
+                'INSERT INTO carrito_items (id_usuario, id_produto, nome_produto, prezo_unitario, cantidade)
+                 VALUES (:id_usuario, :id_produto, :nome_produto, :prezo_unitario, 1)
+                 ON DUPLICATE KEY UPDATE cantidade = cantidade + 1, nome_produto = VALUES(nome_produto), prezo_unitario = VALUES(prezo_unitario)'
             );
 
             $upsert->execute([
                 'id_usuario' => (int) $user['id_usuario'],
-                'product_id' => $id,
-                'name' => $name,
-                'price' => $price,
+                'id_produto' => $id,
+                'nome_produto' => $name,
+                'prezo_unitario' => $price,
             ]);
 
             $count = getDbCartCount($pdo, (int) $user['id_usuario']);
