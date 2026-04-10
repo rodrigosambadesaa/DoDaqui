@@ -374,13 +374,13 @@ body {
    ============================================================ */
 
 .info-cards-section {
-    padding: 60px 20px;
-    background-color: var(--gray-light);
+    padding: 80px 20px;
+    background: linear-gradient(180deg, #fafafa 0%, white 100%);
 }
 
 .info-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 32px;
     max-width: 1400px;
     margin: 0 auto;
@@ -388,34 +388,37 @@ body {
 
 .info-card {
     background-color: white;
-    padding: 32px;
-    border-radius: 12px;
+    padding: 40px 32px;
+    border-radius: 16px;
     text-align: center;
     box-shadow: var(--shadow);
     transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
 }
 
 .info-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-8px);
     box-shadow: var(--shadow-lg);
+    border-color: var(--secondary-light);
 }
 
 .info-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
+    font-size: 56px;
+    margin-bottom: 20px;
+    display: inline-block;
 }
 
 .info-card h3 {
-    font-size: 18px;
+    font-size: 20px;
     color: var(--primary);
     margin-bottom: 12px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .info-card p {
     font-size: 14px;
     color: var(--text-light);
-    line-height: 1.6;
+    line-height: 1.7;
 }
 
 /* ============================================================
