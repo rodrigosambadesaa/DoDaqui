@@ -33,11 +33,12 @@ $user = currentUser();
                     <input class="search" type="search" placeholder="Search local products...">
                     <div class="nav-actions">
                         <?php if ($user === null): ?>
-                            <a href="auth.php">Sign in</a>
+                            <a href="auth.php">Iniciar sesión</a>
                         <?php else: ?>
                             <span><?php echo htmlspecialchars($user['nome'], ENT_QUOTES, 'UTF-8'); ?></span>
+                            <a href="logout.php">Salir</a>
                         <?php endif; ?>
-                        <a href="cart.php" aria-label="Cart">Cart</a>
+                        <a href="cart.php" aria-label="Carrito">Carrito</a>
                         <span class="badge-count" id="cart-count">0</span>
                     </div>
                 </header>
