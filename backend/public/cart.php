@@ -179,6 +179,7 @@ if ($user !== null) {
                     <article class="box cart-box">
                         <h3>Datos de envío</h3>
                         <form id="shipping-form">
+                            <?php echo csrfInput(); ?>
                             <div class="form-grid-2">
                                 <div class="form-group">
                                     <label for="nome_facturacion">Nombre</label>
