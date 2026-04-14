@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
 	importe_total DECIMAL(10,2) NOT NULL,
 	nome_envio VARCHAR(120) NOT NULL,
 	correo_envio VARCHAR(160) NOT NULL,
+	telefono_envio VARCHAR(30) NOT NULL,
 	enderezo_envio VARCHAR(200) NOT NULL,
 	cidade_envio VARCHAR(120) NOT NULL,
 	codigo_postal_envio VARCHAR(20) NOT NULL,
