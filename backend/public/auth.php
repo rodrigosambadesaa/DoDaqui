@@ -67,6 +67,7 @@ $error = '';
 $ok = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireValidCsrfToken((string) ($_POST['csrf_token'] ?? ''));
     $action = $_POST['action'] ?? '';
 
     if ($action === 'login') {
@@ -156,6 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <section class="box">
                     <h3>Iniciar sesión</h3>
                     <form method="post">
+                        <?php echo csrfInput(); ?>
                         <input type="hidden" name="action" value="login">
                         <div class="form-group">
                             <label for="login-email">Correo</label>
@@ -172,6 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <section class="box">
                     <h3>Crear cuenta</h3>
                     <form method="post">
+                        <?php echo csrfInput(); ?>
                         <input type="hidden" name="action" value="register">
                         <div class="form-group">
                             <label for="register-name">Nombre</label>
