@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     wireCartCount();
     wirePlusButtons();
-    wireProductInlineDetails();
-    wireViewAll();
     wireCheckoutBits();
 });
 
@@ -55,51 +53,6 @@ function wirePlusButtons() {
                     flashButton(button);
                 });
         });
-    });
-}
-
-function wireProductInlineDetails() {
-    const cards = document.querySelectorAll('.product-card');
-    if (!cards.length) return;
-
-    cards.forEach((card) => {
-        const trigger = card.querySelector('.view-product');
-        const detail = card.querySelector('.product-detail-inline');
-        if (!trigger || !detail) return;
-
-        trigger.addEventListener('click', () => {
-            const isOpen = !detail.hasAttribute('hidden');
-
-            cards.forEach((candidate) => {
-                const section = candidate.querySelector('.product-detail-inline');
-                if (!section) return;
-                section.setAttribute('hidden', 'hidden');
-                candidate.classList.remove('is-expanded');
-            });
-
-            if (!isOpen) {
-                detail.removeAttribute('hidden');
-                card.classList.add('is-expanded');
-            }
-        });
-    });
-}
-
-function wireViewAll() {
-    const link = document.getElementById('ver-todo-productos');
-    if (!link) return;
-
-    // Si enlaza a otra página, se deja navegación normal.
-    if (!link.getAttribute('href') || !link.getAttribute('href').startsWith('#')) {
-        return;
-    }
-
-    const section = document.querySelector(link.getAttribute('href'));
-    if (!section) return;
-
-    link.addEventListener('click', (event) => {
-        event.preventDefault();
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 }
 
