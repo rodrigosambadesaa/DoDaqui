@@ -46,8 +46,19 @@ function db(): PDO
             $rootUser = appEnv('DB_ROOT_USERNAME', appEnv('DB_ROOT_USER', 'root'));
             $rootPass = appEnv('DB_ROOT_PASSWORD', appEnv('DB_ROOT_PASS', 'root'));
 
-            // Fallback para entornos locales con volumen MySQL persistido y credenciales antiguas.
-            $pdo = new PDO($dsn, $rootUser, $rootPass, $options);
+            try {
+                // Fallback para entornos locales con volumen MySQL persistido y credenciales antiguas.
+                $pdo = new PDO($dsn, $rootUser, $rootPass, $options);
+            } catch (PDOException $rootException) {
+                $serverDsn = sprintf('mysql:host=%s;port=%d;charset=utf8mb4', $host, $port);
+                $adminPdo = new PDO($serverDsn, $rootUser, $rootPass, $options);
+
+                // Si la base no existe en el volumen actual, se crea para mantener login/registro operativos.
+                $dbNameSafe = str_replace('`', '``', $database);
+                $adminPdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbNameSafe}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+
+                $pdo = new PDO($dsn, $rootUser, $rootPass, $options);
+            }
         }
     }
 
