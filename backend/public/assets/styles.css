@@ -1,21 +1,23 @@
 :root {
-    --bg: #f4f5f7;
+    --bg: #f4f6f8;
     --surface: #ffffff;
-    --surface-soft: #f0f2f5;
-    --line: #e1e4e8;
-    --line-strong: #cdd3da;
-    --text: #1f2530;
-    --muted: #7a828d;
-    --dark: #161e2a;
-    --dark-soft: #222c3a;
-    --ok: #4e5d6a;
-    --error: #8b3a3a;
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --radius-xl: 18px;
-    --shadow-soft: 0 10px 26px rgba(19, 29, 40, 0.08);
-    --shadow-strong: 0 20px 50px rgba(19, 29, 40, 0.15);
+    --surface-soft: #eef2f6;
+    --surface-inverse: #0d1628;
+    --line: #e0e5ec;
+    --line-strong: #c5cdd8;
+    --text: #1f2937;
+    --muted: #657084;
+    --ink: #0f1728;
+    --accent: #1177f3;
+    --accent-soft: #e9f1ff;
+    --ok: #2f9f57;
+    --warn: #f5b11f;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-xl: 26px;
+    --shadow-soft: 0 10px 30px rgba(15, 23, 40, 0.07);
+    --shadow-strong: 0 24px 60px rgba(15, 23, 40, 0.12);
 }
 
 * {
@@ -25,9 +27,12 @@
 }
 
 body {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Open Sans", "Segoe UI", sans-serif;
     color: var(--text);
-    background: linear-gradient(180deg, #f7f8fa 0%, #eceff3 100%);
+    background:
+        radial-gradient(circle at 10% -10%, rgba(177, 199, 226, 0.45), transparent 42%),
+        radial-gradient(circle at 90% 0%, rgba(212, 223, 238, 0.5), transparent 34%),
+        linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
     line-height: 1.45;
 }
 
@@ -37,38 +42,40 @@ a {
 }
 
 .page-wrap {
-    width: min(1440px, 96%);
-    margin: 16px auto 24px;
+    width: min(1440px, 95%);
+    margin: 14px auto 24px;
 }
 
 .desktop-shell {
     border: 1px solid var(--line);
     background: var(--surface);
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow-strong);
     overflow: hidden;
 }
 
 .top-nav {
-    height: 52px;
+    height: 58px;
     border-bottom: 1px solid var(--line);
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 0 16px;
-    background: #fbfcfd;
+    padding: 0 20px;
+    background: linear-gradient(180deg, #fefeff 0%, #f5f8fc 100%);
 }
 
 .brand {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
+    font-family: "Montserrat", "Open Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.15px;
 }
 
 .nav-links {
     display: flex;
-    gap: 20px;
+    gap: 18px;
     font-size: 11px;
+    font-weight: 600;
     color: var(--muted);
 }
 
@@ -77,31 +84,32 @@ a {
 }
 
 .search {
-    width: 248px;
-    height: 30px;
+    width: 252px;
+    height: 34px;
     border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
-    background: #f4f6f8;
-    font-size: 10px;
-    padding: 0 10px;
+    border-radius: 999px;
+    background: #f6f8fc;
+    font-size: 11px;
+    padding: 0 12px;
 }
 
 .nav-actions {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 600;
     color: var(--muted);
 }
 
 .badge-count {
     display: inline-flex;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 999px;
     align-items: center;
     justify-content: center;
-    background: var(--dark);
+    background: var(--ink);
     color: #fff;
     font-size: 10px;
     font-weight: 700;
@@ -109,15 +117,15 @@ a {
 
 .btn {
     border: 1px solid transparent;
-    border-radius: var(--radius-sm);
-    padding: 8px 14px;
-    font-size: 12px;
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: 0.2s ease;
+    transition: 0.18s ease;
 }
 
 .btn:hover {
@@ -125,14 +133,14 @@ a {
 }
 
 .btn-dark {
-    background: var(--dark);
+    background: var(--ink);
     color: #fff;
 }
 
 .btn-light {
-    background: #f2f4f7;
+    background: #f2f5f9;
     border-color: var(--line);
-    color: #2c3340;
+    color: #2a3343;
 }
 
 .btn-ghost {
