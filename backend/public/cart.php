@@ -97,15 +97,24 @@ if ($user !== null) {
     <div class="page-wrap">
         <div class="desktop-shell">
             <header class="top-nav">
-                <a class="brand" href="home.php">ShopFlow</a>
+                <a class="brand" href="/home.php">ShopFlow</a>
                 <nav class="nav-links desktop-only">
-                    <a href="products.php">Producto</a>
-                    <a href="cart.php" class="is-active">Carrito</a>
+                    <a href="/products.php">Producto</a>
+                    <a href="/cart.php" class="is-active">Carrito</a>
                     <a href="#">Pedidos</a>
                 </nav>
                 <div class="nav-grow"></div>
-                <span class="avatar-mini" aria-hidden="true"></span>
-                <span class="muted-xs"><?php echo safe((string) ($user['nome'] ?? 'Usuario')); ?></span>
+                <div class="nav-actions">
+                    <?php if ($user === null): ?>
+                        <a class="login-link" href="/auth.php">Iniciar sesión</a>
+                    <?php else: ?>
+                        <span class="avatar-mini" aria-hidden="true"></span>
+                        <span class="muted-xs"><?php echo safe((string) ($user['nome'] ?? 'Usuario')); ?></span>
+                        <a href="/logout.php">Salir</a>
+                    <?php endif; ?>
+                    <a href="/cart.php" aria-label="Carrito">Carrito</a>
+                    <span class="badge-count" id="cart-count">0</span>
+                </div>
             </header>
 
             <main class="store-main cart-layout">
@@ -115,7 +124,7 @@ if ($user !== null) {
                             <h1 class="cart-title">Mi Carrito</h1>
                             <p class="section-sub">Revisa tus productos y completa los datos de envío para finalizar.</p>
                         </div>
-                        <a class="btn btn-light" href="products.php">Seguir comprando</a>
+                        <a class="btn btn-light" href="/products.php">Seguir comprando</a>
                     </div>
 
                     <article class="box cart-box">

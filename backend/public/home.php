@@ -22,23 +22,23 @@ $user = currentUser();
         <div class="main-grid">
             <div class="desktop-shell">
                 <header class="top-nav">
-                    <a class="brand" href="home.php">DoDaqui</a>
+                    <a class="brand" href="/home.php">DoDaqui</a>
                     <nav class="nav-links desktop-only">
-                        <a href="home.php" class="is-active">Inicio</a>
-                        <a href="products.php">Categorías</a>
-                        <a href="cart.php">Carrito</a>
+                        <a href="/home.php" class="is-active">Inicio</a>
+                        <a href="/products.php">Categorías</a>
+                        <a href="/cart.php">Carrito</a>
                         <a href="#store-footer">Pedidos</a>
                     </nav>
                     <div class="nav-grow"></div>
                     <div class="nav-actions">
                         <?php if ($user === null): ?>
-                            <a href="auth.php">Iniciar sesión</a>
+                            <a class="login-link" href="/auth.php">Iniciar sesión</a>
                         <?php else: ?>
                             <span class="avatar-mini" aria-hidden="true"></span>
                             <span><?php echo htmlspecialchars($user['nome'], ENT_QUOTES, 'UTF-8'); ?></span>
-                            <a href="logout.php">Salir</a>
+                            <a href="/logout.php">Salir</a>
                         <?php endif; ?>
-                        <a href="cart.php" aria-label="Carrito">Carrito</a>
+                        <a href="/cart.php" aria-label="Carrito">Carrito</a>
                         <span class="badge-count" id="cart-count">0</span>
                     </div>
                 </header>
@@ -49,7 +49,7 @@ $user = currentUser();
                             <h2 class="section-title">DoDaquí</h2>
                             <p class="hero-tagline">Lo mejor de nuestra tierra, directo a tu puerta. Productos artesanales y locales con alma.</p>
                             <div class="hero-actions hero-actions-center">
-                                <a href="products.php" class="btn btn-primary">Explorar catálogo</a>
+                                <a href="/products.php" class="btn btn-primary">Explorar catálogo</a>
                             </div>
                         </div>
                         <div class="hero-image sketch-image" aria-hidden="true">

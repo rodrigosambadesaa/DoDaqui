@@ -66,22 +66,22 @@ $products = [
     <div class="page-wrap">
         <div class="desktop-shell">
             <header class="top-nav">
-                <a class="brand" href="home.php">DoDaqui</a>
+                <a class="brand" href="/home.php">DoDaqui</a>
                 <nav class="nav-links desktop-only">
-                        <a href="home.php">Inicio</a>
-                        <a href="products.php" class="is-active">Categorías</a>
-                    <a href="cart.php">Carrito</a>
-                        <a href="home.php#store-footer">Pedidos</a>
+                    <a href="/home.php">Inicio</a>
+                    <a href="/products.php" class="is-active">Categorías</a>
+                    <a href="/cart.php">Carrito</a>
+                    <a href="/home.php#store-footer">Pedidos</a>
                 </nav>
                 <div class="nav-grow"></div>
                 <div class="nav-actions">
                     <?php if ($user === null): ?>
-                        <a href="auth.php">Iniciar sesión</a>
+                        <a class="login-link" href="/auth.php">Iniciar sesión</a>
                     <?php else: ?>
                         <span><?php echo htmlspecialchars($user['nome'], ENT_QUOTES, 'UTF-8'); ?></span>
-                        <a href="logout.php">Salir</a>
+                        <a href="/logout.php">Salir</a>
                     <?php endif; ?>
-                    <a href="cart.php" aria-label="Carrito">Carrito</a>
+                    <a href="/cart.php" aria-label="Carrito">Carrito</a>
                     <span class="badge-count" id="cart-count">0</span>
                 </div>
             </header>
@@ -90,7 +90,7 @@ $products = [
                 <section class="catalog" id="catalogo-completo" style="margin-top: 0;">
                     <div class="catalog-head">
                         <h2 class="catalog-title">Todos los productos</h2>
-                        <a href="home.php" class="muted-xs">Volver a inicio</a>
+                        <a href="/home.php" class="muted-xs">Volver a inicio</a>
                     </div>
                     <div class="catalog-grid">
                         <?php foreach ($products as $product): ?>

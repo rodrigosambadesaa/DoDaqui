@@ -102,6 +102,16 @@ a {
     color: var(--muted);
 }
 
+.nav-actions a {
+    position: relative;
+    z-index: 1;
+}
+
+.login-link {
+    color: #283449;
+    font-weight: 700;
+}
+
 .badge-count {
     display: inline-flex;
     min-width: 20px;
