@@ -39,6 +39,7 @@ function ensureCheckoutSchema(PDO $pdo): void
             importe_total DECIMAL(10,2) NOT NULL,
             nome_envio VARCHAR(120) NOT NULL,
             correo_envio VARCHAR(160) NOT NULL,
+            telefono_envio VARCHAR(30) NOT NULL,
             enderezo_envio VARCHAR(200) NOT NULL,
             cidade_envio VARCHAR(120) NOT NULL,
             codigo_postal_envio VARCHAR(20) NOT NULL,
@@ -66,8 +67,12 @@ function ensureCheckoutSchema(PDO $pdo): void
         $pdo->exec('ALTER TABLE pedidos ADD COLUMN correo_envio VARCHAR(160) NOT NULL AFTER nome_envio');
     }
 
+    if (!in_array('telefono_envio', $columns, true)) {
+        $pdo->exec("ALTER TABLE pedidos ADD COLUMN telefono_envio VARCHAR(30) NOT NULL DEFAULT '' AFTER correo_envio");
+    }
+
     if (!in_array('enderezo_envio', $columns, true)) {
-        $pdo->exec('ALTER TABLE pedidos ADD COLUMN enderezo_envio VARCHAR(200) NOT NULL AFTER correo_envio');
+        $pdo->exec('ALTER TABLE pedidos ADD COLUMN enderezo_envio VARCHAR(200) NOT NULL AFTER telefono_envio');
     }
 
     if (!in_array('cidade_envio', $columns, true)) {
@@ -148,13 +153,14 @@ if (count($cart) === 0) {
 
 $nomeEnvio = trim((string) ($_POST['nome_facturacion'] ?? ''));
 $correoEnvio = trim((string) ($_POST['correo_cliente'] ?? ''));
+$telefonoEnvio = trim((string) ($_POST['telefono_cliente'] ?? ''));
 $enderezoEnvio = trim((string) ($_POST['enderezo_facturacion'] ?? ''));
 $cidadeEnvio = trim((string) ($_POST['cidade_facturacion'] ?? ''));
 $codigoPostalEnvio = trim((string) ($_POST['codigo_postal_facturacion'] ?? ''));
 $paisEnvio = trim((string) ($_POST['pais_facturacion'] ?? 'España'));
 $notasEnvio = trim((string) ($_POST['observacions'] ?? ''));
 
-if ($nomeEnvio === '' || $correoEnvio === '' || $enderezoEnvio === '' || $cidadeEnvio === '' || $codigoPostalEnvio === '' || $paisEnvio === '') {
+if ($nomeEnvio === '' || $correoEnvio === '' || $telefonoEnvio === '' || $enderezoEnvio === '' || $cidadeEnvio === '' || $codigoPostalEnvio === '' || $paisEnvio === '') {
     http_response_code(422);
     echo json_encode(['ok' => false, 'message' => 'Completa los datos de envío.'], JSON_UNESCAPED_UNICODE);
     exit;
@@ -163,6 +169,16 @@ if ($nomeEnvio === '' || $correoEnvio === '' || $enderezoEnvio === '' || $cidade
 if (!filter_var($correoEnvio, FILTER_VALIDATE_EMAIL)) {
     http_response_code(422);
     echo json_encode(['ok' => false, 'message' => 'Introduce un correo válido.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+$telefonoNormalizado = preg_replace('/[^\d+\s()-]/', '', $telefonoEnvio);
+$telefonoNormalizado = preg_replace('/\s+/', ' ', trim((string) $telefonoNormalizado));
+$soloDigitos = preg_replace('/\D+/', '', $telefonoNormalizado);
+
+if (strlen((string) $soloDigitos) < 9) {
+    http_response_code(422);
+    echo json_encode(['ok' => false, 'message' => 'Introduce un teléfono válido.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -180,10 +196,10 @@ try {
     $insertPedido = $pdo->prepare(
         'INSERT INTO pedidos (
             id_usuario, estado_pedido, metodo_pagamento, importe_subtotal, importe_ive, importe_envio, importe_total,
-            nome_envio, correo_envio, enderezo_envio, cidade_envio, codigo_postal_envio, pais_envio, notas_envio
+                nome_envio, correo_envio, telefono_envio, enderezo_envio, cidade_envio, codigo_postal_envio, pais_envio, notas_envio
          ) VALUES (
             :id_usuario, :estado_pedido, :metodo_pagamento, :importe_subtotal, :importe_ive, :importe_envio, :importe_total,
-            :nome_envio, :correo_envio, :enderezo_envio, :cidade_envio, :codigo_postal_envio, :pais_envio, :notas_envio
+                :nome_envio, :correo_envio, :telefono_envio, :enderezo_envio, :cidade_envio, :codigo_postal_envio, :pais_envio, :notas_envio
          )'
     );
 
@@ -197,6 +213,7 @@ try {
         'importe_total' => $total,
         'nome_envio' => $nomeEnvio,
         'correo_envio' => $correoEnvio,
+        'telefono_envio' => $telefonoNormalizado,
         'enderezo_envio' => $enderezoEnvio,
         'cidade_envio' => $cidadeEnvio,
         'codigo_postal_envio' => $codigoPostalEnvio,
