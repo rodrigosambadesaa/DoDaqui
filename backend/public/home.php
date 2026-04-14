@@ -55,10 +55,18 @@ $user = currentUser();
                     </section>
 
                     <section class="category-strip" aria-label="Categorías destacadas">
-                        <article class="category-card"><h3>Alimentación</h3></article>
-                        <article class="category-card"><h3>Artesanía</h3></article>
-                        <article class="category-card"><h3>Cuidado personal</h3></article>
-                        <article class="category-card"><h3>Bebidas</h3></article>
+                        <article class="category-card">
+                            <h3>Alimentación</h3>
+                        </article>
+                        <article class="category-card">
+                            <h3>Artesanía</h3>
+                        </article>
+                        <article class="category-card">
+                            <h3>Cuidado personal</h3>
+                        </article>
+                        <article class="category-card">
+                            <h3>Bebidas</h3>
+                        </article>
                     </section>
 
                     <section class="catalog" id="catalogo-destacados">
