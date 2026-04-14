@@ -4,17 +4,7 @@ Este documento recolle o deseño de interface e o deseño de base de datos do pr
 
 ## Deseño de interface de usuarios
 
-### Esquema (boceto ou wireframe) para pantalla de ordenador
-
-![Wireframe para ordenador](../img/Page_1.png)
-
-- [Ver ficheiro do wireframe de ordenador](../img/Page_1.png)
-
-### Esquema (boceto ou wireframe) para móbil
-
-![Wireframe para móbil](../img/Page_2.png)
-
-- [Ver ficheiro do wireframe de móbil](../img/Page_2.png)
+![Wireframes](../img/Wireframe-Homepage%20Desktop.png)
 
 ## Identidade visual
 
