@@ -65,7 +65,7 @@ try {
                             <a class="login-link" href="/auth.php">Iniciar sesión</a>
                         <?php else: ?>
                             <span class="avatar-mini" aria-hidden="true"></span>
-                            <span><?php echo htmlspecialchars($user['nome'], ENT_QUOTES, 'UTF-8'); ?></span>
+                            <span><?php echo safe((string) ($user['nome'] ?? 'Usuario')); ?></span>
                             <a href="/logout.php">Salir</a>
                         <?php endif; ?>
                         <a href="/cart.php" aria-label="Carrito">Carrito</a>
