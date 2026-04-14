@@ -118,10 +118,10 @@ if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $payload = json_decode($raw ?: '[]', true);
 
     $id = (string) ($payload['id'] ?? '');
-    $name = trim((string) ($payload['name'] ?? 'Producto'));
+    $name = mb_substr(trim((string) ($payload['name'] ?? 'Producto')), 0, 150);
     $price = (float) ($payload['price'] ?? 0);
 
-    if ($id === '' || $price < 0) {
+    if (!preg_match('/^[a-zA-Z0-9-]{1,80}$/', $id) || $name === '' || $price < 0 || $price > 100000) {
         http_response_code(422);
         echo json_encode(['ok' => false, 'message' => 'Datos de producto inválidos.'], JSON_UNESCAPED_UNICODE);
         exit;
@@ -192,7 +192,7 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = (string) ($payload['id'] ?? '');
     $delta = (int) ($payload['delta'] ?? 0);
 
-    if ($id === '' || !in_array($delta, [-1, 1], true)) {
+    if (!preg_match('/^[a-zA-Z0-9-]{1,80}$/', $id) || !in_array($delta, [-1, 1], true)) {
         http_response_code(422);
         echo json_encode(['ok' => false, 'message' => 'Actualización inválida.'], JSON_UNESCAPED_UNICODE);
         exit;

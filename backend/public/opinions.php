@@ -8,6 +8,9 @@ applySecurityHeaders();
 
 $user = currentUser();
 $productFilter = trim((string) ($_GET['producto'] ?? ''));
+if ($productFilter !== '' && !preg_match('/^[a-zA-Z0-9-]{1,80}$/', $productFilter)) {
+    $productFilter = '';
+}
 
 $productNames = [
     'product-1' => 'Tarro de miel ecológica',

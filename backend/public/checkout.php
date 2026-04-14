@@ -163,6 +163,14 @@ $codigoPostalEnvio = trim((string) ($_POST['codigo_postal_facturacion'] ?? ''));
 $paisEnvio = trim((string) ($_POST['pais_facturacion'] ?? 'España'));
 $notasEnvio = trim((string) ($_POST['observacions'] ?? ''));
 
+$nomeEnvio = mb_substr($nomeEnvio, 0, 120);
+$correoEnvio = mb_substr($correoEnvio, 0, 160);
+$enderezoEnvio = mb_substr($enderezoEnvio, 0, 200);
+$cidadeEnvio = mb_substr($cidadeEnvio, 0, 120);
+$codigoPostalEnvio = mb_substr($codigoPostalEnvio, 0, 20);
+$paisEnvio = mb_substr($paisEnvio, 0, 80);
+$notasEnvio = mb_substr($notasEnvio, 0, 255);
+
 if ($nomeEnvio === '' || $correoEnvio === '' || $telefonoEnvio === '' || $enderezoEnvio === '' || $cidadeEnvio === '' || $codigoPostalEnvio === '' || $paisEnvio === '') {
     http_response_code(422);
     echo json_encode(['ok' => false, 'message' => 'Completa los datos de envío.'], JSON_UNESCAPED_UNICODE);
@@ -172,6 +180,18 @@ if ($nomeEnvio === '' || $correoEnvio === '' || $telefonoEnvio === '' || $endere
 if (!filter_var($correoEnvio, FILTER_VALIDATE_EMAIL)) {
     http_response_code(422);
     echo json_encode(['ok' => false, 'message' => 'Introduce un correo válido.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if (!preg_match('/^[\p{L}\s\'-]{2,120}$/u', $nomeEnvio)) {
+    http_response_code(422);
+    echo json_encode(['ok' => false, 'message' => 'Introduce un nombre válido.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if (!preg_match('/^[\p{L}\d\s,.-]{3,20}$/u', $codigoPostalEnvio)) {
+    http_response_code(422);
+    echo json_encode(['ok' => false, 'message' => 'Código postal no válido.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

@@ -8,6 +8,9 @@ applySecurityHeaders();
 
 $user = currentUser();
 $productId = trim((string) ($_GET['id'] ?? ''));
+if (!preg_match('/^[a-zA-Z0-9-]{1,80}$/', $productId)) {
+    $productId = '';
+}
 $reviewError = '';
 $reviewOk = (string) ($_GET['review'] ?? '') === 'ok';
 
