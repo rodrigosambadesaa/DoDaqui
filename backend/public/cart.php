@@ -189,6 +189,20 @@ if ($user !== null) {
                                 </div>
                             </div>
                             <div class="form-group" style="margin-top: 8px;">
+                                <label for="telefono_cliente">Teléfono</label>
+                                <input
+                                    id="telefono_cliente"
+                                    name="telefono_cliente"
+                                    type="tel"
+                                    inputmode="tel"
+                                    value="<?php echo safe((string) ($user['telefono'] ?? '')); ?>"
+                                    placeholder="+34 600 000 000"
+                                    minlength="9"
+                                    maxlength="30"
+                                    required
+                                >
+                            </div>
+                            <div class="form-group" style="margin-top: 8px;">
                                 <label for="enderezo_facturacion">Dirección de envío</label>
                                 <input id="enderezo_facturacion" name="enderezo_facturacion" placeholder="Calle, número, piso, puerta" required>
                             </div>
