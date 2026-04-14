@@ -68,9 +68,10 @@ $products = [
             <header class="top-nav">
                 <a class="brand" href="home.php">DoDaqui</a>
                 <nav class="nav-links desktop-only">
-                    <a href="home.php">Inicio</a>
-                    <a href="products.php">Productos</a>
+                        <a href="home.php">Inicio</a>
+                        <a href="products.php" class="is-active">Categorías</a>
                     <a href="cart.php">Carrito</a>
+                        <a href="home.php#store-footer">Pedidos</a>
                 </nav>
                 <div class="nav-grow"></div>
                 <div class="nav-actions">
@@ -85,10 +86,10 @@ $products = [
                 </div>
             </header>
 
-            <main style="padding: 16px 18px 18px;">
+            <main class="store-main">
                 <section class="catalog" id="catalogo-completo" style="margin-top: 0;">
                     <div class="catalog-head">
-                        <h2 style="font-size: 24px; font-weight: 800;">Todos los productos</h2>
+                        <h2 class="catalog-title">Todos los productos</h2>
                         <a href="home.php" class="muted-xs">Volver a inicio</a>
                     </div>
                     <div class="catalog-grid">
@@ -100,14 +101,9 @@ $products = [
                                 <div class="product-row">
                                     <span><?php echo formatoEuro((float) $product['price']); ?></span>
                                     <div class="product-row-actions">
-                                        <button class="plus-btn view-product" type="button">Ver</button>
+                                        <span class="pill-stock">En stock</span>
                                         <button class="plus-btn add-cart" type="button">+</button>
                                     </div>
-                                </div>
-                                <div class="product-detail-inline" hidden>
-                                    <p class="detail-meta">Origen: <?php echo safe($product['meta']); ?></p>
-                                    <p class="detail-meta">Precio: <?php echo formatoEuro((float) $product['price']); ?></p>
-                                    <p class="detail-summary"><?php echo safe($product['summary']); ?></p>
                                 </div>
                             </article>
                         <?php endforeach; ?>
