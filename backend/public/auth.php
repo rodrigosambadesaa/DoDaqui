@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'login') {
-        $email = trim((string) ($_POST['email'] ?? ''));
+        $email = strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
 
         $loginRateLimitOk = authRateLimitAllow($pdo, 'login_ip', clientIp(), 20, 900)
@@ -83,6 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($error === '' && ($email === '' || $password === '')) {
             $error = 'Debes completar correo y contraseña.';
+        } elseif ($error === '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 160)) {
+            $error = 'El correo no tiene un formato válido.';
         } elseif ($error === '') {
             $stmt = $pdo->prepare('SELECT id_usuario, nome, correo_electronico, telefono, rol_usuario, contrasinal FROM usuarios WHERE correo_electronico = :correo LIMIT 1');
             $stmt->execute(['correo' => $email]);
@@ -105,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'register') {
         $name = trim((string) ($_POST['name'] ?? ''));
-        $email = trim((string) ($_POST['email'] ?? ''));
+        $email = strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
 
         $registerRateLimitOk = authRateLimitAllow($pdo, 'register_ip', clientIp(), 8, 3600)
@@ -117,6 +119,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($error === '' && ($name === '' || $email === '' || $password === '')) {
             $error = 'Todos los campos son obligatorios.';
+        } elseif ($error === '' && (mb_strlen($name) < 2 || mb_strlen($name) > 120 || !preg_match('/^[\p{L}\s\'-]+$/u', $name))) {
+            $error = 'El nombre solo puede contener letras, espacios, apostrofes y guiones.';
+        } elseif ($error === '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 160)) {
+            $error = 'El correo no tiene un formato válido.';
         } elseif ($error === '') {
             $passwordErrors = validateStrongPassword($password);
 
