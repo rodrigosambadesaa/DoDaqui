@@ -84,63 +84,145 @@ if ($user !== null) {
 </head>
 
 <body>
-    <div class="checkout-wrap">
-        <aside class="checkout-side">
-            <header class="top-nav" style="height: 46px; border: none; padding: 0; background: transparent; margin-bottom: 8px;">
-                <a class="brand" href="home.php">DoDaqui</a>
+    <?php
+    $subtotal = 0.0;
+    foreach ($cart as $item) {
+        $subtotal += ((float) ($item['price'] ?? 0)) * ((int) ($item['quantity'] ?? 1));
+    }
+    $tax = $subtotal * 0.21;
+    $shipping = count($cart) > 0 ? 0.0 : 0.0;
+    $total = $subtotal + $tax + $shipping;
+    ?>
+
+    <div class="page-wrap">
+        <div class="desktop-shell">
+            <header class="top-nav">
+                <a class="brand" href="home.php">ShopFlow</a>
+                <nav class="nav-links desktop-only">
+                    <a href="products.php">Producto</a>
+                    <a href="cart.php" class="is-active">Carrito</a>
+                    <a href="#">Pedidos</a>
+                </nav>
                 <div class="nav-grow"></div>
-                <span class="muted-xs">Carrito / Envío / Pago</span>
+                <span class="avatar-mini" aria-hidden="true"></span>
+                <span class="muted-xs"><?php echo safe((string) ($user['nome'] ?? 'Usuario')); ?></span>
             </header>
 
-            <h2 style="font-size: 30px; line-height: 1.05; margin-bottom: 10px;">Tu carrito (<?php echo count($cart); ?>)</h2>
-
-            <?php if (count($cart) === 0): ?>
-                <div class="box" style="text-align: center;">
-                    <p style="font-size: 48px;">Carrito</p>
-                    <p class="section-sub">Tu carrito está vacío</p>
-                    <a href="home.php" class="btn btn-dark" style="margin-top: 8px;">Empezar a comprar</a>
-                </div>
-            <?php else: ?>
-                <?php
-                $subtotal = 0;
-                foreach ($cart as $item):
-                    $qty = (int) ($item['quantity'] ?? 1);
-                    $unitPrice = (float) ($item['price'] ?? 0);
-                    $itemTotal = $unitPrice * $qty;
-                    $subtotal += $itemTotal;
-                ?>
-                    <article class="box" style="display: grid; grid-template-columns: 42px 1fr auto; gap: 10px; align-items: center;">
-                        <div class="placeholder" style="height: 42px;"></div>
+            <main class="store-main cart-layout">
+                <section>
+                    <div class="cart-header-row">
                         <div>
-                            <h4 style="font-size: 12px;"><?php echo htmlspecialchars($item['name'] ?? 'Product', ENT_QUOTES, 'UTF-8'); ?></h4>
-                            <p class="muted-xs">Cant. <?php echo $qty; ?> · <?php echo formatoEuro($unitPrice); ?></p>
+                            <h1 class="cart-title">Mi Carrito</h1>
+                            <p class="section-sub">Revisa tus productos y completa los datos de envío para finalizar.</p>
                         </div>
-                        <strong style="font-size: 12px;"><?php echo formatoEuro($itemTotal); ?></strong>
+                        <a class="btn btn-light" href="products.php">Seguir comprando</a>
+                    </div>
+
+                    <article class="box cart-box">
+                        <h3>Productos en el carrito</h3>
+
+                        <?php if (count($cart) === 0): ?>
+                            <p class="section-sub">Tu carrito está vacío. Añade productos para continuar.</p>
+                        <?php else: ?>
+                            <table class="cart-table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unit.</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($cart as $item): ?>
+                                        <?php
+                                        $qty = (int) ($item['quantity'] ?? 1);
+                                        $unitPrice = (float) ($item['price'] ?? 0);
+                                        $lineTotal = $qty * $unitPrice;
+                                        ?>
+                                        <tr data-product-id="<?php echo safe((string) ($item['id'] ?? '')); ?>">
+                                            <td>
+                                                <div class="cart-product-cell">
+                                                    <span class="cart-thumb placeholder" aria-hidden="true"></span>
+                                                    <div>
+                                                        <strong><?php echo safe((string) ($item['name'] ?? 'Producto')); ?></strong>
+                                                        <p class="muted-xs">Local</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="qty-controls">
+                                                    <button type="button" class="qty-btn" data-action="minus">−</button>
+                                                    <span class="qty-value"><?php echo $qty; ?></span>
+                                                    <button type="button" class="qty-btn" data-action="plus">+</button>
+                                                </div>
+                                            </td>
+                                            <td><?php echo formatoEuro($unitPrice); ?></td>
+                                            <td><strong><?php echo formatoEuro($lineTotal); ?></strong></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        <?php endif; ?>
                     </article>
-                <?php endforeach; ?>
 
-                <div class="box">
-                    <div class="summary-item"><span>Subtotal</span><span><?php echo formatoEuro($subtotal); ?></span></div>
-                    <div class="summary-item"><span>IVA (10%)</span><span><?php echo formatoEuro($subtotal * 0.1); ?></span></div>
-                    <div class="summary-item"><span>Envío</span><span><?php echo formatoEuro(0); ?></span></div>
-                    <div class="summary-total" style="font-size: 20px;"><span>Total</span><span><?php echo formatoEuro($subtotal * 1.1); ?></span></div>
-                    <a href="checkout.php" class="btn btn-dark" style="width: 100%; margin-top: 10px;">Continuar al pago</a>
-                </div>
-            <?php endif; ?>
-        </aside>
+                    <article class="box cart-box">
+                        <h3>Datos de envío</h3>
+                        <form id="shipping-form">
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="nome_facturacion">Nombre</label>
+                                    <input id="nome_facturacion" name="nome_facturacion" value="<?php echo safe((string) ($user['nome'] ?? '')); ?>" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="correo_cliente">Correo</label>
+                                    <input id="correo_cliente" name="correo_cliente" type="email" value="" placeholder="ana.garcia@example.com" required>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 8px;">
+                                <label for="enderezo_facturacion">Dirección de envío</label>
+                                <input id="enderezo_facturacion" name="enderezo_facturacion" placeholder="Calle, número, piso, puerta" required>
+                            </div>
+                            <div class="form-grid-2" style="margin-top: 8px;">
+                                <div class="form-group">
+                                    <label for="cidade_facturacion">Ciudad</label>
+                                    <input id="cidade_facturacion" name="cidade_facturacion" value="Madrid" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="codigo_postal_facturacion">Código</label>
+                                    <input id="codigo_postal_facturacion" name="codigo_postal_facturacion" value="28001" required>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 8px;">
+                                <label for="observacions">Notas del pedido</label>
+                                <input id="observacions" name="observacions" placeholder="Instrucciones especiales para el repartidor...">
+                            </div>
+                            <input type="hidden" name="pais_facturacion" value="España">
+                        </form>
+                    </article>
+                </section>
 
-        <section class="checkout-main" style="display: grid; place-items: center; min-height: 640px; background: #f7f8fa;">
-            <div style="width: min(720px, 96%); border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: #fff;">
-                <div class="stepbar" style="justify-content: flex-start; margin-bottom: 8px;">
-                    <span>Cart</span>
-                    <span class="active">Pago</span>
-                    <span>Confirmación</span>
-                </div>
-                <h3 style="font-size: 28px; margin-bottom: 8px;">Siguiente paso: detalles de pago</h3>
-                <p class="section-sub" style="margin-bottom: 14px;">Pantalla de pago compacta y clara siguiendo el diseño del prototipo.</p>
-                <a href="checkout.php" class="btn btn-dark">Abrir pantalla de pago</a>
-            </div>
-        </section>
+                <aside class="box cart-summary-box">
+                    <h3>Resumen del Pedido</h3>
+                    <div class="summary-item"><span>Subtotal</span><strong><?php echo formatoEuro($subtotal); ?></strong></div>
+                    <div class="summary-item"><span>Envío</span><strong class="ok-text">Gratis</strong></div>
+                    <div class="summary-item"><span>Impuestos</span><strong><?php echo formatoEuro($tax); ?></strong></div>
+
+                    <div class="summary-total compact">
+                        <span>Total</span>
+                        <span><?php echo formatoEuro($total); ?></span>
+                    </div>
+
+                    <div class="coupon-row">
+                        <input type="text" placeholder="Código de descuento" aria-label="Código de descuento">
+                        <button type="button" class="btn btn-light">Aplicar</button>
+                    </div>
+
+                    <button id="complete-btn" class="btn btn-dark" style="width: 100%; margin-top: 12px;" <?php echo count($cart) === 0 ? 'disabled' : ''; ?>>Completar compra</button>
+                    <p class="security-note">Pago seguro procesado por la plataforma.</p>
+                </aside>
+            </main>
+        </div>
     </div>
 
     <script src="assets/app.js" defer></script>
