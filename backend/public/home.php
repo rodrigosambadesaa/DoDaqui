@@ -27,13 +27,14 @@ $user = currentUser();
                         <a href="home.php" class="is-active">Inicio</a>
                         <a href="products.php">Categorías</a>
                         <a href="cart.php">Carrito</a>
-                        <a href="#catalogo-destacados">Pedidos</a>
+                        <a href="#store-footer">Pedidos</a>
                     </nav>
                     <div class="nav-grow"></div>
                     <div class="nav-actions">
                         <?php if ($user === null): ?>
                             <a href="auth.php">Iniciar sesión</a>
                         <?php else: ?>
+                            <span class="avatar-mini" aria-hidden="true"></span>
                             <span><?php echo htmlspecialchars($user['nome'], ENT_QUOTES, 'UTF-8'); ?></span>
                             <a href="logout.php">Salir</a>
                         <?php endif; ?>
@@ -51,7 +52,9 @@ $user = currentUser();
                                 <a href="products.php" class="btn btn-primary">Explorar catálogo</a>
                             </div>
                         </div>
-                        <div class="hero-image sketch-image" aria-hidden="true"></div>
+                        <div class="hero-image sketch-image" aria-hidden="true">
+                            <span>Ver todo ↗</span>
+                        </div>
                     </section>
 
                     <section class="category-strip" aria-label="Categorías destacadas">
@@ -78,75 +81,55 @@ $user = currentUser();
                             </div>
                         </div>
                         <div class="catalog-grid shop-grid">
-                            <article class="product-card" data-name="Tarro de miel ecológica" data-origin="Granja Abeja Feliz" data-price="12.50" data-summary="Miel cruda de producción local, sin mezclas industriales y con cosecha de temporada.">
+                            <article class="product-card" data-name="Café orgánico" data-origin="Tostado artesanal, 500g origen local." data-price="12.50" data-summary="Café orgánico con perfil suave y notas a cacao. Producido por cooperativas de proximidad.">
                                 <div class="product-thumb placeholder"></div>
-                                <p class="product-name">Tarro de miel ecológica</p>
-                                <p class="product-meta">Granja Abeja Feliz</p>
+                                <p class="product-name">Café orgánico</p>
+                                <p class="product-meta">Tostado artesanal, 500g origen local.</p>
                                 <div class="product-row">
                                     <span><?php echo formatoEuro(12.5); ?></span>
                                     <div class="product-row-actions">
-                                        <button class="plus-btn view-product" type="button">Ver</button>
+                                        <span class="pill-stock">En stock</span>
                                         <button class="plus-btn add-cart" type="button">+</button>
                                     </div>
                                 </div>
-                                <div class="product-detail-inline" hidden>
-                                    <p class="detail-meta">Origen: Granja Abeja Feliz</p>
-                                    <p class="detail-meta">Precio: <?php echo formatoEuro(12.5); ?></p>
-                                    <p class="detail-summary">Miel cruda de producción local, sin mezclas industriales y con cosecha de temporada.</p>
-                                </div>
                             </article>
 
-                            <article class="product-card" data-name="Cesta de mimbre artesanal" data-origin="Colectivo Artesano" data-price="45.00" data-summary="Pieza trenzada a mano con fibras naturales, ideal para almacenaje y decoración.">
+                            <article class="product-card" data-name="Miel artesanal" data-origin="Miel multifloral pura de la sierra." data-price="8.90" data-summary="Miel artesana cosechada en pequeños lotes con trazabilidad completa.">
                                 <div class="product-thumb placeholder"></div>
-                                <p class="product-name">Cesta de mimbre artesanal</p>
-                                <p class="product-meta">Colectivo Artesano</p>
+                                <p class="product-name">Miel artesanal</p>
+                                <p class="product-meta">Miel multifloral pura de la sierra.</p>
                                 <div class="product-row">
-                                    <span><?php echo formatoEuro(45); ?></span>
+                                    <span><?php echo formatoEuro(8.9); ?></span>
                                     <div class="product-row-actions">
-                                        <button class="plus-btn view-product" type="button">Ver</button>
+                                        <span class="pill-stock">En stock</span>
                                         <button class="plus-btn add-cart" type="button">+</button>
                                     </div>
                                 </div>
-                                <div class="product-detail-inline" hidden>
-                                    <p class="detail-meta">Origen: Colectivo Artesano</p>
-                                    <p class="detail-meta">Precio: <?php echo formatoEuro(45); ?></p>
-                                    <p class="detail-summary">Pieza trenzada a mano con fibras naturales, ideal para almacenaje y decoración.</p>
-                                </div>
                             </article>
 
-                            <article class="product-card" data-name="Aceite de oliva prensado en frío" data-origin="Valle del Sol" data-price="18.00" data-summary="Aceite virgen extra de primera prensada, con perfil afrutado y acidez baja.">
-                                <div class="product-thumb placeholder"></div>
-                                <p class="product-name">Aceite de oliva prensado en frío</p>
-                                <p class="product-meta">Valle del Sol</p>
-                                <div class="product-row">
-                                    <span><?php echo formatoEuro(18); ?></span>
-                                    <div class="product-row-actions">
-                                        <button class="plus-btn view-product" type="button">Ver</button>
-                                        <button class="plus-btn add-cart" type="button">+</button>
-                                    </div>
-                                </div>
-                                <div class="product-detail-inline" hidden>
-                                    <p class="detail-meta">Origen: Valle del Sol</p>
-                                    <p class="detail-meta">Precio: <?php echo formatoEuro(18); ?></p>
-                                    <p class="detail-summary">Aceite virgen extra de primera prensada, con perfil afrutado y acidez baja.</p>
-                                </div>
-                            </article>
-
-                            <article class="product-card" data-name="Pan de masa madre" data-origin="Panadería Local" data-price="6.50" data-summary="Pan de fermentación lenta, corteza crujiente y miga alveolada elaborado cada mañana.">
+                            <article class="product-card" data-name="Pan de masa madre" data-origin="Fermentación natural de 24 horas." data-price="4.50" data-summary="Hogaza de masa madre elaborada cada mañana por panaderías locales.">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name">Pan de masa madre</p>
-                                <p class="product-meta">Panadería Local</p>
+                                <p class="product-meta">Fermentación natural de 24 horas.</p>
                                 <div class="product-row">
-                                    <span><?php echo formatoEuro(6.5); ?></span>
+                                    <span><?php echo formatoEuro(4.5); ?></span>
                                     <div class="product-row-actions">
-                                        <button class="plus-btn view-product" type="button">Ver</button>
+                                        <span class="pill-stock pill-stock-warn">Agotado</span>
                                         <button class="plus-btn add-cart" type="button">+</button>
                                     </div>
                                 </div>
-                                <div class="product-detail-inline" hidden>
-                                    <p class="detail-meta">Origen: Panadería Local</p>
-                                    <p class="detail-meta">Precio: <?php echo formatoEuro(6.5); ?></p>
-                                    <p class="detail-summary">Pan de fermentación lenta, corteza crujiente y miga alveolada elaborado cada mañana.</p>
+                            </article>
+
+                            <article class="product-card" data-name="Jabón natural" data-origin="Lavanda y aceites esenciales." data-price="6.00" data-summary="Jabón de lavanda elaborado con ingredientes naturales y producción local.">
+                                <div class="product-thumb placeholder"></div>
+                                <p class="product-name">Jabón natural</p>
+                                <p class="product-meta">Lavanda y aceites esenciales.</p>
+                                <div class="product-row">
+                                    <span><?php echo formatoEuro(6); ?></span>
+                                    <div class="product-row-actions">
+                                        <span class="pill-stock pill-stock-soon">Próximamente</span>
+                                        <button class="plus-btn add-cart" type="button">+</button>
+                                    </div>
                                 </div>
                             </article>
                         </div>
@@ -181,7 +164,7 @@ $user = currentUser();
                         </div>
                     </section>
 
-                    <section class="footer-grid store-footer-grid">
+                    <section class="footer-grid store-footer-grid" id="store-footer">
                         <div>
                             <h4>DoDaqui</h4>
                             <p>El marketplace de referencia para productos locales, con lo mejor de tu comunidad en casa.</p>
