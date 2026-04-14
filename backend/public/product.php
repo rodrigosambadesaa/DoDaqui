@@ -87,6 +87,7 @@ try {
     ensureOpinionsSchema($pdo);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') === 'add_opinion') {
+        requireValidCsrfToken((string) ($_POST['csrf_token'] ?? ''));
         if ($user === null) {
             $reviewError = 'Debes iniciar sesión para dejar una valoración.';
         } elseif ($product === null) {
@@ -220,6 +221,7 @@ try {
                             <a class="btn btn-light" href="/auth.php">Iniciar sesión</a>
                         <?php else: ?>
                             <form method="post" action="/product.php?id=<?php echo urlencode((string) $product['id']); ?>" class="review-form" style="margin-bottom: 12px;">
+                                <?php echo csrfInput(); ?>
                                 <input type="hidden" name="action" value="add_opinion">
                                 <div class="form-grid-2">
                                     <div class="form-group">
