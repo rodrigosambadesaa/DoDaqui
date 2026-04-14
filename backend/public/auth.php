@@ -108,9 +108,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = trim((string) ($_POST['email'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
 
-        if ($name === '' || $email === '' || $password === '') {
+        $registerRateLimitOk = authRateLimitAllow($pdo, 'register_ip', clientIp(), 8, 3600)
+            && authRateLimitAllow($pdo, 'register_email', strtolower($email), 3, 3600);
+
+        if (!$registerRateLimitOk) {
+            $error = 'Demasiados intentos de registro. Vuelve a intentarlo más tarde.';
+        }
+
+        if ($error === '' && ($name === '' || $email === '' || $password === '')) {
             $error = 'Todos los campos son obligatorios.';
-        } else {
+        } elseif ($error === '') {
             $passwordErrors = validateStrongPassword($password);
 
             if (count($passwordErrors) > 0) {
