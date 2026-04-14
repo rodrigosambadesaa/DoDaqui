@@ -41,7 +41,7 @@ function ensureAuthSchema(PDO $pdo): void
     }
 
     $stmt = $pdo->prepare(
-           'INSERT INTO usuarios (nome, correo_electronico, telefono, contrasinal, rol_usuario)
+        'INSERT INTO usuarios (nome, correo_electronico, telefono, contrasinal, rol_usuario)
             VALUES (:nome, :correo_electronico, :telefono, :contrasinal, :rol_usuario)
             ON DUPLICATE KEY UPDATE nome = VALUES(nome), telefono = VALUES(telefono), contrasinal = VALUES(contrasinal), rol_usuario = VALUES(rol_usuario)'
     );
@@ -189,8 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 minlength="10"
                                 pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{10,}"
                                 title="Mínimo 10 caracteres con mayúscula, minúscula, número y símbolo"
-                                required
-                            >
+                                required>
                         </div>
                         <p class="muted-xs" style="margin-top: 8px;">Mínimo 10 caracteres con mayúscula, minúscula, número y símbolo.</p>
                         <button class="btn btn-dark" style="width: 100%; margin-top: 12px;">Registrarme</button>

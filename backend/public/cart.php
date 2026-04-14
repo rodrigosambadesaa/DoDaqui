@@ -199,8 +199,7 @@ if ($user !== null) {
                                     placeholder="+34 600 000 000"
                                     minlength="9"
                                     maxlength="30"
-                                    required
-                                >
+                                    required>
                             </div>
                             <div class="form-group" style="margin-top: 8px;">
                                 <label for="enderezo_facturacion">Dirección de envío</label>
