@@ -2,6 +2,111 @@
 
 declare(strict_types=1);
 
+function secureSessionStart(): void
+{
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        return;
+    }
+
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443);
+
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'secure' => $isHttps,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    session_start();
+}
+
+function applySecurityHeaders(bool $json = false): void
+{
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+    header('Cross-Origin-Opener-Policy: same-origin');
+
+    if ($json) {
+        header('Content-Type: application/json; charset=utf-8');
+        header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none'");
+        return;
+    }
+
+    header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'");
+}
+
+function csrfToken(): string
+{
+    if (!isset($_SESSION['_csrf_token']) || !is_string($_SESSION['_csrf_token']) || $_SESSION['_csrf_token'] === '') {
+        $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    return $_SESSION['_csrf_token'];
+}
+
+function csrfInput(): string
+{
+    return '<input type="hidden" name="csrf_token" value="' . safe(csrfToken()) . '">';
+}
+
+function verifyCsrfToken(?string $token): bool
+{
+    $sessionToken = $_SESSION['_csrf_token'] ?? '';
+    if (!is_string($sessionToken) || $sessionToken === '' || !is_string($token) || $token === '') {
+        return false;
+    }
+
+    return hash_equals($sessionToken, $token);
+}
+
+function requireValidCsrfToken(?string $token): void
+{
+    if (verifyCsrfToken($token)) {
+        return;
+    }
+
+    http_response_code(419);
+    echo 'Token CSRF inválido o ausente.';
+    exit;
+}
+
+function requireValidCsrfTokenJson(?string $token): void
+{
+    if (verifyCsrfToken($token)) {
+        return;
+    }
+
+    http_response_code(419);
+    echo json_encode(['ok' => false, 'message' => 'Token CSRF inválido o ausente.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+function readStringPost(string $key, int $maxLength = 255): string
+{
+    $value = trim((string) ($_POST[$key] ?? ''));
+    if ($maxLength > 0) {
+        return mb_substr($value, 0, $maxLength);
+    }
+
+    return $value;
+}
+
+function clientIp(): string
+{
+    $candidate = (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+    if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+        return $candidate;
+    }
+
+    return '0.0.0.0';
+}
+
 function appEnv(string $name, string $default = ''): string
 {
     $value = getenv($name);
