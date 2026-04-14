@@ -80,6 +80,7 @@ if ($user !== null) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?php echo safe(csrfToken()); ?>">
     <title>Carrito | DoDaqui</title>
     <link rel="stylesheet" href="assets/styles.css">
 </head>

@@ -5,6 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     wireCheckoutBits();
 });
 
+function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? String(meta.getAttribute('content') || '') : '';
+}
+
 async function wireCartCount() {
     const counter = document.getElementById('cart-count');
     if (!counter) return;
@@ -38,6 +43,7 @@ function wirePlusButtons() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRF-Token': getCsrfToken(),
                 },
                 body: JSON.stringify({
                     id,
@@ -116,7 +122,10 @@ function wireCheckoutBits() {
                 try {
                     const response = await fetch('cart_api.php?action=update', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': getCsrfToken(),
+                        },
                         body: JSON.stringify({ id: productId, delta }),
                     });
 
@@ -191,6 +200,7 @@ function wireCheckoutBits() {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                         Accept: 'application/json',
+                        'X-CSRF-Token': getCsrfToken(),
                     },
                     body: payload.toString(),
                 });

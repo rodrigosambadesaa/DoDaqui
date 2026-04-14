@@ -86,6 +86,14 @@ if ($action === 'count') {
 }
 
 if ($action === 'clear') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['ok' => false, 'message' => 'Método no permitido.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    requireValidCsrfTokenJson((string) ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
+
     $user = currentUser();
     if ($user !== null) {
         try {
@@ -104,6 +112,8 @@ if ($action === 'clear') {
 }
 
 if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireValidCsrfTokenJson((string) ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
+
     $raw = file_get_contents('php://input');
     $payload = json_decode($raw ?: '[]', true);
 
@@ -174,6 +184,8 @@ if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireValidCsrfTokenJson((string) ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
+
     $raw = file_get_contents('php://input');
     $payload = json_decode($raw ?: '[]', true);
 
