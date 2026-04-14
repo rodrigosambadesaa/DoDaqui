@@ -24,13 +24,12 @@ $user = currentUser();
                 <header class="top-nav">
                     <a class="brand" href="home.php">DoDaqui</a>
                     <nav class="nav-links desktop-only">
-                        <a href="#">Producto fresco</a>
-                        <a href="#">Artesanía</a>
-                        <a href="#">Especialidades</a>
-                        <a href="#">Bebidas</a>
+                        <a href="home.php" class="is-active">Inicio</a>
+                        <a href="products.php">Categorías</a>
+                        <a href="cart.php">Carrito</a>
+                        <a href="#catalogo-destacados">Pedidos</a>
                     </nav>
                     <div class="nav-grow"></div>
-                    <input class="search" type="search" placeholder="Buscar productos locales...">
                     <div class="nav-actions">
                         <?php if ($user === null): ?>
                             <a href="auth.php">Iniciar sesión</a>
@@ -43,26 +42,34 @@ $user = currentUser();
                     </div>
                 </header>
 
-                <main style="padding: 16px 18px 18px;">
-                    <section class="hero">
-                        <div class="hero-text">
-                            <span class="hero-kicker">DIRECTLY FROM THE SOURCE</span>
-                            <h2 class="section-title">Apoya a artesanos<br>y productores<br>locales</h2>
-                            <p class="section-sub">Descubre productos únicos de tu entorno. Calidad de confianza, personas de tu comunidad.</p>
-                            <div class="hero-actions">
-                                <button class="btn btn-dark">Comprar</button>
-                                <button class="btn btn-light">Saber más</button>
+                <main class="store-main">
+                    <section class="hero hero-shop">
+                        <div class="hero-text center-hero-text">
+                            <h2 class="section-title">DoDaquí</h2>
+                            <p class="hero-tagline">Lo mejor de nuestra tierra, directo a tu puerta. Productos artesanales y locales con alma.</p>
+                            <div class="hero-actions hero-actions-center">
+                                <a href="products.php" class="btn btn-primary">Explorar catálogo</a>
                             </div>
                         </div>
-                        <div class="hero-image placeholder"></div>
+                        <div class="hero-image sketch-image" aria-hidden="true"></div>
+                    </section>
+
+                    <section class="category-strip" aria-label="Categorías destacadas">
+                        <article class="category-card"><h3>Alimentación</h3></article>
+                        <article class="category-card"><h3>Artesanía</h3></article>
+                        <article class="category-card"><h3>Cuidado personal</h3></article>
+                        <article class="category-card"><h3>Bebidas</h3></article>
                     </section>
 
                     <section class="catalog" id="catalogo-destacados">
                         <div class="catalog-head">
-                            <h3 style="font-size: 20px; font-weight: 750;">Productos destacados</h3>
-                            <a href="products.php" class="muted-xs" id="ver-todo-productos">Ver todo</a>
+                            <h3 class="catalog-title">Productos destacados</h3>
+                            <div class="catalog-filters" aria-hidden="true">
+                                <span class="chip active">Todos</span>
+                                <span class="chip">Más vendidos</span>
+                            </div>
                         </div>
-                        <div class="catalog-grid">
+                        <div class="catalog-grid shop-grid">
                             <article class="product-card" data-name="Tarro de miel ecológica" data-origin="Granja Abeja Feliz" data-price="12.50" data-summary="Miel cruda de producción local, sin mezclas industriales y con cosecha de temporada.">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name">Tarro de miel ecológica</p>
@@ -137,25 +144,36 @@ $user = currentUser();
                         </div>
                     </section>
 
-                    <section class="benefits">
-                        <article class="benefit">
-                            <p>Delivery</p>
-                            <h4>Entrega local</h4>
-                            <p>Entrega rápida y sostenible dentro de tu comunidad.</p>
-                        </article>
-                        <article class="benefit">
-                            <p>Green</p>
-                            <h4>Abastecimiento sostenible</h4>
-                            <p>Reducimos huella de carbono conectándote con productores cercanos.</p>
-                        </article>
-                        <article class="benefit">
-                            <p>Care</p>
-                            <h4>Apoya al barrio</h4>
-                            <p>Cada compra impulsa a pequeños negocios de tu zona.</p>
-                        </article>
+                    <section class="newsletter-band" aria-label="Suscripción a boletín">
+                        <div>
+                            <h3>Suscríbete a nuestra newsletter</h3>
+                            <p>Recibe ofertas exclusivas de productores locales y noticias sobre nuevos lanzamientos de DoDaquí.</p>
+                        </div>
+                        <form class="newsletter-form" action="#" method="post" onsubmit="return false;">
+                            <input type="email" placeholder="Tu correo electrónico" aria-label="Correo electrónico">
+                            <button class="btn btn-primary" type="submit">Suscribirme</button>
+                        </form>
                     </section>
 
-                    <section class="footer-grid">
+                    <section class="testimonials" aria-label="Opiniones de clientes">
+                        <h3>Lo que dicen nuestros clientes</h3>
+                        <div class="testimonial-grid">
+                            <article class="testimonial-card">
+                                <p class="testimonial-author">Ana García</p>
+                                <p>"El café orgánico es espectacular. Se nota la frescura y el cuidado en el tostado. ¡Repetiré seguro!"</p>
+                            </article>
+                            <article class="testimonial-card">
+                                <p class="testimonial-author">Carlos Ruiz</p>
+                                <p>"La miel artesanal tiene un sabor auténtico que no encuentro en el supermercado. DoDaquí es un gran descubrimiento."</p>
+                            </article>
+                            <article class="testimonial-card">
+                                <p class="testimonial-author">Marta López</p>
+                                <p>"Me encanta apoyar a los productores locales y que además lo traigan a casa muy fácil. El envío fue rapidísimo."</p>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="footer-grid store-footer-grid">
                         <div>
                             <h4>DoDaqui</h4>
                             <p>El marketplace de referencia para productos locales, con lo mejor de tu comunidad en casa.</p>
@@ -178,14 +196,7 @@ $user = currentUser();
                                 <li>Contacto</li>
                             </ul>
                         </div>
-                        <div>
-                            <h4>Newsletter</h4>
-                            <p>Recibe novedades de temporada.</p>
-                            <div class="news-row">
-                                <input type="email" placeholder="Correo electrónico">
-                                <button class="btn btn-dark">Unirme</button>
-                            </div>
-                        </div>
+                        <div></div>
                     </section>
                 </main>
             </div>
