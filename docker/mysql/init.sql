@@ -2,20 +2,23 @@ CREATE TABLE IF NOT EXISTS usuarios (
 	id_usuario INT AUTO_INCREMENT PRIMARY KEY,
 	nome VARCHAR(120) NOT NULL,
 	correo_electronico VARCHAR(160) NOT NULL UNIQUE,
+	telefono VARCHAR(30) NULL,
 	contrasinal VARCHAR(255) NOT NULL,
 	rol_usuario ENUM('cliente', 'admin') NOT NULL DEFAULT 'cliente',
 	creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO usuarios (nome, correo_electronico, contrasinal, rol_usuario)
+INSERT INTO usuarios (nome, correo_electronico, telefono, contrasinal, rol_usuario)
 VALUES (
 	'Usuario Demo',
 	'demo@tenda.gal',
+	'+34600000000',
 	'$2y$10$nZ24rn1voj52FXBw4hezpOtXJAovRyHrNSVfv9zKIyKy5RrUbi2Z6',
 	'cliente'
 )
 ON DUPLICATE KEY UPDATE
 	nome = VALUES(nome),
+	telefono = VALUES(telefono),
 	contrasinal = VALUES(contrasinal),
 	rol_usuario = VALUES(rol_usuario);
 

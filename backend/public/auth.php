@@ -12,6 +12,7 @@ function ensureAuthSchema(PDO $pdo): void
             id_usuario INT AUTO_INCREMENT PRIMARY KEY,
             nome VARCHAR(120) NOT NULL,
             correo_electronico VARCHAR(160) NOT NULL UNIQUE,
+            telefono VARCHAR(30) NULL,
             contrasinal VARCHAR(255) NOT NULL,
             rol_usuario ENUM('cliente', 'admin') NOT NULL DEFAULT 'cliente',
             creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -29,6 +30,10 @@ function ensureAuthSchema(PDO $pdo): void
         $pdo->exec("ALTER TABLE usuarios CHANGE COLUMN rol rol_usuario ENUM('cliente','admin') NOT NULL DEFAULT 'cliente'");
     }
 
+    if (!in_array('telefono', $columns, true)) {
+        $pdo->exec('ALTER TABLE usuarios ADD COLUMN telefono VARCHAR(30) NULL AFTER correo_electronico');
+    }
+
     $indexCheck = $pdo->query('SHOW INDEX FROM usuarios');
     $indexNames = array_column($indexCheck->fetchAll(), 'Key_name');
     if (!in_array('unique_correo_electronico', $indexNames, true)) {
@@ -36,14 +41,15 @@ function ensureAuthSchema(PDO $pdo): void
     }
 
     $stmt = $pdo->prepare(
-        'INSERT INTO usuarios (nome, correo_electronico, contrasinal, rol_usuario)
-         VALUES (:nome, :correo_electronico, :contrasinal, :rol_usuario)
-         ON DUPLICATE KEY UPDATE nome = VALUES(nome), contrasinal = VALUES(contrasinal), rol_usuario = VALUES(rol_usuario)'
+           'INSERT INTO usuarios (nome, correo_electronico, telefono, contrasinal, rol_usuario)
+            VALUES (:nome, :correo_electronico, :telefono, :contrasinal, :rol_usuario)
+            ON DUPLICATE KEY UPDATE nome = VALUES(nome), telefono = VALUES(telefono), contrasinal = VALUES(contrasinal), rol_usuario = VALUES(rol_usuario)'
     );
 
     $stmt->execute([
         'nome' => 'Usuario Demo',
         'correo_electronico' => 'demo@tenda.gal',
+        'telefono' => '+34600000000',
         'contrasinal' => '$2y$10$nZ24rn1voj52FXBw4hezpOtXJAovRyHrNSVfv9zKIyKy5RrUbi2Z6',
         'rol_usuario' => 'cliente',
     ]);
@@ -69,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($email === '' || $password === '') {
             $error = 'Debes completar correo y contraseña.';
         } else {
-            $stmt = $pdo->prepare('SELECT id_usuario, nome, correo_electronico, rol_usuario, contrasinal FROM usuarios WHERE correo_electronico = :correo LIMIT 1');
+            $stmt = $pdo->prepare('SELECT id_usuario, nome, correo_electronico, telefono, rol_usuario, contrasinal FROM usuarios WHERE correo_electronico = :correo LIMIT 1');
             $stmt->execute(['correo' => $email]);
             $user = $stmt->fetch();
 
@@ -78,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'id_usuario' => (int) $user['id_usuario'],
                     'nome' => $user['nome'],
                     'email' => $user['correo_electronico'],
+                    'telefono' => (string) ($user['telefono'] ?? ''),
                     'rol' => $user['rol_usuario'],
                 ];
                 redirect('home.php');
