@@ -15,6 +15,7 @@
 - Base de xestión de carriño para fluxo a checkout.
 - Realización de pedido
 - Realización de valoracións de produtos
+- Seguridade da información
 
 ### Observacións:
 - Todo o contorno está dockerizado e arranca cun só comando: `docker compose up --build`.

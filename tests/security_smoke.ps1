@@ -114,21 +114,21 @@ Assert-True $csrfRejected 'API carrito rechaza petición sin CSRF'
 $cartPage = Invoke-WebRequest -Uri "$BaseUrl/cart.php" -WebSession $session
 $csrfCheckout = Get-HiddenCsrfToken -Html $cartPage.Content
 $checkoutPairs = @{
-    csrf_token = $csrfCheckout
-    action = 'realizar_pedido'
-    nome_facturacion = 'Cliente Prueba'
-    correo_cliente = $email
-    telefono_cliente = '+34600111222'
-    enderezo_facturacion = 'Rua Test 123'
-    cidade_facturacion = 'Santiago'
+    csrf_token                = $csrfCheckout
+    action                    = 'realizar_pedido'
+    nome_facturacion          = 'Cliente Prueba'
+    correo_cliente            = $email
+    telefono_cliente          = '+34600111222'
+    enderezo_facturacion      = 'Rua Test 123'
+    cidade_facturacion        = 'Santiago'
     codigo_postal_facturacion = '15701'
-    pais_facturacion = 'España'
-    observacions = 'Entrega por la mañana'
+    pais_facturacion          = 'España'
+    observacions              = 'Entrega por la mañana'
 }
 
 $checkoutBody = ($checkoutPairs.GetEnumerator() | ForEach-Object {
-    [uri]::EscapeDataString([string]$_.Key) + '=' + [uri]::EscapeDataString([string]$_.Value)
-}) -join '&'
+        [uri]::EscapeDataString([string]$_.Key) + '=' + [uri]::EscapeDataString([string]$_.Value)
+    }) -join '&'
 
 $checkoutHeaders = @{ 'Content-Type' = 'application/x-www-form-urlencoded;charset=UTF-8' }
 $checkoutRes = Invoke-WebRequest -Uri "$BaseUrl/checkout.php" -Method Post -WebSession $session -Headers $checkoutHeaders -Body $checkoutBody
