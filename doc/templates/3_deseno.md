@@ -76,6 +76,14 @@ Para maior comodidade especifícase en texto en vez en de diagramas.
 - `cantidade`
 - `prezo_unitario` (para conxelar o prezo da venda)
 
+**opinions_clientes**
+- `id_opinion` (PK)
+- `id_produto` (FK → produtos)
+- `id_cliente` (FK → usuarios)
+- `data`
+- `valoracion`
+- `opinion`
+
 #### 2. Relacións e cardinalidades
 
 - **Usuarios (1) — (N) Pedidos**: Un usuario pode realizar moitos pedidos; un pedido pertence a un só usuario.

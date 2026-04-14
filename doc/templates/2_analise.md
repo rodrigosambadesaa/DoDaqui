@@ -44,6 +44,9 @@ Non é preciso ter iniciada sesión previamente
 9. **Xestión do perfil de usuario**
 É preciso ter iniciada sesión previamente  
 
+10. **Opinións dos clientes**
+Para velas non é preciso iniciar sesión, para deixalas si
+
 ---
 
 ### Requirimentos non funcionais
