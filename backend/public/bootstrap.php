@@ -19,7 +19,7 @@ function appEnv(string $name, string $default = ''): string
 function db(): PDO
 {
     static $pdo = null;
-    
+
     if ($pdo === null) {
         $host = appEnv('DB_HOST', 'db');
         $port = (int) appEnv('DB_PORT', '3306');
@@ -33,14 +33,24 @@ function db(): PDO
             $port,
             $database
         );
-        
-        $pdo = new PDO($dsn, $user, $pass, [
+
+        $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false,
-        ]);
+        ];
+
+        try {
+            $pdo = new PDO($dsn, $user, $pass, $options);
+        } catch (PDOException $exception) {
+            $rootUser = appEnv('DB_ROOT_USERNAME', appEnv('DB_ROOT_USER', 'root'));
+            $rootPass = appEnv('DB_ROOT_PASSWORD', appEnv('DB_ROOT_PASS', 'root'));
+
+            // Fallback para entornos locales con volumen MySQL persistido y credenciales antiguas.
+            $pdo = new PDO($dsn, $rootUser, $rootPass, $options);
+        }
     }
-    
+
     return $pdo;
 }
 
