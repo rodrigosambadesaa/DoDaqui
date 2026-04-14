@@ -130,6 +130,7 @@ if ($category !== '' && in_array($category, $allowedCategories, true)) {
                                     <p class="detail-meta">Categoría: <?php echo safe((string) ($product['category'] ?? '')); ?></p>
                                     <p class="detail-meta">Precio: <?php echo formatoEuro((float) $product['price']); ?></p>
                                     <p class="detail-summary"><?php echo safe($product['summary']); ?></p>
+                                    <a class="muted-xs" href="/product.php?id=<?php echo urlencode((string) $product['id']); ?>">Ir a ficha y opiniones</a>
                                 </div>
                             </article>
                         <?php endforeach; ?>

@@ -125,6 +125,7 @@ try {
                                     <p class="detail-meta">Origen: Tostado artesanal, 500g origen local.</p>
                                     <p class="detail-meta">Precio: <?php echo formatoEuro(12.5); ?></p>
                                     <p class="detail-summary">Café orgánico con perfil suave y notas a cacao. Producido por cooperativas de proximidad.</p>
+                                    <a class="muted-xs" href="/product.php?id=product-1">Ir a ficha y opiniones</a>
                                 </div>
                             </article>
 
@@ -144,6 +145,7 @@ try {
                                     <p class="detail-meta">Origen: Miel multifloral pura de la sierra.</p>
                                     <p class="detail-meta">Precio: <?php echo formatoEuro(8.9); ?></p>
                                     <p class="detail-summary">Miel artesana cosechada en pequeños lotes con trazabilidad completa.</p>
+                                    <a class="muted-xs" href="/product.php?id=product-2">Ir a ficha y opiniones</a>
                                 </div>
                             </article>
 
@@ -163,6 +165,7 @@ try {
                                     <p class="detail-meta">Origen: Fermentación natural de 24 horas.</p>
                                     <p class="detail-meta">Precio: <?php echo formatoEuro(4.5); ?></p>
                                     <p class="detail-summary">Hogaza de masa madre elaborada cada mañana por panaderías locales.</p>
+                                    <a class="muted-xs" href="/product.php?id=product-4">Ir a ficha y opiniones</a>
                                 </div>
                             </article>
 
@@ -182,6 +185,7 @@ try {
                                     <p class="detail-meta">Origen: Lavanda y aceites esenciales.</p>
                                     <p class="detail-meta">Precio: <?php echo formatoEuro(6); ?></p>
                                     <p class="detail-summary">Jabón de lavanda elaborado con ingredientes naturales y producción local.</p>
+                                    <a class="muted-xs" href="/product.php?id=product-6">Ir a ficha y opiniones</a>
                                 </div>
                             </article>
                         </div>
