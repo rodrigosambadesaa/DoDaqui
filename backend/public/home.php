@@ -6,6 +6,34 @@ session_start();
 require_once __DIR__ . '/bootstrap.php';
 
 $user = currentUser();
+
+$productNames = [
+    'product-1' => 'Tarro de miel ecológica',
+    'product-2' => 'Cesta de mimbre artesanal',
+    'product-3' => 'Aceite de oliva prensado en frío',
+    'product-4' => 'Pan de masa madre',
+    'product-5' => 'Queso curado artesanal',
+    'product-6' => 'Mermelada de frutos rojos',
+];
+
+$recentOpinions = [];
+
+try {
+    $pdo = db();
+    ensureOpinionsSchema($pdo);
+
+    $query = $pdo->query(
+        'SELECT o.id_produto, o.valoracion, o.opinion, o.data_opinion, u.nome
+         FROM opinions_clientes o
+         INNER JOIN usuarios u ON u.id_usuario = o.id_cliente
+         ORDER BY o.data_opinion DESC, o.id_opinion DESC
+         LIMIT 3'
+    );
+
+    $recentOpinions = $query ? ($query->fetchAll() ?: []) : [];
+} catch (Throwable $exception) {
+    $recentOpinions = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -171,21 +199,34 @@ $user = currentUser();
                     </section>
 
                     <section class="testimonials" aria-label="Opiniones de clientes">
-                        <h3>Lo que dicen nuestros clientes</h3>
-                        <div class="testimonial-grid">
-                            <article class="testimonial-card">
-                                <p class="testimonial-author">Ana García</p>
-                                <p>"El café orgánico es espectacular. Se nota la frescura y el cuidado en el tostado. ¡Repetiré seguro!"</p>
-                            </article>
-                            <article class="testimonial-card">
-                                <p class="testimonial-author">Carlos Ruiz</p>
-                                <p>"La miel artesanal tiene un sabor auténtico que no encuentro en el supermercado. DoDaquí es un gran descubrimiento."</p>
-                            </article>
-                            <article class="testimonial-card">
-                                <p class="testimonial-author">Marta López</p>
-                                <p>"Me encanta apoyar a los productores locales y que además lo traigan a casa muy fácil. El envío fue rapidísimo."</p>
-                            </article>
+                        <div class="catalog-head" style="margin-bottom: 10px;">
+                            <h3 style="margin: 0;">Lo que dicen nuestros clientes</h3>
+                            <a class="muted-xs" href="/opinions.php">Ver todas</a>
                         </div>
+                        <?php if (count($recentOpinions) === 0): ?>
+                            <article class="testimonial-card">
+                                <p class="testimonial-author">Todavía no hay opiniones</p>
+                                <p>Las valoraciones de clientes aparecerán aquí en cuanto se publiquen.</p>
+                            </article>
+                        <?php else: ?>
+                            <div class="testimonial-grid">
+                                <?php foreach ($recentOpinions as $entry): ?>
+                                    <?php
+                                    $rating = (int) ($entry['valoracion'] ?? 0);
+                                    $stars = str_repeat('★', max(0, $rating)) . str_repeat('☆', max(0, 5 - $rating));
+                                    $productId = (string) ($entry['id_produto'] ?? '');
+                                    ?>
+                                    <article class="testimonial-card">
+                                        <p class="testimonial-author"><?php echo safe((string) ($entry['nome'] ?? 'Cliente')); ?></p>
+                                        <p class="muted-xs" style="margin-bottom: 4px;"><?php echo safe($stars); ?></p>
+                                        <p style="margin-bottom: 6px;"><?php echo safe((string) ($entry['opinion'] ?? '')); ?></p>
+                                        <a class="muted-xs" href="/product.php?id=<?php echo urlencode($productId); ?>">
+                                            <?php echo safe($productNames[$productId] ?? $productId); ?>
+                                        </a>
+                                    </article>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </section>
 
                     <section class="footer-grid store-footer-grid" id="store-footer">
