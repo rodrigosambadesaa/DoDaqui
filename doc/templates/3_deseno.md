@@ -51,6 +51,7 @@ Para maior comodidade especifícase en texto en vez en de diagramas.
 - `contrasinal` (hash)
 - `enderezo` (para o envío)
 - `rol` (cliente/admin)
+- `telefono`
 
 **produtos**
 - `id_produto` (PK)

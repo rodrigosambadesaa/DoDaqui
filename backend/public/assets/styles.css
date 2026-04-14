@@ -371,6 +371,23 @@ a {
     min-height: 24px;
 }
 
+.product-link {
+    display: inline-flex;
+    font-size: 10px;
+    font-weight: 700;
+    color: #3a4b65;
+    margin-bottom: 8px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.product-link:hover {
+    color: #0f1728;
+    text-decoration: underline;
+}
+
 .product-row {
     display: flex;
     justify-content: space-between;

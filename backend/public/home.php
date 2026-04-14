@@ -27,7 +27,7 @@ $user = currentUser();
                         <a href="/home.php" class="is-active">Inicio</a>
                         <a href="/products.php">Categorías</a>
                         <a href="/cart.php">Carrito</a>
-                        <a href="#store-footer">Pedidos</a>
+                        <a href="/cart.php">Pedidos</a>
                     </nav>
                     <div class="nav-grow"></div>
                     <div class="nav-actions">
@@ -58,18 +58,18 @@ $user = currentUser();
                     </section>
 
                     <section class="category-strip" aria-label="Categorías destacadas">
-                        <article class="category-card">
+                        <a class="category-card" href="/products.php?categoria=alimentacion" aria-label="Ir a categoría Alimentación">
                             <h3>Alimentación</h3>
-                        </article>
-                        <article class="category-card">
+                        </a>
+                        <a class="category-card" href="/products.php?categoria=artesania" aria-label="Ir a categoría Artesanía">
                             <h3>Artesanía</h3>
-                        </article>
-                        <article class="category-card">
+                        </a>
+                        <a class="category-card" href="/products.php?categoria=cuidado" aria-label="Ir a categoría Cuidado personal">
                             <h3>Cuidado personal</h3>
-                        </article>
-                        <article class="category-card">
+                        </a>
+                        <a class="category-card" href="/products.php?categoria=bebidas" aria-label="Ir a categoría Bebidas">
                             <h3>Bebidas</h3>
-                        </article>
+                        </a>
                     </section>
 
                     <section class="catalog" id="catalogo-destacados">
@@ -81,10 +81,11 @@ $user = currentUser();
                             </div>
                         </div>
                         <div class="catalog-grid shop-grid">
-                            <article class="product-card" data-name="Café orgánico" data-origin="Tostado artesanal, 500g origen local." data-price="12.50" data-summary="Café orgánico con perfil suave y notas a cacao. Producido por cooperativas de proximidad.">
+                            <article class="product-card" data-id="product-1" data-name="Café orgánico" data-origin="Tostado artesanal, 500g origen local." data-price="12.50" data-summary="Café orgánico con perfil suave y notas a cacao. Producido por cooperativas de proximidad.">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name">Café orgánico</p>
                                 <p class="product-meta">Tostado artesanal, 500g origen local.</p>
+                                <button class="product-link view-product" type="button">Ver detalle</button>
                                 <div class="product-row">
                                     <span><?php echo formatoEuro(12.5); ?></span>
                                     <div class="product-row-actions">
@@ -92,12 +93,18 @@ $user = currentUser();
                                         <button class="plus-btn add-cart" type="button">+</button>
                                     </div>
                                 </div>
+                                <div class="product-detail-inline" hidden>
+                                    <p class="detail-meta">Origen: Tostado artesanal, 500g origen local.</p>
+                                    <p class="detail-meta">Precio: <?php echo formatoEuro(12.5); ?></p>
+                                    <p class="detail-summary">Café orgánico con perfil suave y notas a cacao. Producido por cooperativas de proximidad.</p>
+                                </div>
                             </article>
 
-                            <article class="product-card" data-name="Miel artesanal" data-origin="Miel multifloral pura de la sierra." data-price="8.90" data-summary="Miel artesana cosechada en pequeños lotes con trazabilidad completa.">
+                            <article class="product-card" data-id="product-2" data-name="Miel artesanal" data-origin="Miel multifloral pura de la sierra." data-price="8.90" data-summary="Miel artesana cosechada en pequeños lotes con trazabilidad completa.">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name">Miel artesanal</p>
                                 <p class="product-meta">Miel multifloral pura de la sierra.</p>
+                                <button class="product-link view-product" type="button">Ver detalle</button>
                                 <div class="product-row">
                                     <span><?php echo formatoEuro(8.9); ?></span>
                                     <div class="product-row-actions">
@@ -105,12 +112,18 @@ $user = currentUser();
                                         <button class="plus-btn add-cart" type="button">+</button>
                                     </div>
                                 </div>
+                                <div class="product-detail-inline" hidden>
+                                    <p class="detail-meta">Origen: Miel multifloral pura de la sierra.</p>
+                                    <p class="detail-meta">Precio: <?php echo formatoEuro(8.9); ?></p>
+                                    <p class="detail-summary">Miel artesana cosechada en pequeños lotes con trazabilidad completa.</p>
+                                </div>
                             </article>
 
-                            <article class="product-card" data-name="Pan de masa madre" data-origin="Fermentación natural de 24 horas." data-price="4.50" data-summary="Hogaza de masa madre elaborada cada mañana por panaderías locales.">
+                            <article class="product-card" data-id="product-3" data-name="Pan de masa madre" data-origin="Fermentación natural de 24 horas." data-price="4.50" data-summary="Hogaza de masa madre elaborada cada mañana por panaderías locales.">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name">Pan de masa madre</p>
                                 <p class="product-meta">Fermentación natural de 24 horas.</p>
+                                <button class="product-link view-product" type="button">Ver detalle</button>
                                 <div class="product-row">
                                     <span><?php echo formatoEuro(4.5); ?></span>
                                     <div class="product-row-actions">
@@ -118,18 +131,29 @@ $user = currentUser();
                                         <button class="plus-btn add-cart" type="button">+</button>
                                     </div>
                                 </div>
+                                <div class="product-detail-inline" hidden>
+                                    <p class="detail-meta">Origen: Fermentación natural de 24 horas.</p>
+                                    <p class="detail-meta">Precio: <?php echo formatoEuro(4.5); ?></p>
+                                    <p class="detail-summary">Hogaza de masa madre elaborada cada mañana por panaderías locales.</p>
+                                </div>
                             </article>
 
-                            <article class="product-card" data-name="Jabón natural" data-origin="Lavanda y aceites esenciales." data-price="6.00" data-summary="Jabón de lavanda elaborado con ingredientes naturales y producción local.">
+                            <article class="product-card" data-id="product-4" data-name="Jabón natural" data-origin="Lavanda y aceites esenciales." data-price="6.00" data-summary="Jabón de lavanda elaborado con ingredientes naturales y producción local.">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name">Jabón natural</p>
                                 <p class="product-meta">Lavanda y aceites esenciales.</p>
+                                <button class="product-link view-product" type="button">Ver detalle</button>
                                 <div class="product-row">
                                     <span><?php echo formatoEuro(6); ?></span>
                                     <div class="product-row-actions">
                                         <span class="pill-stock pill-stock-soon">Próximamente</span>
                                         <button class="plus-btn add-cart" type="button">+</button>
                                     </div>
+                                </div>
+                                <div class="product-detail-inline" hidden>
+                                    <p class="detail-meta">Origen: Lavanda y aceites esenciales.</p>
+                                    <p class="detail-meta">Precio: <?php echo formatoEuro(6); ?></p>
+                                    <p class="detail-summary">Jabón de lavanda elaborado con ingredientes naturales y producción local.</p>
                                 </div>
                             </article>
                         </div>
@@ -165,26 +189,26 @@ $user = currentUser();
                     </section>
 
                     <section class="footer-grid store-footer-grid" id="store-footer">
-                        <div>
+                        <div id="sobre-nosotros">
                             <h4>DoDaqui</h4>
                             <p>El marketplace de referencia para productos locales, con lo mejor de tu comunidad en casa.</p>
                         </div>
                         <div>
                             <h4>Tienda</h4>
                             <ul>
-                                <li>Todos los productos</li>
-                                <li>Alimentación fresca</li>
-                                <li>Hogar y vida</li>
-                                <li>Tarjetas regalo</li>
+                                <li><a href="/products.php">Todos los productos</a></li>
+                                <li><a href="/products.php?categoria=alimentacion">Alimentación fresca</a></li>
+                                <li><a href="/products.php?categoria=hogar">Hogar y vida</a></li>
+                                <li><a href="/products.php?categoria=regalo">Tarjetas regalo</a></li>
                             </ul>
                         </div>
                         <div>
                             <h4>Empresa</h4>
                             <ul>
-                                <li>Sobre nosotros</li>
-                                <li>Nuestros productores</li>
-                                <li>Sostenibilidad</li>
-                                <li>Contacto</li>
+                                <li><a href="/home.php#sobre-nosotros">Sobre nosotros</a></li>
+                                <li><a href="/home.php#catalogo-destacados">Nuestros productores</a></li>
+                                <li><a href="/home.php#store-footer">Sostenibilidad</a></li>
+                                <li><a href="/auth.php">Contacto</a></li>
                             </ul>
                         </div>
                         <div></div>

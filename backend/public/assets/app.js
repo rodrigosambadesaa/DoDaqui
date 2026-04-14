@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     wireCartCount();
     wirePlusButtons();
+    wireProductInlineDetails();
     wireCheckoutBits();
 });
 
@@ -24,12 +25,14 @@ function wirePlusButtons() {
     buttons.forEach((button, index) => {
         button.addEventListener('click', () => {
             const card = button.closest('.product-card');
-            if (!card) return;
+            const cardLike = card || button.closest('.box');
+            if (!cardLike) return;
 
-            const nameEl = card.querySelector('.product-name');
-            const rawPrice = card.dataset.price || '0';
+            const nameEl = cardLike.querySelector('.product-name');
+            const rawPrice = button.dataset.price || cardLike.dataset.price || '0';
             const price = Number(rawPrice) || 0;
-            const id = `product-${index + 1}`;
+            const id = button.dataset.id || cardLike.dataset.id || `product-${index + 1}`;
+            const name = button.dataset.name || (nameEl ? nameEl.textContent : 'Producto');
 
             fetch('cart_api.php?action=add', {
                 method: 'POST',
@@ -38,7 +41,7 @@ function wirePlusButtons() {
                 },
                 body: JSON.stringify({
                     id,
-                    name: nameEl ? nameEl.textContent : 'Producto',
+                    name,
                     price,
                 }),
             })
@@ -65,6 +68,36 @@ function flashButton(button) {
         button.textContent = original;
         button.disabled = false;
     }, 550);
+}
+
+function wireProductInlineDetails() {
+    const cards = document.querySelectorAll('.product-card');
+    if (cards.length === 0) return;
+
+    cards.forEach((card) => {
+        const trigger = card.querySelector('.view-product');
+        const detail = card.querySelector('.product-detail-inline');
+        if (!trigger || !detail) return;
+
+        trigger.addEventListener('click', () => {
+            const isOpen = !detail.hasAttribute('hidden');
+
+            cards.forEach((candidate) => {
+                const section = candidate.querySelector('.product-detail-inline');
+                const button = candidate.querySelector('.view-product');
+                if (!section || !button) return;
+                section.setAttribute('hidden', 'hidden');
+                candidate.classList.remove('is-expanded');
+                button.textContent = 'Ver detalle';
+            });
+
+            if (!isOpen) {
+                detail.removeAttribute('hidden');
+                card.classList.add('is-expanded');
+                trigger.textContent = 'Ocultar detalle';
+            }
+        });
+    });
 }
 
 function wireCheckoutBits() {

@@ -12,6 +12,7 @@ $products = [
         'id' => 'product-1',
         'name' => 'Tarro de miel ecológica',
         'meta' => 'Granja Abeja Feliz',
+        'category' => 'alimentacion',
         'price' => '12.50',
         'summary' => 'Miel cruda de producción local, sin mezclas industriales y con cosecha de temporada.',
     ],
@@ -19,6 +20,7 @@ $products = [
         'id' => 'product-2',
         'name' => 'Cesta de mimbre artesanal',
         'meta' => 'Colectivo Artesano',
+        'category' => 'artesania',
         'price' => '45.00',
         'summary' => 'Pieza trenzada a mano con fibras naturales, ideal para almacenaje y decoración.',
     ],
@@ -26,6 +28,7 @@ $products = [
         'id' => 'product-3',
         'name' => 'Aceite de oliva prensado en frío',
         'meta' => 'Valle del Sol',
+        'category' => 'alimentacion',
         'price' => '18.00',
         'summary' => 'Aceite virgen extra de primera prensada, con perfil afrutado y acidez baja.',
     ],
@@ -33,6 +36,7 @@ $products = [
         'id' => 'product-4',
         'name' => 'Pan de masa madre',
         'meta' => 'Panadería Local',
+        'category' => 'alimentacion',
         'price' => '6.50',
         'summary' => 'Pan de fermentación lenta, corteza crujiente y miga alveolada elaborado cada mañana.',
     ],
@@ -40,6 +44,7 @@ $products = [
         'id' => 'product-5',
         'name' => 'Queso curado artesanal',
         'meta' => 'Lácteos da Serra',
+        'category' => 'alimentacion',
         'price' => '15.20',
         'summary' => 'Queso curado de leche local con maduración lenta y sabor intenso.',
     ],
@@ -47,10 +52,22 @@ $products = [
         'id' => 'product-6',
         'name' => 'Mermelada de frutos rojos',
         'meta' => 'Huerta Atlántica',
+        'category' => 'cuidado',
         'price' => '7.90',
         'summary' => 'Elaborada en pequeños lotes con fruta de temporada y bajo contenido de azúcar.',
     ],
 ];
+
+$category = strtolower(trim((string) ($_GET['categoria'] ?? '')));
+$allowedCategories = ['alimentacion', 'artesania', 'cuidado', 'bebidas', 'hogar', 'regalo'];
+
+$filteredProducts = $products;
+if ($category !== '' && in_array($category, $allowedCategories, true)) {
+    $filteredProducts = array_values(array_filter(
+        $products,
+        static fn(array $product): bool => (string) ($product['category'] ?? '') === $category
+    ));
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -89,15 +106,18 @@ $products = [
             <main class="store-main">
                 <section class="catalog" id="catalogo-completo" style="margin-top: 0;">
                     <div class="catalog-head">
-                        <h2 class="catalog-title">Todos los productos</h2>
+                        <h2 class="catalog-title">
+                            <?php echo $category !== '' ? 'Categoría: ' . safe(ucfirst($category)) : 'Todos los productos'; ?>
+                        </h2>
                         <a href="/home.php" class="muted-xs">Volver a inicio</a>
                     </div>
                     <div class="catalog-grid">
-                        <?php foreach ($products as $product): ?>
-                            <article class="product-card" data-name="<?php echo safe($product['name']); ?>" data-origin="<?php echo safe($product['meta']); ?>" data-price="<?php echo safe($product['price']); ?>" data-summary="<?php echo safe($product['summary']); ?>">
+                        <?php foreach ($filteredProducts as $product): ?>
+                            <article class="product-card" data-id="<?php echo safe($product['id']); ?>" data-name="<?php echo safe($product['name']); ?>" data-origin="<?php echo safe($product['meta']); ?>" data-price="<?php echo safe($product['price']); ?>" data-summary="<?php echo safe($product['summary']); ?>">
                                 <div class="product-thumb placeholder"></div>
                                 <p class="product-name"><?php echo safe($product['name']); ?></p>
                                 <p class="product-meta"><?php echo safe($product['meta']); ?></p>
+                                <button class="product-link view-product" type="button">Ver detalle</button>
                                 <div class="product-row">
                                     <span><?php echo formatoEuro((float) $product['price']); ?></span>
                                     <div class="product-row-actions">
@@ -105,8 +125,21 @@ $products = [
                                         <button class="plus-btn add-cart" type="button">+</button>
                                     </div>
                                 </div>
+                                <div class="product-detail-inline" hidden>
+                                    <p class="detail-meta">Origen: <?php echo safe($product['meta']); ?></p>
+                                    <p class="detail-meta">Categoría: <?php echo safe((string) ($product['category'] ?? '')); ?></p>
+                                    <p class="detail-meta">Precio: <?php echo formatoEuro((float) $product['price']); ?></p>
+                                    <p class="detail-summary"><?php echo safe($product['summary']); ?></p>
+                                </div>
                             </article>
                         <?php endforeach; ?>
+
+                        <?php if (count($filteredProducts) === 0): ?>
+                            <article class="box" style="grid-column: 1 / -1;">
+                                <p class="section-sub">No hay productos en esta categoría todavía.</p>
+                                <a class="btn btn-light" href="/products.php" style="margin-top: 8px;">Ver todo el catálogo</a>
+                            </article>
+                        <?php endif; ?>
                     </div>
                 </section>
             </main>
