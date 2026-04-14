@@ -160,6 +160,20 @@ function wireCheckoutBits() {
                 return;
             }
 
+            const phoneInput = document.getElementById('telefono_cliente');
+            if (phoneInput instanceof HTMLInputElement) {
+                const normalizedPhone = normalizePhone(phoneInput.value);
+                if (normalizedPhone.length < 9) {
+                    phoneInput.setCustomValidity('Introduce un teléfono válido.');
+                    form.reportValidity();
+                    phoneInput.focus();
+                    return;
+                }
+
+                phoneInput.setCustomValidity('');
+                phoneInput.value = normalizedPhone;
+            }
+
             const payload = new URLSearchParams();
             const data = new FormData(form);
             for (const [key, value] of data.entries()) {
@@ -195,4 +209,11 @@ function wireCheckoutBits() {
             }
         });
     }
+}
+
+function normalizePhone(value) {
+    return String(value)
+        .trim()
+        .replace(/[^\d+\s()-]/g, '')
+        .replace(/\s+/g, ' ');
 }
