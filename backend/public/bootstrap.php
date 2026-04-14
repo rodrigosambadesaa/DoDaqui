@@ -245,3 +245,75 @@ function ensureOpinionsSchema(PDO $pdo): void
         )"
     );
 }
+
+function ensureAuthRateLimitSchema(PDO $pdo): void
+{
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS auth_rate_limits (
+            id_limit INT AUTO_INCREMENT PRIMARY KEY,
+            scope_name VARCHAR(32) NOT NULL,
+            identifier VARCHAR(190) NOT NULL,
+            hits INT NOT NULL DEFAULT 0,
+            window_start TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_scope_identifier (scope_name, identifier)
+        )"
+    );
+}
+
+function authRateLimitAllow(PDO $pdo, string $scope, string $identifier, int $maxHits, int $windowSeconds): bool
+{
+    ensureAuthRateLimitSchema($pdo);
+
+    $select = $pdo->prepare('SELECT hits, window_start FROM auth_rate_limits WHERE scope_name = :scope_name AND identifier = :identifier LIMIT 1');
+    $select->execute([
+        'scope_name' => $scope,
+        'identifier' => $identifier,
+    ]);
+    $row = $select->fetch();
+
+    if (!$row) {
+        $insert = $pdo->prepare(
+            'INSERT INTO auth_rate_limits (scope_name, identifier, hits, window_start)
+             VALUES (:scope_name, :identifier, 1, NOW())'
+        );
+        $insert->execute([
+            'scope_name' => $scope,
+            'identifier' => $identifier,
+        ]);
+        return true;
+    }
+
+    $windowStart = strtotime((string) ($row['window_start'] ?? 'now'));
+    $hits = (int) ($row['hits'] ?? 0);
+    $elapsed = time() - $windowStart;
+
+    if ($elapsed >= $windowSeconds) {
+        $reset = $pdo->prepare(
+            'UPDATE auth_rate_limits
+             SET hits = 1, window_start = NOW()
+             WHERE scope_name = :scope_name AND identifier = :identifier'
+        );
+        $reset->execute([
+            'scope_name' => $scope,
+            'identifier' => $identifier,
+        ]);
+        return true;
+    }
+
+    if ($hits >= $maxHits) {
+        return false;
+    }
+
+    $update = $pdo->prepare(
+        'UPDATE auth_rate_limits
+         SET hits = hits + 1
+         WHERE scope_name = :scope_name AND identifier = :identifier'
+    );
+    $update->execute([
+        'scope_name' => $scope,
+        'identifier' => $identifier,
+    ]);
+
+    return true;
+}
