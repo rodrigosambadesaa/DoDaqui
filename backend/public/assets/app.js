@@ -115,78 +115,69 @@ function flashButton(button) {
 }
 
 function wireCheckoutBits() {
-    const backBtn = document.getElementById('back-btn');
-    if (backBtn) {
-        backBtn.addEventListener('click', () => {
-            window.location.href = 'cart.php';
+    const qtyButtons = document.querySelectorAll('.qty-btn');
+    if (qtyButtons.length > 0) {
+        qtyButtons.forEach((button) => {
+            button.addEventListener('click', async () => {
+                const row = button.closest('tr[data-product-id]');
+                if (!row) return;
+
+                const productId = row.getAttribute('data-product-id');
+                const action = button.getAttribute('data-action');
+                const delta = action === 'plus' ? 1 : -1;
+
+                button.disabled = true;
+                try {
+                    const response = await fetch('cart_api.php?action=update', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: productId, delta }),
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok || !data.ok) {
+                        throw new Error(data.message || 'No se pudo actualizar el carrito.');
+                    }
+
+                    const counter = document.getElementById('cart-count');
+                    if (counter) {
+                        counter.textContent = String(data.count ?? 0);
+                    }
+
+                    if ((data.quantity ?? 0) <= 0) {
+                        window.location.reload();
+                        return;
+                    }
+
+                    const qtyValue = row.querySelector('.qty-value');
+                    if (qtyValue) {
+                        qtyValue.textContent = String(data.quantity);
+                    }
+
+                    window.location.reload();
+                } catch (error) {
+                    alert(error instanceof Error ? error.message : 'No se pudo actualizar el carrito.');
+                } finally {
+                    button.disabled = false;
+                }
+            });
         });
     }
 
-    const form = document.getElementById('checkout-form');
-    const paymentRadios = document.querySelectorAll('input[name="metodo_pagamento"]');
-    const cardFields = document.getElementById('card-fields');
-    const paypalFields = document.getElementById('paypal-fields');
-
-    function syncPaymentUI() {
-        if (!form || paymentRadios.length === 0) return;
-
-        const selected = form.querySelector('input[name="metodo_pagamento"]:checked')?.value;
-        const cardInputs = cardFields ? cardFields.querySelectorAll('input') : [];
-        const paypalInputs = paypalFields ? paypalFields.querySelectorAll('input') : [];
-
-        const isCard = selected !== 'paypal';
-
-        if (cardFields) {
-            cardFields.hidden = !isCard;
-            cardInputs.forEach((input) => {
-                input.disabled = !isCard;
-                input.required = isCard;
-            });
-        }
-
-        if (paypalFields) {
-            paypalFields.hidden = isCard;
-            paypalInputs.forEach((input) => {
-                input.disabled = isCard;
-                input.required = !isCard;
-            });
-        }
-    }
-
-    if (paymentRadios.length > 0) {
-        paymentRadios.forEach((radio) => radio.addEventListener('change', syncPaymentUI));
-        syncPaymentUI();
-    }
-
-    const billingEditBtn = document.getElementById('billing-edit-btn');
-    const billingFields = document.getElementById('billing-fields');
-    if (billingEditBtn && billingFields) {
-        billingEditBtn.addEventListener('click', () => {
-            const hidden = billingFields.hasAttribute('hidden');
-            if (hidden) {
-                billingFields.removeAttribute('hidden');
-                billingEditBtn.textContent = 'Ocultar';
-            } else {
-                billingFields.setAttribute('hidden', 'hidden');
-                billingEditBtn.textContent = 'Editar';
-            }
-        });
-    }
-
+    const form = document.getElementById('shipping-form');
     const completeBtn = document.getElementById('complete-btn');
-    if (completeBtn) {
+
+    if (completeBtn && form) {
         completeBtn.addEventListener('click', async () => {
-            if (form && !form.checkValidity()) {
+            if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
             }
 
             const payload = new URLSearchParams();
-            if (form) {
-                const data = new FormData(form);
-                for (const [key, value] of data.entries()) {
-                    payload.append(key, String(value));
-                }
+            const data = new FormData(form);
+            for (const [key, value] of data.entries()) {
+                payload.append(key, String(value));
             }
 
             payload.set('action', 'realizar_pedido');
@@ -204,12 +195,12 @@ function wireCheckoutBits() {
                     body: payload.toString(),
                 });
 
-                const data = await response.json();
-                if (!response.ok || !data.ok) {
-                    throw new Error(data.message || 'No se pudo completar la compra.');
+                const result = await response.json();
+                if (!response.ok || !result.ok) {
+                    throw new Error(result.message || 'No se pudo completar la compra.');
                 }
 
-                alert(`Pedido #${data.id_pedido} confirmado. Total: ${data.total}`);
+                alert(`Pedido #${result.id_pedido} confirmado. Total: ${result.total}`);
                 window.location.href = 'home.php';
             } catch (error) {
                 alert(error instanceof Error ? error.message : 'No se pudo completar la compra.');
