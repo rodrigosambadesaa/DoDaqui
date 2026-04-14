@@ -121,3 +121,22 @@ function formatoEuro(float $importe): string
 {
     return number_format($importe, 2, ',', '.') . ' €';
 }
+
+function ensureOpinionsSchema(PDO $pdo): void
+{
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS opinions_clientes (
+            id_opinion INT AUTO_INCREMENT PRIMARY KEY,
+            id_produto VARCHAR(80) NOT NULL,
+            id_cliente INT NOT NULL,
+            data_opinion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            valoracion TINYINT NOT NULL,
+            opinion VARCHAR(600) NOT NULL,
+            CONSTRAINT fk_opinion_usuario
+                FOREIGN KEY (id_cliente) REFERENCES usuarios(id_usuario)
+                ON DELETE CASCADE,
+            CONSTRAINT chk_valoracion
+                CHECK (valoracion BETWEEN 1 AND 5)
+        )"
+    );
+}
