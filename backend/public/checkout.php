@@ -143,7 +143,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || (string) ($_POST['action'] ?? '') !
     exit;
 }
 
-header('Content-Type: application/json; charset=utf-8');
+requireValidCsrfToken((string) ($_POST['csrf_token'] ?? ''));
+
+applySecurityHeaders(true);
 
 $cart = obterCarrinhoUsuario($pdo, (int) $user['id_usuario']);
 if (count($cart) === 0) {
