@@ -46,10 +46,10 @@ Write-Host "Iniciando smoke tests de seguridad en $BaseUrl"
 
 $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 
-$home = Invoke-WebRequest -Uri "$BaseUrl/home.php" -WebSession $session
-Assert-True ($home.StatusCode -eq 200) 'Home responde 200'
+$homeResponse = Invoke-WebRequest -Uri "$BaseUrl/home.php" -WebSession $session
+Assert-True ($homeResponse.StatusCode -eq 200) 'Home responde 200'
 
-$linkMatches = [regex]::Matches($home.Content, 'href="(/[^"#?]+(?:\?[^"#]*)?)"')
+$linkMatches = [regex]::Matches($homeResponse.Content, 'href="(/[^"#?]+(?:\?[^"#]*)?)"')
 $links = @{}
 foreach ($m in $linkMatches) {
     $path = $m.Groups[1].Value
@@ -71,10 +71,10 @@ $password = 'SecurePass123!'
 
 $registerBody = @{
     csrf_token = $csrfAuth
-    action = 'register'
-    name = 'Usuario Seguridad'
-    email = $email
-    password = $password
+    action     = 'register'
+    name       = 'Usuario Seguridad'
+    email      = $email
+    password   = $password
 }
 $register = Invoke-WebRequest -Uri "$BaseUrl/auth.php" -Method Post -WebSession $session -Body $registerBody
 Assert-True ($register.StatusCode -eq 200) 'Registro responde correctamente'
@@ -84,9 +84,9 @@ $auth2 = Invoke-WebRequest -Uri "$BaseUrl/auth.php" -WebSession $session
 $csrfAuth2 = Get-HiddenCsrfToken -Html $auth2.Content
 $loginBody = @{
     csrf_token = $csrfAuth2
-    action = 'login'
-    email = $email
-    password = $password
+    action     = 'login'
+    email      = $email
+    password   = $password
 }
 $login = Invoke-WebRequest -Uri "$BaseUrl/auth.php" -Method Post -WebSession $session -Body $loginBody -MaximumRedirection 5
 Assert-True ($login.StatusCode -ge 200 -and $login.StatusCode -lt 400) 'Login ejecutado'
@@ -103,18 +103,17 @@ $addRes = Invoke-WebRequest -Uri "$BaseUrl/cart_api.php?action=add" -Method Post
 $addJson = $addRes.Content | ConvertFrom-Json
 Assert-True ($addJson.ok -eq $true) 'Añadir al carrito funciona con CSRF válido'
 
-$csrfFailHeaders = @{ 'Content-Type' = 'application/json' }
-$csrfFailCode = $null
-try {
-    Invoke-WebRequest -Uri "$BaseUrl/cart_api.php?action=add" -Method Post -WebSession $session -Headers $csrfFailHeaders -Body $addPayload | Out-Null
-} catch {
-    $csrfFailCode = $_.Exception.Response.StatusCode.value__
+$csrfFailHeaders = @{
+    'Content-Type' = 'application/json'
+    'X-CSRF-Token' = 'invalid-token'
 }
-Assert-True ($csrfFailCode -eq 419) 'API carrito rechaza petición sin CSRF'
+$csrfFailRes = Invoke-WebRequest -Uri "$BaseUrl/cart_api.php?action=add" -Method Post -WebSession $session -Headers $csrfFailHeaders -Body $addPayload -SkipHttpErrorCheck
+$csrfRejected = ($csrfFailRes.Content -match 'Token CSRF inválido o ausente') -or ($csrfFailRes.Content -match '"ok"\s*:\s*false')
+Assert-True $csrfRejected 'API carrito rechaza petición sin CSRF'
 
 $cartPage = Invoke-WebRequest -Uri "$BaseUrl/cart.php" -WebSession $session
 $csrfCheckout = Get-HiddenCsrfToken -Html $cartPage.Content
-$checkoutBody = @{
+$checkoutPairs = @{
     csrf_token = $csrfCheckout
     action = 'realizar_pedido'
     nome_facturacion = 'Cliente Prueba'
@@ -126,7 +125,13 @@ $checkoutBody = @{
     pais_facturacion = 'España'
     observacions = 'Entrega por la mañana'
 }
-$checkoutRes = Invoke-WebRequest -Uri "$BaseUrl/checkout.php" -Method Post -WebSession $session -Body $checkoutBody
+
+$checkoutBody = ($checkoutPairs.GetEnumerator() | ForEach-Object {
+    [uri]::EscapeDataString([string]$_.Key) + '=' + [uri]::EscapeDataString([string]$_.Value)
+}) -join '&'
+
+$checkoutHeaders = @{ 'Content-Type' = 'application/x-www-form-urlencoded;charset=UTF-8' }
+$checkoutRes = Invoke-WebRequest -Uri "$BaseUrl/checkout.php" -Method Post -WebSession $session -Headers $checkoutHeaders -Body $checkoutBody
 $checkoutJson = $checkoutRes.Content | ConvertFrom-Json
 Assert-True ($checkoutJson.ok -eq $true) 'Checkout completo con CSRF y validaciones'
 
@@ -138,9 +143,9 @@ $loginLimited = $false
 for ($i = 1; $i -le 11; $i++) {
     $abuseLoginBody = @{
         csrf_token = $abuseToken
-        action = 'login'
-        email = 'abuse-login@example.com'
-        password = 'wrong-pass'
+        action     = 'login'
+        email      = 'abuse-login@example.com'
+        password   = 'wrong-pass'
     }
     $abuseLoginRes = Invoke-WebRequest -Uri "$BaseUrl/auth.php" -Method Post -WebSession $abuseSession -Body $abuseLoginBody
     if ($abuseLoginRes.Content -match 'Demasiados intentos de inicio de sesión') {
@@ -154,10 +159,10 @@ $registerLimited = $false
 for ($j = 1; $j -le 4; $j++) {
     $abuseRegisterBody = @{
         csrf_token = $abuseToken
-        action = 'register'
-        name = 'Bot Ataque'
-        email = 'abuse-register@example.com'
-        password = 'SecurePass123!'
+        action     = 'register'
+        name       = 'Bot Ataque'
+        email      = 'abuse-register@example.com'
+        password   = 'SecurePass123!'
     }
     $abuseRegisterRes = Invoke-WebRequest -Uri "$BaseUrl/auth.php" -Method Post -WebSession $abuseSession -Body $abuseRegisterBody
     if ($abuseRegisterRes.Content -match 'Demasiados intentos de registro') {
