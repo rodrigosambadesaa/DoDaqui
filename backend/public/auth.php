@@ -74,9 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = trim((string) ($_POST['email'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
 
-        if ($email === '' || $password === '') {
+        $loginRateLimitOk = authRateLimitAllow($pdo, 'login_ip', clientIp(), 20, 900)
+            && authRateLimitAllow($pdo, 'login_email', strtolower($email), 10, 900);
+
+        if (!$loginRateLimitOk) {
+            $error = 'Demasiados intentos de inicio de sesión. Inténtalo de nuevo en unos minutos.';
+        }
+
+        if ($error === '' && ($email === '' || $password === '')) {
             $error = 'Debes completar correo y contraseña.';
-        } else {
+        } elseif ($error === '') {
             $stmt = $pdo->prepare('SELECT id_usuario, nome, correo_electronico, telefono, rol_usuario, contrasinal FROM usuarios WHERE correo_electronico = :correo LIMIT 1');
             $stmt->execute(['correo' => $email]);
             $user = $stmt->fetch();
