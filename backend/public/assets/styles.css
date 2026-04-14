@@ -631,6 +631,116 @@ a {
     min-height: 32px;
 }
 
+.cart-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 14px;
+}
+
+.cart-header-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.cart-title {
+    font-family: "Montserrat", "Open Sans", sans-serif;
+    font-size: 42px;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.cart-box {
+    margin-bottom: 12px;
+    border-radius: 8px;
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart-table thead {
+    background: #f2f5f9;
+}
+
+.cart-table th,
+.cart-table td {
+    text-align: left;
+    font-size: 11px;
+    padding: 8px;
+    border-bottom: 1px solid var(--line);
+}
+
+.cart-product-cell {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 8px;
+    align-items: center;
+}
+
+.cart-thumb {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+}
+
+.qty-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qty-value {
+    min-width: 12px;
+    text-align: center;
+}
+
+.qty-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: #2f3b4e;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.cart-summary-box {
+    position: sticky;
+    top: 14px;
+    align-self: start;
+    border-radius: 8px;
+}
+
+.summary-total.compact {
+    font-size: 16px;
+}
+
+.coupon-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.coupon-row input {
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #f8fafd;
+    padding: 0 8px;
+    font-size: 11px;
+}
+
+.ok-text {
+    color: #27995a;
+}
+
 .checkout-wrap {
     display: grid;
     grid-template-columns: 260px minmax(0, 1fr);
@@ -830,9 +940,18 @@ a {
     .checkout-grid {
         grid-template-columns: 1fr;
     }
+
+    .cart-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .cart-summary-box {
+        position: static;
+    }
 }
 
 @media (max-width: 860px) {
+
     .nav-links,
     .desktop-only {
         display: none;
@@ -862,6 +981,16 @@ a {
 
     .catalog-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cart-title {
+        font-size: 34px;
+    }
+
+    .cart-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 
     .newsletter-band h3 {
