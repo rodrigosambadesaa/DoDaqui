@@ -93,7 +93,7 @@ Para maior comodidade especifícase en texto en vez en de diagramas.
 #### 3. Modelo relacional
 
 ```
-usuarios (id_usuario, nome, email, contrasinal, enderezo, rol)
+usuarios (id_usuario, nome, email, contrasinal, enderezo, rol, telefono)
 
 produtos (id_produto, nome, descripcion, prezo, stock, categoria, imaxe_url)
 
