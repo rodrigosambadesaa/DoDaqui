@@ -103,4 +103,10 @@ pedidos (id_pedido, id_usuario, data_pedido, total, estado)
 pedido_liñas (id_lina, id_pedido, id_produto, cantidade, prezo_unitario)
     FK: id_pedido → pedidos
     FK: id_produto → produtos
+
+opinions_clientes (id_opinion, id_produto, id_cliente, data, valoracion, opinion)
+    FK: id_produto → produtos
+    FK: id_cliente → usuarios
 ```
+
+
