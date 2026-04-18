@@ -8,6 +8,7 @@ applySecurityHeaders();
 
 unset($_SESSION['user']);
 unset($_SESSION['_csrf_token']);
+clearDemoAuthCookie();
 session_regenerate_id(true);
 
 header('Location: auth.php');

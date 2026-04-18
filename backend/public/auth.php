@@ -56,8 +56,15 @@ function ensureAuthSchema(PDO $pdo): void
     ]);
 }
 
-$pdo = db();
-ensureAuthSchema($pdo);
+$pdo = null;
+$dbAvailable = true;
+
+try {
+    $pdo = db();
+    ensureAuthSchema($pdo);
+} catch (Throwable $exception) {
+    $dbAvailable = false;
+}
 
 if (currentUser() !== null) {
     redirect('home.php');
@@ -74,18 +81,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
 
-        $loginRateLimitOk = authRateLimitAllow($pdo, 'login_ip', clientIp(), 20, 900)
-            && authRateLimitAllow($pdo, 'login_email', strtolower($email), 10, 900);
+        if (!$dbAvailable) {
+            if ($email === 'demo@tenda.gal' && $password === 'Demo1234!') {
+                $_SESSION['user'] = [
+                    'id_usuario' => 1,
+                    'nome' => 'Usuario Demo',
+                    'email' => 'demo@tenda.gal',
+                    'telefono' => '+34600000000',
+                    'rol' => 'cliente',
+                ];
+                issueDemoAuthCookie();
+                redirect('home.php');
+            }
 
-        if (!$loginRateLimitOk) {
-            $error = 'Demasiados intentos de inicio de sesión. Inténtalo de nuevo en unos minutos.';
+            $error = 'La base de datos no está configurada todavía en producción. Usa temporalmente la cuenta demo o configura las variables de entorno en Vercel.';
+        }
+
+        if ($error === '' && $pdo instanceof PDO) {
+            $loginRateLimitOk = authRateLimitAllow($pdo, 'login_ip', clientIp(), 20, 900)
+                && authRateLimitAllow($pdo, 'login_email', strtolower($email), 10, 900);
+
+            if (!$loginRateLimitOk) {
+                $error = 'Demasiados intentos de inicio de sesión. Inténtalo de nuevo en unos minutos.';
+            }
         }
 
         if ($error === '' && ($email === '' || $password === '')) {
             $error = 'Debes completar correo y contraseña.';
         } elseif ($error === '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 160)) {
             $error = 'El correo no tiene un formato válido.';
-        } elseif ($error === '') {
+        } elseif ($error === '' && $pdo instanceof PDO) {
             $stmt = $pdo->prepare('SELECT id_usuario, nome, correo_electronico, telefono, rol_usuario, contrasinal FROM usuarios WHERE correo_electronico = :correo LIMIT 1');
             $stmt->execute(['correo' => $email]);
             $user = $stmt->fetch();
@@ -102,6 +127,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $error = 'Credenciales incorrectas.';
+        } elseif ($error === '') {
+            $error = 'La base de datos no está disponible temporalmente.';
         }
     }
 
@@ -110,11 +137,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
 
-        $registerRateLimitOk = authRateLimitAllow($pdo, 'register_ip', clientIp(), 8, 3600)
-            && authRateLimitAllow($pdo, 'register_email', strtolower($email), 3, 3600);
+        if (!$dbAvailable) {
+            $error = 'El registro está desactivado temporalmente hasta configurar la base de datos en producción.';
+        }
 
-        if (!$registerRateLimitOk) {
-            $error = 'Demasiados intentos de registro. Vuelve a intentarlo más tarde.';
+        if ($error === '' && $pdo instanceof PDO) {
+            $registerRateLimitOk = authRateLimitAllow($pdo, 'register_ip', clientIp(), 8, 3600)
+                && authRateLimitAllow($pdo, 'register_email', strtolower($email), 3, 3600);
+
+            if (!$registerRateLimitOk) {
+                $error = 'Demasiados intentos de registro. Vuelve a intentarlo más tarde.';
+            }
         }
 
         if ($error === '' && ($name === '' || $email === '' || $password === '')) {
@@ -123,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'El nombre solo puede contener letras, espacios, apostrofes y guiones.';
         } elseif ($error === '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 160)) {
             $error = 'El correo no tiene un formato válido.';
-        } elseif ($error === '') {
+        } elseif ($error === '' && $pdo instanceof PDO) {
             $passwordErrors = validateStrongPassword($password);
 
             if (count($passwordErrors) > 0) {
@@ -145,6 +178,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $ok = 'Registro correcto. Ya puedes iniciar sesión.';
                 }
             }
+        } elseif ($error === '') {
+            $error = 'La base de datos no está disponible temporalmente.';
         }
     }
 }

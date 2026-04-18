@@ -118,6 +118,132 @@ function appEnv(string $name, string $default = ''): string
     return $value;
 }
 
+function appEnvFirst(array $names, string $default = ''): string
+{
+    foreach ($names as $name) {
+        $value = getenv($name);
+        if ($value !== false && $value !== '') {
+            return $value;
+        }
+    }
+
+    return $default;
+}
+
+function demoAuthCookieName(): string
+{
+    return 'dodaqui_demo_auth';
+}
+
+function demoAuthSecret(): string
+{
+    return appEnvFirst(['AUTH_FALLBACK_SECRET', 'APP_KEY'], 'dodaqui-fallback-secret-change-me');
+}
+
+function isHttpsRequest(): bool
+{
+    return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443)
+        || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+}
+
+function issueDemoAuthCookie(): void
+{
+    $expiresAt = time() + (7 * 24 * 60 * 60);
+    $payload = 'demo|' . $expiresAt;
+    $signature = hash_hmac('sha256', $payload, demoAuthSecret());
+    $value = base64_encode($payload . '|' . $signature);
+
+    setcookie(demoAuthCookieName(), $value, [
+        'expires' => $expiresAt,
+        'path' => '/',
+        'secure' => isHttpsRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function clearDemoAuthCookie(): void
+{
+    setcookie(demoAuthCookieName(), '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'secure' => isHttpsRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function demoUserFromCookie(): ?array
+{
+    $encoded = (string) ($_COOKIE[demoAuthCookieName()] ?? '');
+    if ($encoded === '') {
+        return null;
+    }
+
+    $decoded = base64_decode($encoded, true);
+    if (!is_string($decoded) || $decoded === '') {
+        return null;
+    }
+
+    $parts = explode('|', $decoded);
+    if (count($parts) !== 3) {
+        return null;
+    }
+
+    [$kind, $expiresRaw, $signature] = $parts;
+    if ($kind !== 'demo' || !ctype_digit($expiresRaw)) {
+        return null;
+    }
+
+    $expiresAt = (int) $expiresRaw;
+    if ($expiresAt < time()) {
+        return null;
+    }
+
+    $payload = $kind . '|' . $expiresRaw;
+    $expected = hash_hmac('sha256', $payload, demoAuthSecret());
+    if (!hash_equals($expected, $signature)) {
+        return null;
+    }
+
+    return [
+        'id_usuario' => 1,
+        'nome' => 'Usuario Demo',
+        'email' => 'demo@tenda.gal',
+        'telefono' => '+34600000000',
+        'rol' => 'cliente',
+    ];
+}
+
+function parseMysqlConnectionUrl(string $url): ?array
+{
+    $parts = parse_url($url);
+    if ($parts === false) {
+        return null;
+    }
+
+    $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+    if (!in_array($scheme, ['mysql', 'mariadb'], true)) {
+        return null;
+    }
+
+    $host = (string) ($parts['host'] ?? '');
+    if ($host === '') {
+        return null;
+    }
+
+    $database = ltrim((string) ($parts['path'] ?? ''), '/');
+
+    return [
+        'host' => $host,
+        'port' => (int) ($parts['port'] ?? 3306),
+        'database' => $database,
+        'user' => urldecode((string) ($parts['user'] ?? '')),
+        'pass' => urldecode((string) ($parts['pass'] ?? '')),
+    ];
+}
+
 /**
  * Get database connection
  */
@@ -126,11 +252,28 @@ function db(): PDO
     static $pdo = null;
 
     if ($pdo === null) {
-        $host = appEnv('DB_HOST', 'db');
-        $port = (int) appEnv('DB_PORT', '3306');
-        $database = appEnv('DB_DATABASE', appEnv('DB_NAME', 'app'));
-        $user = appEnv('DB_USERNAME', appEnv('DB_USER', 'app_user'));
-        $pass = appEnv('DB_PASSWORD', appEnv('DB_PASS', 'app_pass'));
+        $connectionUrl = appEnvFirst(['DATABASE_URL', 'MYSQL_URL', 'JAWSDB_URL'], '');
+        $urlConfig = $connectionUrl !== '' ? parseMysqlConnectionUrl($connectionUrl) : null;
+
+        $host = appEnvFirst(['DB_HOST', 'MYSQL_HOST', 'MYSQLHOST'], (string) ($urlConfig['host'] ?? ''));
+        $port = (int) appEnvFirst(['DB_PORT', 'MYSQL_PORT', 'MYSQLPORT'], (string) ($urlConfig['port'] ?? 3306));
+        $database = appEnvFirst(['DB_DATABASE', 'DB_NAME', 'MYSQL_DATABASE', 'MYSQLDATABASE'], (string) ($urlConfig['database'] ?? 'app'));
+        $user = appEnvFirst(['DB_USERNAME', 'DB_USER', 'MYSQL_USER', 'MYSQL_USERNAME', 'MYSQLUSER'], (string) ($urlConfig['user'] ?? 'app_user'));
+        $pass = appEnvFirst(['DB_PASSWORD', 'DB_PASS', 'MYSQL_PASSWORD', 'MYSQLPASSWORD'], (string) ($urlConfig['pass'] ?? 'app_pass'));
+
+        if ($host === '') {
+            $host = 'db';
+        }
+
+        $isServerlessRuntime = appEnv('VERCEL', '') !== ''
+            || appEnv('AWS_REGION', '') !== ''
+            || str_starts_with((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/var/task');
+
+        $usesDockerDefaultHost = $host === 'db';
+        $hasExplicitHostConfig = appEnvFirst(['DB_HOST', 'MYSQL_HOST', 'MYSQLHOST'], '') !== '';
+        if ($isServerlessRuntime && $usesDockerDefaultHost && !$hasExplicitHostConfig && $urlConfig === null) {
+            throw new RuntimeException('Configuracion de base de datos ausente en produccion. Define DATABASE_URL o DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD en Vercel.');
+        }
 
         $dsn = sprintf(
             'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
@@ -138,6 +281,9 @@ function db(): PDO
             $port,
             $database
         );
+
+        $isLocalDbHost = in_array($host, ['db', '127.0.0.1', 'localhost'], true);
+        $allowRootFallback = $isLocalDbHost && !$isServerlessRuntime;
 
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -148,6 +294,10 @@ function db(): PDO
         try {
             $pdo = new PDO($dsn, $user, $pass, $options);
         } catch (PDOException $exception) {
+            if (!$allowRootFallback) {
+                throw $exception;
+            }
+
             $rootUser = appEnv('DB_ROOT_USERNAME', appEnv('DB_ROOT_USER', 'root'));
             $rootPass = appEnv('DB_ROOT_PASSWORD', appEnv('DB_ROOT_PASS', 'root'));
 
@@ -155,6 +305,10 @@ function db(): PDO
                 // Fallback para entornos locales con volumen MySQL persistido y credenciales antiguas.
                 $pdo = new PDO($dsn, $rootUser, $rootPass, $options);
             } catch (PDOException $rootException) {
+                if ((string) $rootException->getCode() === '2002') {
+                    throw $exception;
+                }
+
                 $serverDsn = sprintf('mysql:host=%s;port=%d;charset=utf8mb4', $host, $port);
                 $adminPdo = new PDO($serverDsn, $rootUser, $rootPass, $options);
 
@@ -175,7 +329,18 @@ function db(): PDO
  */
 function currentUser(): ?array
 {
-    return $_SESSION['user'] ?? null;
+    $sessionUser = $_SESSION['user'] ?? null;
+    if (is_array($sessionUser)) {
+        return $sessionUser;
+    }
+
+    $demoUser = demoUserFromCookie();
+    if ($demoUser !== null) {
+        $_SESSION['user'] = $demoUser;
+        return $demoUser;
+    }
+
+    return null;
 }
 
 /**

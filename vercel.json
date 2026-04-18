@@ -1,31 +1,31 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "backend/public/*.php",
-      "use": "vercel-php"
-    },
-    {
-      "src": "backend/public/assets/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "^/$",
-      "dest": "/backend/public/index.php"
-    },
-    {
-      "src": "^/assets/(.*)$",
-      "dest": "/backend/public/assets/$1"
-    },
-    {
-      "src": "^/([a-zA-Z0-9_-]+\\.php)$",
-      "dest": "/backend/public/$1"
-    },
-    {
-      "src": "^/([a-zA-Z0-9_-]+)$",
-      "dest": "/backend/public/$1.php"
-    }
-  ]
+    "version": 2,
+    "builds": [
+        {
+            "src": "backend/public/*.php",
+            "use": "vercel-php"
+        },
+        {
+            "src": "backend/public/assets/**",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "^/$",
+            "dest": "/backend/public/index.php"
+        },
+        {
+            "src": "^/assets/(.*)$",
+            "dest": "/backend/public/assets/$1"
+        },
+        {
+            "src": "^/([a-zA-Z0-9_-]+\\.php)$",
+            "dest": "/backend/public/$1"
+        },
+        {
+            "src": "^/([a-zA-Z0-9_-]+)$",
+            "dest": "/backend/public/$1.php"
+        }
+    ]
 }
