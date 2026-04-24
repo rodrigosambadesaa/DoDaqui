@@ -62,7 +62,11 @@ $products = [
 $category = strtolower(trim((string) ($_GET['categoria'] ?? '')));
 $query = trim((string) ($_GET['q'] ?? ''));
 $queryLower = strtolower($query);
+$sort = (string) ($_GET['orden'] ?? 'destacados');
 $allowedCategories = ['alimentacion', 'artesania', 'cuidado', 'bebidas', 'hogar', 'regalo'];
+if (!in_array($sort, ['destacados', 'precio_asc', 'precio_desc', 'nombre_asc'], true)) {
+    $sort = 'destacados';
+}
 
 $filteredProducts = $products;
 if ($category !== '' && in_array($category, $allowedCategories, true)) {
@@ -86,6 +90,14 @@ if ($queryLower !== '') {
             return str_contains($haystack, $queryLower);
         }
     ));
+}
+
+if ($sort === 'precio_asc') {
+    usort($filteredProducts, static fn(array $a, array $b): int => (float) $a['price'] <=> (float) $b['price']);
+} elseif ($sort === 'precio_desc') {
+    usort($filteredProducts, static fn(array $a, array $b): int => (float) $b['price'] <=> (float) $a['price']);
+} elseif ($sort === 'nombre_asc') {
+    usort($filteredProducts, static fn(array $a, array $b): int => strcmp((string) $a['name'], (string) $b['name']));
 }
 ?>
 <!DOCTYPE html>
@@ -136,6 +148,7 @@ if ($queryLower !== '') {
                         <?php if ($category !== ''): ?>
                             <input type="hidden" name="categoria" value="<?php echo safe($category); ?>">
                         <?php endif; ?>
+                        <input type="hidden" name="orden" value="<?php echo safe($sort); ?>">
                         <input
                             type="search"
                             name="q"
@@ -143,6 +156,23 @@ if ($queryLower !== '') {
                             value="<?php echo safe($query); ?>"
                             aria-label="Buscar en catálogo">
                         <button class="btn btn-dark" type="submit">Buscar</button>
+                    </form>
+
+                    <form method="get" class="box" style="margin-bottom: 12px; display: grid; grid-template-columns: auto auto auto auto; gap: 8px; align-items: center;">
+                        <?php if ($category !== ''): ?>
+                            <input type="hidden" name="categoria" value="<?php echo safe($category); ?>">
+                        <?php endif; ?>
+                        <?php if ($query !== ''): ?>
+                            <input type="hidden" name="q" value="<?php echo safe($query); ?>">
+                        <?php endif; ?>
+                        <label for="orden" class="muted-xs">Ordenar por</label>
+                        <select id="orden" name="orden" onchange="this.form.submit()">
+                            <option value="destacados" <?php echo $sort === 'destacados' ? 'selected' : ''; ?>>Destacados</option>
+                            <option value="precio_asc" <?php echo $sort === 'precio_asc' ? 'selected' : ''; ?>>Precio: menor a mayor</option>
+                            <option value="precio_desc" <?php echo $sort === 'precio_desc' ? 'selected' : ''; ?>>Precio: mayor a menor</option>
+                            <option value="nombre_asc" <?php echo $sort === 'nombre_asc' ? 'selected' : ''; ?>>Nombre A-Z</option>
+                        </select>
+                        <noscript><button class="btn btn-light" type="submit">Aplicar</button></noscript>
                     </form>
 
                     <div class="catalog-grid">
