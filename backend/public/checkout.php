@@ -231,9 +231,28 @@ applySecurityHeaders(true);
 $dbCheckoutAvailable = true;
 try {
     $pdo = db();
-    ensureCheckoutUsersTable($pdo);
-    ensureCheckoutSchema($pdo);
-    $checkoutUserId = resolveCheckoutUserId($pdo, $user);
+
+    try {
+        ensureCheckoutUsersTable($pdo);
+    } catch (Throwable $exception) {
+        error_log('Checkout users schema maintenance skipped: ' . $exception->getMessage());
+    }
+
+    try {
+        ensureCheckoutSchema($pdo);
+    } catch (Throwable $exception) {
+        error_log('Checkout order schema maintenance skipped: ' . $exception->getMessage());
+    }
+
+    try {
+        $checkoutUserId = resolveCheckoutUserId($pdo, $user);
+    } catch (Throwable $exception) {
+        error_log('Checkout resolve user fallback: ' . $exception->getMessage());
+        $checkoutUserId = (int) ($user['id_usuario'] ?? 0);
+        if ($checkoutUserId <= 0) {
+            $dbCheckoutAvailable = false;
+        }
+    }
 } catch (Throwable $exception) {
     $dbCheckoutAvailable = false;
     $checkoutUserId = (int) ($user['id_usuario'] ?? 0);
@@ -245,9 +264,16 @@ if (count($sessionCart) === 0 && count($cookieCart) > 0) {
     $sessionCart = $cookieCart;
     $_SESSION['cart'] = $sessionCart;
 }
-$cart = $dbCheckoutAvailable
-    ? obterCarrinhoUsuario($pdo, $checkoutUserId)
-    : $sessionCart;
+if ($dbCheckoutAvailable) {
+    try {
+        $cart = obterCarrinhoUsuario($pdo, $checkoutUserId);
+    } catch (Throwable $exception) {
+        error_log('Checkout cart fallback to session: ' . $exception->getMessage());
+        $cart = $sessionCart;
+    }
+} else {
+    $cart = $sessionCart;
+}
 
 if ($dbCheckoutAvailable && count($cart) === 0 && count($sessionCart) > 0) {
     $cart = $sessionCart;
