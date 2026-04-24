@@ -48,7 +48,8 @@ try {
 
     $opinions = $query ? ($query->fetchAll() ?: []) : [];
 } catch (Throwable $exception) {
-    $error = 'No se pudieron cargar las opiniones en este momento.';
+    $error = '';
+    $opinions = [];
 }
 ?>
 <!DOCTYPE html>

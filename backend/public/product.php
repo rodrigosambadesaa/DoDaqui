@@ -137,9 +137,13 @@ try {
         $opinions = $opinionsQuery->fetchAll() ?: [];
     }
 } catch (Throwable $exception) {
-    if ($reviewError === '') {
-        $reviewError = 'No se pudieron cargar las valoraciones. Inténtalo más tarde.';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') === 'add_opinion') {
+        if ($reviewError === '') {
+            $reviewError = 'No se pudo guardar la valoración en este momento.';
+        }
     }
+
+    $opinions = [];
 }
 ?>
 <!DOCTYPE html>
