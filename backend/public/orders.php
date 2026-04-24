@@ -12,6 +12,23 @@ if ($user === null) {
     header('Location: /auth.php');
     exit;
 }
+
+$orders = [];
+
+try {
+    $pdo = db();
+
+    $stmt = $pdo->prepare(
+        'SELECT id_pedido, estado_pedido, importe_total, creado_en
+         FROM pedidos
+         WHERE id_usuario = :id_usuario
+         ORDER BY creado_en DESC, id_pedido DESC'
+    );
+    $stmt->execute(['id_usuario' => (int) ($user['id_usuario'] ?? 0)]);
+    $orders = $stmt->fetchAll() ?: [];
+} catch (Throwable $exception) {
+    $orders = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -45,8 +62,25 @@ if ($user === null) {
             <main class="store-main">
                 <section class="box">
                     <h2 class="catalog-title">Historial de pedidos</h2>
-                    <p class="section-sub">Estamos preparando tu historial completo. En el siguiente bloque mostraremos todos tus pedidos con su estado.</p>
-                    <a class="btn btn-light" href="/home.php">Volver al inicio</a>
+                    <p class="section-sub">Consulta el estado y el importe de tus pedidos más recientes.</p>
+
+                    <?php if (count($orders) === 0): ?>
+                        <p class="section-sub">Todavía no tienes pedidos confirmados.</p>
+                        <a class="btn btn-light" href="/products.php">Explorar catálogo</a>
+                    <?php else: ?>
+                        <div style="display: grid; gap: 10px; margin-top: 10px;">
+                            <?php foreach ($orders as $order): ?>
+                                <article class="box" style="margin: 0;">
+                                    <p style="margin: 0;"><strong>Pedido #<?php echo safe((string) ($order['id_pedido'] ?? '')); ?></strong></p>
+                                    <p class="muted-xs" style="margin: 4px 0;">
+                                        Estado: <?php echo safe((string) ($order['estado_pedido'] ?? 'confirmado')); ?>
+                                        · Fecha: <?php echo safe((string) ($order['creado_en'] ?? '')); ?>
+                                    </p>
+                                    <p style="margin: 0;">Total: <?php echo formatoEuro((float) ($order['importe_total'] ?? 0)); ?></p>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </section>
             </main>
         </div>
