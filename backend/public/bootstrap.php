@@ -2,6 +2,24 @@
 
 declare(strict_types=1);
 
+if (!function_exists('mb_strlen')) {
+    function mb_strlen(string $string, ?string $encoding = null): int
+    {
+        return strlen($string);
+    }
+}
+
+if (!function_exists('mb_substr')) {
+    function mb_substr(string $string, int $start, ?int $length = null, ?string $encoding = null): string
+    {
+        if ($length === null) {
+            return substr($string, $start);
+        }
+
+        return substr($string, $start, $length);
+    }
+}
+
 function secureSessionStart(): void
 {
     if (session_status() === PHP_SESSION_ACTIVE) {
