@@ -9,6 +9,12 @@ applySecurityHeaders();
 $user = currentUser();
 $cart = $_SESSION['cart'] ?? [];
 
+if ($user === null) {
+    $_SESSION['cart'] = [];
+    header('Location: auth.php');
+    exit;
+}
+
 if ($user !== null) {
     try {
         $pdo = db();
