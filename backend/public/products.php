@@ -131,6 +131,20 @@ if ($queryLower !== '') {
                         </h2>
                         <a href="/home.php" class="muted-xs">Volver a inicio</a>
                     </div>
+
+                    <form method="get" class="box" style="margin-bottom: 12px; display: grid; grid-template-columns: 1fr auto; gap: 8px;">
+                        <?php if ($category !== ''): ?>
+                            <input type="hidden" name="categoria" value="<?php echo safe($category); ?>">
+                        <?php endif; ?>
+                        <input
+                            type="search"
+                            name="q"
+                            placeholder="Buscar por nombre, productor o categoría"
+                            value="<?php echo safe($query); ?>"
+                            aria-label="Buscar en catálogo">
+                        <button class="btn btn-dark" type="submit">Buscar</button>
+                    </form>
+
                     <div class="catalog-grid">
                         <?php foreach ($filteredProducts as $product): ?>
                             <article class="product-card" data-id="<?php echo safe($product['id']); ?>" data-name="<?php echo safe($product['name']); ?>" data-origin="<?php echo safe($product['meta']); ?>" data-price="<?php echo safe($product['price']); ?>" data-summary="<?php echo safe($product['summary']); ?>">
