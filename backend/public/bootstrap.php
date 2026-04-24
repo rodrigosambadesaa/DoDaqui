@@ -324,6 +324,35 @@ function db(): PDO
     return $pdo;
 }
 
+function syncUserWithDatabase(array $sessionUser): array
+{
+    $email = trim((string) ($sessionUser['email'] ?? ''));
+    if ($email === '') {
+        return $sessionUser;
+    }
+
+    try {
+        $pdo = db();
+        $stmt = $pdo->prepare('SELECT id_usuario, nome, correo_electronico, telefono, rol_usuario FROM usuarios WHERE correo_electronico = :correo LIMIT 1');
+        $stmt->execute(['correo' => $email]);
+        $dbUser = $stmt->fetch();
+
+        if (!is_array($dbUser)) {
+            return $sessionUser;
+        }
+
+        return [
+            'id_usuario' => (int) ($dbUser['id_usuario'] ?? ($sessionUser['id_usuario'] ?? 0)),
+            'nome' => (string) ($dbUser['nome'] ?? ($sessionUser['nome'] ?? '')),
+            'email' => (string) ($dbUser['correo_electronico'] ?? $email),
+            'telefono' => (string) ($dbUser['telefono'] ?? ($sessionUser['telefono'] ?? '')),
+            'rol' => (string) ($dbUser['rol_usuario'] ?? ($sessionUser['rol'] ?? 'cliente')),
+        ];
+    } catch (Throwable $exception) {
+        return $sessionUser;
+    }
+}
+
 /**
  * Get current logged-in user
  */
@@ -331,13 +360,16 @@ function currentUser(): ?array
 {
     $sessionUser = $_SESSION['user'] ?? null;
     if (is_array($sessionUser)) {
-        return $sessionUser;
+        $syncedUser = syncUserWithDatabase($sessionUser);
+        $_SESSION['user'] = $syncedUser;
+        return $syncedUser;
     }
 
     $demoUser = demoUserFromCookie();
     if ($demoUser !== null) {
-        $_SESSION['user'] = $demoUser;
-        return $demoUser;
+        $syncedUser = syncUserWithDatabase($demoUser);
+        $_SESSION['user'] = $syncedUser;
+        return $syncedUser;
     }
 
     return null;
