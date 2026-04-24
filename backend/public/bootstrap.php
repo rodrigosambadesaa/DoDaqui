@@ -135,6 +135,11 @@ function demoAuthCookieName(): string
     return 'dodaqui_demo_auth';
 }
 
+function fallbackAuthCookieName(): string
+{
+    return 'dodaqui_auth_fallback';
+}
+
 function demoAuthSecret(): string
 {
     return appEnvFirst(['AUTH_FALLBACK_SECRET', 'APP_KEY'], 'dodaqui-fallback-secret-change-me');
@@ -172,6 +177,101 @@ function clearDemoAuthCookie(): void
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
+}
+
+function issueFallbackAuthCookie(array $user, string $passwordHash): void
+{
+    $expiresAt = time() + (14 * 24 * 60 * 60);
+    $record = [
+        'user' => [
+            'id_usuario' => (int) ($user['id_usuario'] ?? 0),
+            'nome' => (string) ($user['nome'] ?? 'Usuario'),
+            'email' => (string) ($user['email'] ?? ''),
+            'telefono' => (string) ($user['telefono'] ?? ''),
+            'rol' => (string) ($user['rol'] ?? 'cliente'),
+        ],
+        'password_hash' => $passwordHash,
+        'expires' => $expiresAt,
+    ];
+
+    $payload = base64_encode((string) json_encode($record, JSON_UNESCAPED_UNICODE));
+    $signature = hash_hmac('sha256', $payload, demoAuthSecret());
+    $value = base64_encode($payload . '|' . $signature);
+
+    setcookie(fallbackAuthCookieName(), $value, [
+        'expires' => $expiresAt,
+        'path' => '/',
+        'secure' => isHttpsRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function clearFallbackAuthCookie(): void
+{
+    setcookie(fallbackAuthCookieName(), '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'secure' => isHttpsRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function fallbackAuthRecordFromCookie(): ?array
+{
+    $encoded = (string) ($_COOKIE[fallbackAuthCookieName()] ?? '');
+    if ($encoded === '') {
+        return null;
+    }
+
+    $decoded = base64_decode($encoded, true);
+    if (!is_string($decoded) || $decoded === '') {
+        return null;
+    }
+
+    $parts = explode('|', $decoded, 2);
+    if (count($parts) !== 2) {
+        return null;
+    }
+
+    [$payload, $signature] = $parts;
+    $expected = hash_hmac('sha256', $payload, demoAuthSecret());
+    if (!hash_equals($expected, $signature)) {
+        return null;
+    }
+
+    $json = base64_decode($payload, true);
+    if (!is_string($json) || $json === '') {
+        return null;
+    }
+
+    $record = json_decode($json, true);
+    if (!is_array($record)) {
+        return null;
+    }
+
+    $expires = (int) ($record['expires'] ?? 0);
+    if ($expires < time()) {
+        return null;
+    }
+
+    $user = $record['user'] ?? null;
+    $passwordHash = (string) ($record['password_hash'] ?? '');
+    if (!is_array($user) || $passwordHash === '') {
+        return null;
+    }
+
+    return [
+        'user' => [
+            'id_usuario' => (int) ($user['id_usuario'] ?? 0),
+            'nome' => (string) ($user['nome'] ?? 'Usuario'),
+            'email' => (string) ($user['email'] ?? ''),
+            'telefono' => (string) ($user['telefono'] ?? ''),
+            'rol' => (string) ($user['rol'] ?? 'cliente'),
+        ],
+        'password_hash' => $passwordHash,
+    ];
 }
 
 function demoUserFromCookie(): ?array
@@ -363,6 +463,12 @@ function currentUser(): ?array
         $syncedUser = syncUserWithDatabase($sessionUser);
         $_SESSION['user'] = $syncedUser;
         return $syncedUser;
+    }
+
+    $fallbackRecord = fallbackAuthRecordFromCookie();
+    if (is_array($fallbackRecord) && is_array($fallbackRecord['user'] ?? null)) {
+        $_SESSION['user'] = $fallbackRecord['user'];
+        return $fallbackRecord['user'];
     }
 
     $demoUser = demoUserFromCookie();

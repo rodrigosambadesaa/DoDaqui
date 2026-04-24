@@ -82,6 +82,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = (string) ($_POST['password'] ?? '');
 
         if (!$dbAvailable) {
+            $fallbackRecord = fallbackAuthRecordFromCookie();
+            $fallbackUser = is_array($fallbackRecord) ? ($fallbackRecord['user'] ?? null) : null;
+            $fallbackHash = is_array($fallbackRecord) ? (string) ($fallbackRecord['password_hash'] ?? '') : '';
+
+            if (is_array($fallbackUser)
+                && strtolower((string) ($fallbackUser['email'] ?? '')) === $email
+                && $fallbackHash !== ''
+                && password_verify($password, $fallbackHash)
+            ) {
+                $_SESSION['user'] = [
+                    'id_usuario' => (int) ($fallbackUser['id_usuario'] ?? 0),
+                    'nome' => (string) ($fallbackUser['nome'] ?? 'Usuario'),
+                    'email' => (string) ($fallbackUser['email'] ?? ''),
+                    'telefono' => (string) ($fallbackUser['telefono'] ?? ''),
+                    'rol' => (string) ($fallbackUser['rol'] ?? 'cliente'),
+                ];
+                redirect('home.php');
+            }
+
             if ($email === 'demo@tenda.gal' && $password === 'Demo1234!') {
                 $_SESSION['user'] = [
                     'id_usuario' => 1,
@@ -137,10 +156,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
 
-        if (!$dbAvailable) {
-            $error = 'El registro no está disponible temporalmente.';
-        }
-
         if ($error === '' && $pdo instanceof PDO) {
             $registerRateLimitOk = authRateLimitAllow($pdo, 'register_ip', clientIp(), 8, 3600)
                 && authRateLimitAllow($pdo, 'register_email', strtolower($email), 3, 3600);
@@ -156,6 +171,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'El nombre solo puede contener letras, espacios, apostrofes y guiones.';
         } elseif ($error === '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 160)) {
             $error = 'El correo no tiene un formato válido.';
+        } elseif ($error === '' && !$dbAvailable) {
+            $passwordErrors = validateStrongPassword($password);
+
+            if (count($passwordErrors) > 0) {
+                $error = implode(' ', $passwordErrors);
+            } else {
+                $existing = fallbackAuthRecordFromCookie();
+                $existingUser = is_array($existing) ? ($existing['user'] ?? null) : null;
+                $existingEmail = is_array($existingUser) ? strtolower((string) ($existingUser['email'] ?? '')) : '';
+
+                if ($existingEmail !== '' && $existingEmail === $email) {
+                    $error = 'El correo ya está registrado.';
+                } else {
+                    $generatedId = 100000 + hexdec(substr(md5($email), 0, 6));
+                    $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+                    $fallbackUser = [
+                        'id_usuario' => $generatedId,
+                        'nome' => $name,
+                        'email' => $email,
+                        'telefono' => '',
+                        'rol' => 'cliente',
+                    ];
+
+                    issueFallbackAuthCookie($fallbackUser, $passwordHash);
+                    $_SESSION['user'] = $fallbackUser;
+                    redirect('home.php');
+                }
+            }
         } elseif ($error === '' && $pdo instanceof PDO) {
             $passwordErrors = validateStrongPassword($password);
 
