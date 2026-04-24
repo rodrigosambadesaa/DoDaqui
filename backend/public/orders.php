@@ -86,7 +86,7 @@ try {
                         <p class="section-sub">Todavía no tienes pedidos confirmados.</p>
                         <a class="btn btn-light" href="/products.php">Explorar catálogo</a>
                     <?php else: ?>
-                        <div style="display: grid; gap: 10px; margin-top: 10px;">
+                        <div class="order-list">
                             <?php foreach ($orders as $order): ?>
                                 <article class="box" style="margin: 0;">
                                     <p style="margin: 0;"><strong>Pedido #<?php echo safe((string) ($order['id_pedido'] ?? '')); ?></strong></p>
@@ -106,9 +106,9 @@ try {
                                 <?php if (count($orderLines) === 0): ?>
                                     <p class="section-sub">No hay líneas disponibles para este pedido.</p>
                                 <?php else: ?>
-                                    <ul style="margin: 8px 0 0; padding-left: 18px;">
+                                    <ul class="order-line-list">
                                         <?php foreach ($orderLines as $line): ?>
-                                            <li style="margin-bottom: 6px;">
+                                            <li>
                                                 <?php echo safe((string) ($line['nome_produto'] ?? 'Producto')); ?>
                                                 · <?php echo (int) ($line['cantidade'] ?? 0); ?> ud.
                                                 · <?php echo formatoEuro((float) ($line['prezo_unitario'] ?? 0)); ?>

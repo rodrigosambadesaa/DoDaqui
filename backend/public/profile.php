@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
 
                     <p class="section-sub">Correo: <?php echo safe((string) ($user['email'] ?? '')); ?></p>
 
-                    <form method="post" class="box" style="margin-top: 10px;">
+                    <form method="post" class="box stack-form" style="margin-top: 10px;">
                         <input type="hidden" name="csrf_token" value="<?php echo safe(csrfToken()); ?>">
                         <input type="hidden" name="action" value="profile_update">
 
@@ -175,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                         <button class="btn btn-dark" type="submit" style="margin-top: 10px;">Guardar cambios</button>
                     </form>
 
-                    <form method="post" class="box" style="margin-top: 10px;">
+                    <form method="post" class="box stack-form" style="margin-top: 10px;">
                         <input type="hidden" name="csrf_token" value="<?php echo safe(csrfToken()); ?>">
                         <input type="hidden" name="action" value="password_update">
 

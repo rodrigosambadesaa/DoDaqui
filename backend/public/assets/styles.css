@@ -877,6 +877,44 @@ a {
     margin-bottom: 10px;
 }
 
+.stack-form {
+    display: grid;
+    gap: 8px;
+}
+
+.stack-form label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    color: #9097a1;
+}
+
+.stack-form input,
+.stack-form select {
+    width: 100%;
+    min-height: 36px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: #f8f9fb;
+    padding: 0 10px;
+    font-size: 12px;
+}
+
+.order-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.order-line-list {
+    margin: 8px 0 0;
+    padding-left: 18px;
+}
+
+.order-line-list li {
+    margin-bottom: 6px;
+}
+
 .radio-row {
     border: 1px solid var(--line-strong);
     border-radius: var(--radius-sm);
