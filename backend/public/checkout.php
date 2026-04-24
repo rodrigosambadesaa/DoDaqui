@@ -210,12 +210,27 @@ applySecurityHeaders(true);
 $dbCheckoutAvailable = true;
 try {
     $pdo = db();
-    ensureCheckoutUsersTable($pdo);
-    ensureCheckoutSchema($pdo);
-    $checkoutUserId = resolveCheckoutUserId($pdo, $user);
 } catch (Throwable $exception) {
     $dbCheckoutAvailable = false;
-    $checkoutUserId = (int) ($user['id_usuario'] ?? 0);
+    $pdo = null;
+}
+
+$checkoutUserId = (int) ($user['id_usuario'] ?? 0);
+if ($dbCheckoutAvailable && $pdo instanceof PDO) {
+    try {
+        ensureCheckoutUsersTable($pdo);
+        ensureCheckoutSchema($pdo);
+    } catch (Throwable $exception) {
+        // En producción puede no haber permisos DDL; seguimos con DML si las tablas ya existen.
+        error_log('Checkout schema ensure skipped: ' . $exception->getMessage());
+    }
+
+    try {
+        $checkoutUserId = resolveCheckoutUserId($pdo, $user);
+    } catch (Throwable $exception) {
+        $dbCheckoutAvailable = false;
+        error_log('Checkout user resolution failed: ' . $exception->getMessage());
+    }
 }
 
 $sessionCart = is_array($_SESSION['cart'] ?? null) ? $_SESSION['cart'] : [];
