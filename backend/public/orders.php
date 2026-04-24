@@ -14,6 +14,8 @@ if ($user === null) {
 }
 
 $orders = [];
+$selectedOrderId = (int) ($_GET['id_pedido'] ?? 0);
+$orderLines = [];
 
 try {
     $pdo = db();
@@ -26,8 +28,24 @@ try {
     );
     $stmt->execute(['id_usuario' => (int) ($user['id_usuario'] ?? 0)]);
     $orders = $stmt->fetchAll() ?: [];
+
+    if ($selectedOrderId > 0) {
+        $lineStmt = $pdo->prepare(
+            'SELECT pl.nome_produto, pl.prezo_unitario, pl.cantidade
+             FROM pedido_linas pl
+             INNER JOIN pedidos p ON p.id_pedido = pl.id_pedido
+             WHERE p.id_usuario = :id_usuario AND p.id_pedido = :id_pedido
+             ORDER BY pl.id_lina ASC'
+        );
+        $lineStmt->execute([
+            'id_usuario' => (int) ($user['id_usuario'] ?? 0),
+            'id_pedido' => $selectedOrderId,
+        ]);
+        $orderLines = $lineStmt->fetchAll() ?: [];
+    }
 } catch (Throwable $exception) {
     $orders = [];
+    $orderLines = [];
 }
 ?>
 <!DOCTYPE html>
@@ -77,9 +95,29 @@ try {
                                         · Fecha: <?php echo safe((string) ($order['creado_en'] ?? '')); ?>
                                     </p>
                                     <p style="margin: 0;">Total: <?php echo formatoEuro((float) ($order['importe_total'] ?? 0)); ?></p>
+                                    <a class="muted-xs" href="/orders.php?id_pedido=<?php echo urlencode((string) ($order['id_pedido'] ?? '')); ?>" style="display: inline-block; margin-top: 6px;">Ver detalle</a>
                                 </article>
                             <?php endforeach; ?>
                         </div>
+
+                        <?php if ($selectedOrderId > 0): ?>
+                            <section class="box" style="margin-top: 12px;">
+                                <h3 style="margin-top: 0;">Detalle del pedido #<?php echo safe((string) $selectedOrderId); ?></h3>
+                                <?php if (count($orderLines) === 0): ?>
+                                    <p class="section-sub">No hay líneas disponibles para este pedido.</p>
+                                <?php else: ?>
+                                    <ul style="margin: 8px 0 0; padding-left: 18px;">
+                                        <?php foreach ($orderLines as $line): ?>
+                                            <li style="margin-bottom: 6px;">
+                                                <?php echo safe((string) ($line['nome_produto'] ?? 'Producto')); ?>
+                                                · <?php echo (int) ($line['cantidade'] ?? 0); ?> ud.
+                                                · <?php echo formatoEuro((float) ($line['prezo_unitario'] ?? 0)); ?>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
+                            </section>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </section>
             </main>
