@@ -13,6 +13,43 @@ if ($user === null) {
     exit;
 }
 
+function fallbackOrdersCookieName(): string
+{
+    return 'dodaqui_orders_fallback';
+}
+
+function fallbackOrdersFromCookie(): array
+{
+    $encoded = (string) ($_COOKIE[fallbackOrdersCookieName()] ?? '');
+    if ($encoded === '') {
+        return [];
+    }
+
+    $decoded = base64_decode($encoded, true);
+    if (!is_string($decoded) || $decoded === '') {
+        return [];
+    }
+
+    $parts = explode('|', $decoded, 2);
+    if (count($parts) !== 2) {
+        return [];
+    }
+
+    [$payload, $signature] = $parts;
+    $expected = hash_hmac('sha256', $payload, demoAuthSecret());
+    if (!hash_equals($expected, $signature)) {
+        return [];
+    }
+
+    $json = base64_decode($payload, true);
+    if (!is_string($json) || $json === '') {
+        return [];
+    }
+
+    $orders = json_decode($json, true);
+    return is_array($orders) ? $orders : [];
+}
+
 $orders = [];
 $selectedOrderId = (int) ($_GET['id_pedido'] ?? 0);
 $orderLines = [];
@@ -46,6 +83,21 @@ try {
 } catch (Throwable $exception) {
     $orders = [];
     $orderLines = [];
+}
+
+if (count($orders) === 0) {
+    $fallbackOrders = is_array($_SESSION['fallback_orders'] ?? null)
+        ? $_SESSION['fallback_orders']
+        : fallbackOrdersFromCookie();
+
+    foreach ($fallbackOrders as $entry) {
+        $orders[] = [
+            'id_pedido' => (string) ($entry['id_pedido'] ?? ''),
+            'estado_pedido' => (string) ($entry['estado_pedido'] ?? 'confirmado'),
+            'importe_total' => (float) ($entry['importe_total'] ?? 0),
+            'creado_en' => (string) ($entry['creado_en'] ?? ''),
+        ];
+    }
 }
 ?>
 <!DOCTYPE html>

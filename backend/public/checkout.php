@@ -118,6 +118,77 @@ function pedidosColumnNames(PDO $pdo): array
     );
 }
 
+function fallbackOrdersCookieName(): string
+{
+    return 'dodaqui_orders_fallback';
+}
+
+function saveFallbackOrdersCookie(array $orders): void
+{
+    $trimmed = array_slice($orders, 0, 20);
+    $json = json_encode($trimmed, JSON_UNESCAPED_UNICODE);
+    if (!is_string($json) || $json === '') {
+        return;
+    }
+
+    $payload = base64_encode($json);
+    $signature = hash_hmac('sha256', $payload, demoAuthSecret());
+    $value = base64_encode($payload . '|' . $signature);
+
+    setcookie(fallbackOrdersCookieName(), $value, [
+        'expires' => time() + (30 * 24 * 60 * 60),
+        'path' => '/',
+        'secure' => isHttpsRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function fallbackOrdersFromCookie(): array
+{
+    $encoded = (string) ($_COOKIE[fallbackOrdersCookieName()] ?? '');
+    if ($encoded === '') {
+        return [];
+    }
+
+    $decoded = base64_decode($encoded, true);
+    if (!is_string($decoded) || $decoded === '') {
+        return [];
+    }
+
+    $parts = explode('|', $decoded, 2);
+    if (count($parts) !== 2) {
+        return [];
+    }
+
+    [$payload, $signature] = $parts;
+    $expected = hash_hmac('sha256', $payload, demoAuthSecret());
+    if (!hash_equals($expected, $signature)) {
+        return [];
+    }
+
+    $json = base64_decode($payload, true);
+    if (!is_string($json) || $json === '') {
+        return [];
+    }
+
+    $orders = json_decode($json, true);
+    return is_array($orders) ? $orders : [];
+}
+
+function pushFallbackOrder(array $order): void
+{
+    $existing = is_array($_SESSION['fallback_orders'] ?? null)
+        ? $_SESSION['fallback_orders']
+        : fallbackOrdersFromCookie();
+
+    array_unshift($existing, $order);
+    $existing = array_slice($existing, 0, 20);
+
+    $_SESSION['fallback_orders'] = $existing;
+    saveFallbackOrdersCookie($existing);
+}
+
 function ensureCheckoutUsersTable(PDO $pdo): void
 {
     $pdo->exec(
@@ -344,13 +415,21 @@ $shipping = 0.0;
 $total = $subtotal + $tax + $shipping;
 
 if (!$dbCheckoutAvailable) {
+    $fallbackOrderId = 'TMP-' . (string) time();
+    pushFallbackOrder([
+        'id_pedido' => $fallbackOrderId,
+        'estado_pedido' => 'confirmado',
+        'importe_total' => $total,
+        'creado_en' => date('Y-m-d H:i:s'),
+    ]);
+
     $_SESSION['cart'] = [];
     clearFallbackCartCookie();
 
     echo json_encode([
         'ok' => true,
         'message' => 'Pedido recibido correctamente.',
-        'id_pedido' => 'TMP-' . (string) time(),
+        'id_pedido' => $fallbackOrderId,
         'total' => formatoEuro($total),
     ], JSON_UNESCAPED_UNICODE);
     exit;
