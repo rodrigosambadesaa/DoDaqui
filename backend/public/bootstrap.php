@@ -140,6 +140,11 @@ function fallbackAuthCookieName(): string
     return 'dodaqui_auth_fallback';
 }
 
+function fallbackLogoutMarkerCookieName(): string
+{
+    return 'dodaqui_auth_logout';
+}
+
 function demoAuthSecret(): string
 {
     return appEnvFirst(['AUTH_FALLBACK_SECRET', 'APP_KEY'], 'dodaqui-fallback-secret-change-me');
@@ -216,6 +221,33 @@ function clearFallbackAuthCookie(): void
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
+}
+
+function markFallbackLoggedOut(): void
+{
+    setcookie(fallbackLogoutMarkerCookieName(), '1', [
+        'expires' => time() + (14 * 24 * 60 * 60),
+        'path' => '/',
+        'secure' => isHttpsRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function clearFallbackLoggedOutMarker(): void
+{
+    setcookie(fallbackLogoutMarkerCookieName(), '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'secure' => isHttpsRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function isFallbackLoggedOut(): bool
+{
+    return (string) ($_COOKIE[fallbackLogoutMarkerCookieName()] ?? '') === '1';
 }
 
 function fallbackAuthRecordFromCookie(): ?array
@@ -463,6 +495,10 @@ function currentUser(): ?array
         $syncedUser = syncUserWithDatabase($sessionUser);
         $_SESSION['user'] = $syncedUser;
         return $syncedUser;
+    }
+
+    if (isFallbackLoggedOut()) {
+        return null;
     }
 
     $fallbackRecord = fallbackAuthRecordFromCookie();

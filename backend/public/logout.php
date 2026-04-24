@@ -9,7 +9,7 @@ applySecurityHeaders();
 unset($_SESSION['user']);
 unset($_SESSION['_csrf_token']);
 unset($_SESSION['cart']);
-clearFallbackAuthCookie();
+markFallbackLoggedOut();
 clearDemoAuthCookie();
 session_regenerate_id(true);
 

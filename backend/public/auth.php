@@ -98,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'telefono' => (string) ($fallbackUser['telefono'] ?? ''),
                     'rol' => (string) ($fallbackUser['rol'] ?? 'cliente'),
                 ];
+                clearFallbackLoggedOutMarker();
                 issueFallbackAuthCookie($_SESSION['user'], $fallbackHash);
                 redirect('home.php');
             }
@@ -110,6 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'telefono' => '+34600000000',
                     'rol' => 'cliente',
                 ];
+                clearFallbackLoggedOutMarker();
                 issueDemoAuthCookie();
                 redirect('home.php');
             }
@@ -143,6 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'telefono' => (string) ($user['telefono'] ?? ''),
                     'rol' => $user['rol_usuario'],
                 ];
+                clearFallbackLoggedOutMarker();
                 clearDemoAuthCookie();
                 issueFallbackAuthCookie($_SESSION['user'], (string) $user['contrasinal']);
                 redirect('home.php');
@@ -199,6 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     issueFallbackAuthCookie($fallbackUser, $passwordHash);
                     $_SESSION['user'] = $fallbackUser;
+                    clearFallbackLoggedOutMarker();
                     redirect('home.php');
                 }
             }
@@ -230,6 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'telefono' => '',
                         'rol' => 'cliente',
                     ];
+                    clearFallbackLoggedOutMarker();
                     clearDemoAuthCookie();
                     issueFallbackAuthCookie($_SESSION['user'], $passwordHash);
                     redirect('home.php');
