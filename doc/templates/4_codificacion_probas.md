@@ -28,23 +28,25 @@ A información tratarase de xestionar de forma segura.
 - Interface visual de tenda aliñada co mockup e preparada para evolución por prototipos.
 
 ## Prototipo 2
-### Data de entrega: Pendente de peche
+### Data de entrega: 24/04/2026 (iteración local en curso)
 ### Funcionalidades implementadas:
-- Filtrado e busca de produtos no catálogo.
-- Consulta do historial de pedidos para usuarios rexistrados.
-- Xestión do perfil de usuario.
-- Preparación de despregamento público en Internet con configuración para DigitalOcean App Platform.
-- Visualización da base de datos nun xestor tipo phpMyAdmin como os que teñen XAMPP ou LAMPP.
+- Busca por texto e filtrado combinado por categoría no catálogo.
+- Ordenación de produtos por prezo e nome no catálogo.
+- Consulta do historial de pedidos para usuarios rexistrados con detalle de liñas por pedido.
+- Xestión do perfil de usuario (actualización de nome/teléfono e cambio de contrasinal).
+- Visualización da base de datos con phpMyAdmin no contorno local Docker.
 
 ### Observacións:
-- Este prototipo engade máis dos requirimentos funcionais que quedan pendentes no documento de análise.
+- Este prototipo engade máis dos requirimentos funcionais pendentes no documento de análise.
 - A base técnica segue sendo PHP + Docker + MySQL, reutilizando o contorno do primeiro prototipo.
-- O despregamento está preparado na especificación `.do/app.yaml`, pendente unicamente de autenticación na conta cloud para publicar definitivamente.
+- Non se realiza despregamento nesta fase: as probas fanse en local antes de publicar.
+- A navegación principal xa incorpora accesos directos a Pedidos e Perfil.
 
 ### Innovación:
 - Navegación máis orientada á experiencia de compra real, con busca e filtros para atopar produtos antes de engadilos ao carriño.
 - Separación clara entre catálogo público, conta de usuario e seguimento dos pedidos.
 - Persistencia de información clave para dar continuidade ao uso da aplicación entre sesións.
+- Validación local máis rápida grazas á inspección directa de datos en phpMyAdmin.
 
 ## Despregamento da web na Internet
 
