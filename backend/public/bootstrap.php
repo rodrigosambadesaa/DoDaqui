@@ -43,11 +43,29 @@ function applySecurityHeaders(bool $json = false): void
 
 function csrfToken(): string
 {
-    if (!isset($_SESSION['_csrf_token']) || !is_string($_SESSION['_csrf_token']) || $_SESSION['_csrf_token'] === '') {
-        $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
+    $sessionToken = $_SESSION['_csrf_token'] ?? null;
+    if (is_string($sessionToken) && preg_match('/^[a-f0-9]{64}$/', $sessionToken)) {
+        return $sessionToken;
     }
 
-    return $_SESSION['_csrf_token'];
+    $cookieToken = (string) ($_COOKIE['dodaqui_csrf'] ?? '');
+    if (preg_match('/^[a-f0-9]{64}$/', $cookieToken)) {
+        $_SESSION['_csrf_token'] = $cookieToken;
+        return $cookieToken;
+    }
+
+    $token = bin2hex(random_bytes(32));
+    $_SESSION['_csrf_token'] = $token;
+
+    setcookie('dodaqui_csrf', $token, [
+        'expires' => time() + (7 * 24 * 60 * 60),
+        'path' => '/',
+        'secure' => isHttpsRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+
+    return $token;
 }
 
 function csrfInput(): string
@@ -57,12 +75,22 @@ function csrfInput(): string
 
 function verifyCsrfToken(?string $token): bool
 {
-    $sessionToken = $_SESSION['_csrf_token'] ?? '';
-    if (!is_string($sessionToken) || $sessionToken === '' || !is_string($token) || $token === '') {
+    if (!is_string($token) || $token === '') {
         return false;
     }
 
-    return hash_equals($sessionToken, $token);
+    $sessionToken = $_SESSION['_csrf_token'] ?? '';
+    if (is_string($sessionToken) && $sessionToken !== '' && hash_equals($sessionToken, $token)) {
+        return true;
+    }
+
+    $cookieToken = (string) ($_COOKIE['dodaqui_csrf'] ?? '');
+    if ($cookieToken !== '' && hash_equals($cookieToken, $token)) {
+        $_SESSION['_csrf_token'] = $cookieToken;
+        return true;
+    }
+
+    return false;
 }
 
 function requireValidCsrfToken(?string $token): void
