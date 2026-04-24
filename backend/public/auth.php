@@ -72,6 +72,11 @@ if (currentUser() !== null) {
 
 $error = '';
 $ok = '';
+$info = '';
+
+if (!$dbAvailable) {
+    $info = 'Modo demo activo temporalmente en produccion. Usa la cuenta demo para acceder.';
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     requireValidCsrfToken((string) ($_POST['csrf_token'] ?? ''));
@@ -94,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect('home.php');
             }
 
-            $error = 'La base de datos no está configurada todavía en producción. Usa temporalmente la cuenta demo o configura las variables de entorno en Vercel.';
+            $error = 'Credenciales incorrectas. En este momento solo esta disponible la cuenta demo.';
         }
 
         if ($error === '' && $pdo instanceof PDO) {
@@ -207,6 +212,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if ($ok !== ''): ?>
                 <div class="box" style="border-color: #b8c8d8; color: #32485e;"><?php echo safe($ok); ?></div>
+            <?php endif; ?>
+
+            <?php if ($info !== ''): ?>
+                <div class="box" style="border-color: #d4c8a8; color: #6b5526;"><?php echo safe($info); ?></div>
             <?php endif; ?>
 
             <div class="checkout-grid">
