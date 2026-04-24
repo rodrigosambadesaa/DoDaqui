@@ -142,6 +142,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'telefono' => (string) ($user['telefono'] ?? ''),
                     'rol' => $user['rol_usuario'],
                 ];
+                clearFallbackAuthCookie();
+                clearDemoAuthCookie();
                 redirect('home.php');
             }
 
@@ -212,13 +214,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'El correo ya está registrado.';
                 } else {
                     $insert = $pdo->prepare('INSERT INTO usuarios (nome, correo_electronico, contrasinal, rol_usuario) VALUES (:nome, :correo_electronico, :contrasinal, :rol_usuario)');
+                    $passwordHash = password_hash($password, PASSWORD_BCRYPT);
                     $insert->execute([
                         'nome' => $name,
                         'correo_electronico' => $email,
-                        'contrasinal' => password_hash($password, PASSWORD_BCRYPT),
+                        'contrasinal' => $passwordHash,
                         'rol_usuario' => 'cliente',
                     ]);
-                    $ok = 'Registro correcto. Ya puedes iniciar sesión.';
+
+                    $_SESSION['user'] = [
+                        'id_usuario' => (int) $pdo->lastInsertId(),
+                        'nome' => $name,
+                        'email' => $email,
+                        'telefono' => '',
+                        'rol' => 'cliente',
+                    ];
+                    clearFallbackAuthCookie();
+                    clearDemoAuthCookie();
+                    redirect('home.php');
                 }
             }
         } elseif ($error === '') {
