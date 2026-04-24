@@ -33,5 +33,20 @@ services:
     volumes:
       - ./backend:/var/www/html
 
+  phpmyadmin:
+    image: phpmyadmin:5-apache
+    container_name: phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: app_user
+      PMA_PASSWORD: app_pass
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      - db
+    ports:
+      - "${PHPMYADMIN_PORT:-8081}:80"
+
 volumes:
   mysql_data:
