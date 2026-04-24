@@ -7,7 +7,8 @@ secureSessionStart();
 applySecurityHeaders();
 
 $user = currentUser();
-$cart = $_SESSION['cart'] ?? [];
+$cart = is_array($_SESSION['cart'] ?? null) ? $_SESSION['cart'] : fallbackCartFromCookie();
+$_SESSION['cart'] = $cart;
 
 if ($user === null) {
     $_SESSION['cart'] = [];
@@ -75,6 +76,7 @@ if ($user !== null) {
 
         // Mantiene el resto del flujo compatible con sesion.
         $_SESSION['cart'] = $cart;
+        saveFallbackCartCookie($cart);
     } catch (Throwable $exception) {
         // Si falla DB, seguimos usando la sesion actual.
     }

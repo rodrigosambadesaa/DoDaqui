@@ -182,6 +182,11 @@ function fallbackLogoutMarkerCookieName(): string
     return 'dodaqui_auth_logout';
 }
 
+function fallbackCartCookieName(): string
+{
+    return 'dodaqui_cart_fallback';
+}
+
 function demoAuthSecret(): string
 {
     return appEnvFirst(['AUTH_FALLBACK_SECRET', 'APP_KEY'], 'dodaqui-fallback-secret-change-me');
@@ -285,6 +290,106 @@ function clearFallbackLoggedOutMarker(): void
 function isFallbackLoggedOut(): bool
 {
     return (string) ($_COOKIE[fallbackLogoutMarkerCookieName()] ?? '') === '1';
+}
+
+function saveFallbackCartCookie(array $cart): void
+{
+    $normalized = [];
+    foreach ($cart as $item) {
+        $id = (string) ($item['id'] ?? '');
+        $name = trim((string) ($item['name'] ?? ''));
+        $price = (float) ($item['price'] ?? 0);
+        $quantity = (int) ($item['quantity'] ?? 0);
+
+        if (!preg_match('/^[a-zA-Z0-9-]{1,80}$/', $id) || $name === '' || $quantity <= 0) {
+            continue;
+        }
+
+        $normalized[$id] = [
+            'id' => $id,
+            'name' => mb_substr($name, 0, 150),
+            'price' => max(0.0, min(100000.0, $price)),
+            'quantity' => min(999, $quantity),
+        ];
+    }
+
+    $payload = base64_encode((string) json_encode($normalized, JSON_UNESCAPED_UNICODE));
+    $signature = hash_hmac('sha256', $payload, demoAuthSecret());
+    $value = base64_encode($payload . '|' . $signature);
+
+    setcookie(fallbackCartCookieName(), $value, [
+        'expires' => time() + (14 * 24 * 60 * 60),
+        'path' => '/',
+        'secure' => isHttpsRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function clearFallbackCartCookie(): void
+{
+    setcookie(fallbackCartCookieName(), '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'secure' => isHttpsRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function fallbackCartFromCookie(): array
+{
+    $encoded = (string) ($_COOKIE[fallbackCartCookieName()] ?? '');
+    if ($encoded === '') {
+        return [];
+    }
+
+    $decoded = base64_decode($encoded, true);
+    if (!is_string($decoded) || $decoded === '') {
+        return [];
+    }
+
+    $parts = explode('|', $decoded, 2);
+    if (count($parts) !== 2) {
+        return [];
+    }
+
+    [$payload, $signature] = $parts;
+    $expected = hash_hmac('sha256', $payload, demoAuthSecret());
+    if (!hash_equals($expected, $signature)) {
+        return [];
+    }
+
+    $json = base64_decode($payload, true);
+    if (!is_string($json) || $json === '') {
+        return [];
+    }
+
+    $rawCart = json_decode($json, true);
+    if (!is_array($rawCart)) {
+        return [];
+    }
+
+    $cart = [];
+    foreach ($rawCart as $item) {
+        $id = (string) ($item['id'] ?? '');
+        $name = trim((string) ($item['name'] ?? ''));
+        $price = (float) ($item['price'] ?? 0);
+        $quantity = (int) ($item['quantity'] ?? 0);
+
+        if (!preg_match('/^[a-zA-Z0-9-]{1,80}$/', $id) || $name === '' || $quantity <= 0) {
+            continue;
+        }
+
+        $cart[$id] = [
+            'id' => $id,
+            'name' => mb_substr($name, 0, 150),
+            'price' => max(0.0, min(100000.0, $price)),
+            'quantity' => min(999, $quantity),
+        ];
+    }
+
+    return $cart;
 }
 
 function fallbackAuthRecordFromCookie(): ?array

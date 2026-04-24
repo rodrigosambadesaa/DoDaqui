@@ -208,6 +208,11 @@ try {
 }
 
 $sessionCart = is_array($_SESSION['cart'] ?? null) ? $_SESSION['cart'] : [];
+$cookieCart = fallbackCartFromCookie();
+if (count($sessionCart) === 0 && count($cookieCart) > 0) {
+    $sessionCart = $cookieCart;
+    $_SESSION['cart'] = $sessionCart;
+}
 $cart = $dbCheckoutAvailable
     ? obterCarrinhoUsuario($pdo, $checkoutUserId)
     : $sessionCart;
@@ -282,6 +287,7 @@ $total = $subtotal + $tax + $shipping;
 
 if (!$dbCheckoutAvailable) {
     $_SESSION['cart'] = [];
+    clearFallbackCartCookie();
 
     echo json_encode([
         'ok' => true,
@@ -346,6 +352,7 @@ try {
     $pdo->commit();
 
     $_SESSION['cart'] = [];
+    clearFallbackCartCookie();
 
     echo json_encode([
         'ok' => true,

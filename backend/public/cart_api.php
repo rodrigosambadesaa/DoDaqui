@@ -10,7 +10,7 @@ $action = $_GET['action'] ?? '';
 $user = currentUser();
 
 if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
-    $_SESSION['cart'] = [];
+    $_SESSION['cart'] = fallbackCartFromCookie();
 }
 
 function ensureCartTable(PDO $pdo): void
@@ -112,6 +112,7 @@ if ($action === 'clear') {
     }
 
     $_SESSION['cart'] = [];
+    clearFallbackCartCookie();
     echo json_encode(['ok' => true, 'count' => 0], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -151,6 +152,20 @@ if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $count = getDbCartCount($pdo, (int) $user['id_usuario']);
 
+        if (!isset($_SESSION['cart'][$id])) {
+            $_SESSION['cart'][$id] = [
+                'id' => $id,
+                'name' => $name,
+                'price' => $price,
+                'quantity' => 1,
+            ];
+        } else {
+            $_SESSION['cart'][$id]['quantity'] = (int) ($_SESSION['cart'][$id]['quantity'] ?? 0) + 1;
+            $_SESSION['cart'][$id]['name'] = $name;
+            $_SESSION['cart'][$id]['price'] = $price;
+        }
+        saveFallbackCartCookie($_SESSION['cart']);
+
         echo json_encode([
             'ok' => true,
             'count' => $count,
@@ -175,6 +190,8 @@ if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $_SESSION['cart'][$id]['quantity']++;
     }
+
+    saveFallbackCartCookie($_SESSION['cart']);
 
     echo json_encode([
         'ok' => true,
@@ -227,10 +244,25 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             'id_produto' => $id,
         ]);
         $row = $fetch->fetch();
+        $quantity = (int) ($row['cantidade'] ?? 0);
+
+        if ($quantity <= 0) {
+            unset($_SESSION['cart'][$id]);
+        } else {
+            $existing = $_SESSION['cart'][$id] ?? [];
+            $_SESSION['cart'][$id] = [
+                'id' => $id,
+                'name' => (string) ($existing['name'] ?? $id),
+                'price' => (float) ($existing['price'] ?? 0),
+                'quantity' => $quantity,
+            ];
+        }
+
+        saveFallbackCartCookie($_SESSION['cart']);
 
         echo json_encode([
             'ok' => true,
-            'quantity' => (int) ($row['cantidade'] ?? 0),
+            'quantity' => $quantity,
             'count' => getDbCartCount($pdo, (int) $user['id_usuario']),
         ], JSON_UNESCAPED_UNICODE);
         exit;
@@ -246,9 +278,12 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['cart'][$id]['quantity'] = (int) ($_SESSION['cart'][$id]['quantity'] ?? 0) + $delta;
     if ((int) $_SESSION['cart'][$id]['quantity'] <= 0) {
         unset($_SESSION['cart'][$id]);
+        saveFallbackCartCookie($_SESSION['cart']);
         echo json_encode(['ok' => true, 'quantity' => 0, 'count' => getSessionCartCount($_SESSION['cart'])], JSON_UNESCAPED_UNICODE);
         exit;
     }
+
+    saveFallbackCartCookie($_SESSION['cart']);
 
     echo json_encode([
         'ok' => true,
