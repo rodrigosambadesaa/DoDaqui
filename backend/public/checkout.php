@@ -107,6 +107,17 @@ function ensureCheckoutSchema(PDO $pdo): void
     );
 }
 
+function pedidosColumnNames(PDO $pdo): array
+{
+    $columnsResult = $pdo->query('SHOW COLUMNS FROM pedidos');
+    $columns = $columnsResult ? ($columnsResult->fetchAll() ?: []) : [];
+
+    return array_map(
+        static fn(array $column): string => (string) ($column['Field'] ?? ''),
+        $columns
+    );
+}
+
 function ensureCheckoutUsersTable(PDO $pdo): void
 {
     $pdo->exec(
@@ -301,17 +312,95 @@ if (!$dbCheckoutAvailable) {
 try {
     $pdo->beginTransaction();
 
-    $insertPedido = $pdo->prepare(
-        'INSERT INTO pedidos (
-            id_usuario, estado_pedido, metodo_pagamento, importe_subtotal, importe_ive, importe_envio, importe_total,
-                nome_envio, correo_envio, telefono_envio, enderezo_envio, cidade_envio, codigo_postal_envio, pais_envio, notas_envio
-         ) VALUES (
-            :id_usuario, :estado_pedido, :metodo_pagamento, :importe_subtotal, :importe_ive, :importe_envio, :importe_total,
-                :nome_envio, :correo_envio, :telefono_envio, :enderezo_envio, :cidade_envio, :codigo_postal_envio, :pais_envio, :notas_envio
-         )'
-    );
+    $pedidosColumns = pedidosColumnNames($pdo);
+    $hasLegacyTotal = in_array('total', $pedidosColumns, true);
+    $hasLegacyEstado = in_array('estado', $pedidosColumns, true);
+    $hasLegacyDataPedido = in_array('data_pedido', $pedidosColumns, true);
+    $hasLegacyNomeFacturacion = in_array('nome_facturacion', $pedidosColumns, true);
+    $hasLegacyEnderezoFacturacion = in_array('enderezo_facturacion', $pedidosColumns, true);
+    $hasLegacyCidadeFacturacion = in_array('cidade_facturacion', $pedidosColumns, true);
+    $hasLegacyCodigoPostalFacturacion = in_array('codigo_postal_facturacion', $pedidosColumns, true);
+    $hasLegacyPaisFacturacion = in_array('pais_facturacion', $pedidosColumns, true);
 
-    $insertPedido->execute([
+    $insertColumns = [
+        'id_usuario',
+        'estado_pedido',
+        'metodo_pagamento',
+        'importe_subtotal',
+        'importe_ive',
+        'importe_envio',
+        'importe_total',
+        'nome_envio',
+        'correo_envio',
+        'telefono_envio',
+        'enderezo_envio',
+        'cidade_envio',
+        'codigo_postal_envio',
+        'pais_envio',
+        'notas_envio',
+    ];
+    $insertValues = [
+        ':id_usuario',
+        ':estado_pedido',
+        ':metodo_pagamento',
+        ':importe_subtotal',
+        ':importe_ive',
+        ':importe_envio',
+        ':importe_total',
+        ':nome_envio',
+        ':correo_envio',
+        ':telefono_envio',
+        ':enderezo_envio',
+        ':cidade_envio',
+        ':codigo_postal_envio',
+        ':pais_envio',
+        ':notas_envio',
+    ];
+
+    if ($hasLegacyTotal) {
+        $insertColumns[] = 'total';
+        $insertValues[] = ':legacy_total';
+    }
+
+    if ($hasLegacyEstado) {
+        $insertColumns[] = 'estado';
+        $insertValues[] = ':legacy_estado';
+    }
+
+    if ($hasLegacyDataPedido) {
+        $insertColumns[] = 'data_pedido';
+        $insertValues[] = ':legacy_data_pedido';
+    }
+
+    if ($hasLegacyNomeFacturacion) {
+        $insertColumns[] = 'nome_facturacion';
+        $insertValues[] = ':legacy_nome_facturacion';
+    }
+
+    if ($hasLegacyEnderezoFacturacion) {
+        $insertColumns[] = 'enderezo_facturacion';
+        $insertValues[] = ':legacy_enderezo_facturacion';
+    }
+
+    if ($hasLegacyCidadeFacturacion) {
+        $insertColumns[] = 'cidade_facturacion';
+        $insertValues[] = ':legacy_cidade_facturacion';
+    }
+
+    if ($hasLegacyCodigoPostalFacturacion) {
+        $insertColumns[] = 'codigo_postal_facturacion';
+        $insertValues[] = ':legacy_codigo_postal_facturacion';
+    }
+
+    if ($hasLegacyPaisFacturacion) {
+        $insertColumns[] = 'pais_facturacion';
+        $insertValues[] = ':legacy_pais_facturacion';
+    }
+
+    $insertPedidoSql = 'INSERT INTO pedidos (' . implode(', ', $insertColumns) . ') VALUES (' . implode(', ', $insertValues) . ')';
+    $insertPedido = $pdo->prepare($insertPedidoSql);
+
+    $params = [
         'id_usuario' => $checkoutUserId,
         'estado_pedido' => 'confirmado',
         'metodo_pagamento' => 'sin_pasarela',
@@ -327,7 +416,41 @@ try {
         'codigo_postal_envio' => $codigoPostalEnvio,
         'pais_envio' => $paisEnvio,
         'notas_envio' => $notasEnvio !== '' ? $notasEnvio : null,
-    ]);
+    ];
+
+    if ($hasLegacyTotal) {
+        $params['legacy_total'] = $total;
+    }
+
+    if ($hasLegacyEstado) {
+        $params['legacy_estado'] = 'confirmado';
+    }
+
+    if ($hasLegacyDataPedido) {
+        $params['legacy_data_pedido'] = date('Y-m-d H:i:s');
+    }
+
+    if ($hasLegacyNomeFacturacion) {
+        $params['legacy_nome_facturacion'] = $nomeEnvio;
+    }
+
+    if ($hasLegacyEnderezoFacturacion) {
+        $params['legacy_enderezo_facturacion'] = $enderezoEnvio;
+    }
+
+    if ($hasLegacyCidadeFacturacion) {
+        $params['legacy_cidade_facturacion'] = $cidadeEnvio;
+    }
+
+    if ($hasLegacyCodigoPostalFacturacion) {
+        $params['legacy_codigo_postal_facturacion'] = $codigoPostalEnvio;
+    }
+
+    if ($hasLegacyPaisFacturacion) {
+        $params['legacy_pais_facturacion'] = $paisEnvio;
+    }
+
+    $insertPedido->execute($params);
 
     $idPedido = (int) $pdo->lastInsertId();
 
@@ -365,6 +488,8 @@ try {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
+
+    error_log('Checkout failed: ' . $exception->getMessage());
 
     http_response_code(500);
     echo json_encode(['ok' => false, 'message' => 'No se pudo completar el pedido.'], JSON_UNESCAPED_UNICODE);
