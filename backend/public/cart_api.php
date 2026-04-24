@@ -7,6 +7,7 @@ secureSessionStart();
 applySecurityHeaders(true);
 
 $action = $_GET['action'] ?? '';
+$user = currentUser();
 
 if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
@@ -67,21 +68,28 @@ function getSessionCartCount(array $cart): int
 }
 
 if ($action === 'count') {
-    $user = currentUser();
+    if ($user === null) {
+        echo json_encode(['count' => 0], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
-    if ($user !== null) {
-        try {
-            $pdo = db();
-            ensureCartTable($pdo);
-            $count = getDbCartCount($pdo, (int) $user['id_usuario']);
-            echo json_encode(['count' => $count], JSON_UNESCAPED_UNICODE);
-            exit;
-        } catch (Throwable $exception) {
-            // fallback a sesion
-        }
+    try {
+        $pdo = db();
+        ensureCartTable($pdo);
+        $count = getDbCartCount($pdo, (int) $user['id_usuario']);
+        echo json_encode(['count' => $count], JSON_UNESCAPED_UNICODE);
+        exit;
+    } catch (Throwable $exception) {
+        // fallback a sesion
     }
 
     echo json_encode(['count' => getSessionCartCount($_SESSION['cart'])], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($user === null) {
+    http_response_code(401);
+    echo json_encode(['ok' => false, 'message' => 'Debes iniciar sesión.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -94,16 +102,13 @@ if ($action === 'clear') {
 
     requireValidCsrfTokenJson((string) ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
 
-    $user = currentUser();
-    if ($user !== null) {
-        try {
-            $pdo = db();
-            ensureCartTable($pdo);
-            $delete = $pdo->prepare('DELETE FROM carrito_items WHERE id_usuario = :id_usuario');
-            $delete->execute(['id_usuario' => (int) $user['id_usuario']]);
-        } catch (Throwable $exception) {
-            // fallback a sesion
-        }
+    try {
+        $pdo = db();
+        ensureCartTable($pdo);
+        $delete = $pdo->prepare('DELETE FROM carrito_items WHERE id_usuario = :id_usuario');
+        $delete->execute(['id_usuario' => (int) $user['id_usuario']]);
+    } catch (Throwable $exception) {
+        // fallback a sesion
     }
 
     $_SESSION['cart'] = [];
@@ -127,41 +132,37 @@ if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $user = currentUser();
+    try {
+        $pdo = db();
+        ensureCartTable($pdo);
 
-    if ($user !== null) {
-        try {
-            $pdo = db();
-            ensureCartTable($pdo);
+        $upsert = $pdo->prepare(
+            'INSERT INTO carrito_items (id_usuario, id_produto, nome_produto, prezo_unitario, cantidade)
+             VALUES (:id_usuario, :id_produto, :nome_produto, :prezo_unitario, 1)
+             ON DUPLICATE KEY UPDATE cantidade = cantidade + 1, nome_produto = VALUES(nome_produto), prezo_unitario = VALUES(prezo_unitario)'
+        );
 
-            $upsert = $pdo->prepare(
-                'INSERT INTO carrito_items (id_usuario, id_produto, nome_produto, prezo_unitario, cantidade)
-                 VALUES (:id_usuario, :id_produto, :nome_produto, :prezo_unitario, 1)
-                 ON DUPLICATE KEY UPDATE cantidade = cantidade + 1, nome_produto = VALUES(nome_produto), prezo_unitario = VALUES(prezo_unitario)'
-            );
+        $upsert->execute([
+            'id_usuario' => (int) $user['id_usuario'],
+            'id_produto' => $id,
+            'nome_produto' => $name,
+            'prezo_unitario' => $price,
+        ]);
 
-            $upsert->execute([
-                'id_usuario' => (int) $user['id_usuario'],
-                'id_produto' => $id,
-                'nome_produto' => $name,
-                'prezo_unitario' => $price,
-            ]);
+        $count = getDbCartCount($pdo, (int) $user['id_usuario']);
 
-            $count = getDbCartCount($pdo, (int) $user['id_usuario']);
-
-            echo json_encode([
-                'ok' => true,
-                'count' => $count,
-                'item' => [
-                    'id' => $id,
-                    'name' => $name,
-                    'price' => $price,
-                ],
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
-        } catch (Throwable $exception) {
-            // fallback a sesion
-        }
+        echo json_encode([
+            'ok' => true,
+            'count' => $count,
+            'item' => [
+                'id' => $id,
+                'name' => $name,
+                'price' => $price,
+            ],
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    } catch (Throwable $exception) {
+        // fallback a sesion
     }
 
     if (!isset($_SESSION['cart'][$id])) {
@@ -198,47 +199,43 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $user = currentUser();
+    try {
+        $pdo = db();
+        ensureCartTable($pdo);
 
-    if ($user !== null) {
-        try {
-            $pdo = db();
-            ensureCartTable($pdo);
+        $update = $pdo->prepare(
+            'UPDATE carrito_items
+             SET cantidade = cantidade + :delta
+             WHERE id_usuario = :id_usuario AND id_produto = :id_produto'
+        );
 
-            $update = $pdo->prepare(
-                'UPDATE carrito_items
-                 SET cantidade = cantidade + :delta
-                 WHERE id_usuario = :id_usuario AND id_produto = :id_produto'
-            );
+        $update->execute([
+            'delta' => $delta,
+            'id_usuario' => (int) $user['id_usuario'],
+            'id_produto' => $id,
+        ]);
 
-            $update->execute([
-                'delta' => $delta,
-                'id_usuario' => (int) $user['id_usuario'],
-                'id_produto' => $id,
-            ]);
+        $delete = $pdo->prepare('DELETE FROM carrito_items WHERE id_usuario = :id_usuario AND id_produto = :id_produto AND cantidade <= 0');
+        $delete->execute([
+            'id_usuario' => (int) $user['id_usuario'],
+            'id_produto' => $id,
+        ]);
 
-            $delete = $pdo->prepare('DELETE FROM carrito_items WHERE id_usuario = :id_usuario AND id_produto = :id_produto AND cantidade <= 0');
-            $delete->execute([
-                'id_usuario' => (int) $user['id_usuario'],
-                'id_produto' => $id,
-            ]);
+        $fetch = $pdo->prepare('SELECT cantidade FROM carrito_items WHERE id_usuario = :id_usuario AND id_produto = :id_produto');
+        $fetch->execute([
+            'id_usuario' => (int) $user['id_usuario'],
+            'id_produto' => $id,
+        ]);
+        $row = $fetch->fetch();
 
-            $fetch = $pdo->prepare('SELECT cantidade FROM carrito_items WHERE id_usuario = :id_usuario AND id_produto = :id_produto');
-            $fetch->execute([
-                'id_usuario' => (int) $user['id_usuario'],
-                'id_produto' => $id,
-            ]);
-            $row = $fetch->fetch();
-
-            echo json_encode([
-                'ok' => true,
-                'quantity' => (int) ($row['cantidade'] ?? 0),
-                'count' => getDbCartCount($pdo, (int) $user['id_usuario']),
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
-        } catch (Throwable $exception) {
-            // fallback a sesion
-        }
+        echo json_encode([
+            'ok' => true,
+            'quantity' => (int) ($row['cantidade'] ?? 0),
+            'count' => getDbCartCount($pdo, (int) $user['id_usuario']),
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    } catch (Throwable $exception) {
+        // fallback a sesion
     }
 
     if (!isset($_SESSION['cart'][$id])) {
