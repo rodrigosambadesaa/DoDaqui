@@ -22,6 +22,30 @@ function secureSessionStart(): void
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     session_start();
+
+    $sessionToken = $_SESSION['_csrf_token'] ?? null;
+    if (!is_string($sessionToken) || !preg_match('/^[a-f0-9]{64}$/', $sessionToken)) {
+        $cookieToken = (string) ($_COOKIE['dodaqui_csrf'] ?? '');
+        if (preg_match('/^[a-f0-9]{64}$/', $cookieToken)) {
+            $sessionToken = $cookieToken;
+        } else {
+            $sessionToken = bin2hex(random_bytes(32));
+        }
+        $_SESSION['_csrf_token'] = $sessionToken;
+    }
+
+    if (!headers_sent()) {
+        $cookieToken = (string) ($_COOKIE['dodaqui_csrf'] ?? '');
+        if ($cookieToken !== $sessionToken) {
+            setcookie('dodaqui_csrf', $sessionToken, [
+                'expires' => time() + (7 * 24 * 60 * 60),
+                'path' => '/',
+                'secure' => $isHttps,
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
+        }
+    }
 }
 
 function applySecurityHeaders(bool $json = false): void
@@ -48,23 +72,8 @@ function csrfToken(): string
         return $sessionToken;
     }
 
-    $cookieToken = (string) ($_COOKIE['dodaqui_csrf'] ?? '');
-    if (preg_match('/^[a-f0-9]{64}$/', $cookieToken)) {
-        $_SESSION['_csrf_token'] = $cookieToken;
-        return $cookieToken;
-    }
-
     $token = bin2hex(random_bytes(32));
     $_SESSION['_csrf_token'] = $token;
-
-    setcookie('dodaqui_csrf', $token, [
-        'expires' => time() + (7 * 24 * 60 * 60),
-        'path' => '/',
-        'secure' => isHttpsRequest(),
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
-
     return $token;
 }
 
