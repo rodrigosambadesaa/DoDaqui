@@ -60,6 +60,8 @@ $products = [
 ];
 
 $category = strtolower(trim((string) ($_GET['categoria'] ?? '')));
+$query = trim((string) ($_GET['q'] ?? ''));
+$queryLower = strtolower($query);
 $allowedCategories = ['alimentacion', 'artesania', 'cuidado', 'bebidas', 'hogar', 'regalo'];
 
 $filteredProducts = $products;
@@ -67,6 +69,22 @@ if ($category !== '' && in_array($category, $allowedCategories, true)) {
     $filteredProducts = array_values(array_filter(
         $products,
         static fn(array $product): bool => (string) ($product['category'] ?? '') === $category
+    ));
+}
+
+if ($queryLower !== '') {
+    $filteredProducts = array_values(array_filter(
+        $filteredProducts,
+        static function (array $product) use ($queryLower): bool {
+            $haystack = strtolower(
+                (string) ($product['name'] ?? '') . ' '
+                . (string) ($product['meta'] ?? '') . ' '
+                . (string) ($product['summary'] ?? '') . ' '
+                . (string) ($product['category'] ?? '')
+            );
+
+            return str_contains($haystack, $queryLower);
+        }
     ));
 }
 ?>
