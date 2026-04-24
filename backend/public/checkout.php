@@ -207,9 +207,14 @@ try {
     $checkoutUserId = (int) ($user['id_usuario'] ?? 0);
 }
 
+$sessionCart = is_array($_SESSION['cart'] ?? null) ? $_SESSION['cart'] : [];
 $cart = $dbCheckoutAvailable
     ? obterCarrinhoUsuario($pdo, $checkoutUserId)
-    : (is_array($_SESSION['cart'] ?? null) ? $_SESSION['cart'] : []);
+    : $sessionCart;
+
+if ($dbCheckoutAvailable && count($cart) === 0 && count($sessionCart) > 0) {
+    $cart = $sessionCart;
+}
 if (count($cart) === 0) {
     http_response_code(422);
     echo json_encode(['ok' => false, 'message' => 'El carrito está vacío.'], JSON_UNESCAPED_UNICODE);
