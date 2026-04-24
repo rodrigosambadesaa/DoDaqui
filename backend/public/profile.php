@@ -68,6 +68,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
         }
     }
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') === 'password_update') {
+    requireValidCsrfToken((string) ($_POST['csrf_token'] ?? ''));
+
+    $currentPassword = (string) ($_POST['current_password'] ?? '');
+    $newPassword = (string) ($_POST['new_password'] ?? '');
+    $repeatPassword = (string) ($_POST['repeat_password'] ?? '');
+
+    if ($newPassword !== $repeatPassword) {
+        $message = 'La nueva contraseña y su confirmación no coinciden.';
+        $messageType = 'error';
+    } elseif (mb_strlen($newPassword) < 8) {
+        $message = 'La nueva contraseña debe tener al menos 8 caracteres.';
+        $messageType = 'error';
+    } else {
+        try {
+            $pdo = db();
+            $stmt = $pdo->prepare('SELECT contrasinal FROM usuarios WHERE id_usuario = :id_usuario LIMIT 1');
+            $stmt->execute(['id_usuario' => (int) ($user['id_usuario'] ?? 0)]);
+            $row = $stmt->fetch();
+
+            $currentHash = is_array($row) ? (string) ($row['contrasinal'] ?? '') : '';
+            if ($currentHash === '' || !password_verify($currentPassword, $currentHash)) {
+                $message = 'La contraseña actual no es correcta.';
+                $messageType = 'error';
+            } else {
+                $newHash = password_hash($newPassword, PASSWORD_BCRYPT);
+
+                $update = $pdo->prepare(
+                    'UPDATE usuarios
+                     SET contrasinal = :contrasinal
+                     WHERE id_usuario = :id_usuario'
+                );
+                $update->execute([
+                    'contrasinal' => $newHash,
+                    'id_usuario' => (int) ($user['id_usuario'] ?? 0),
+                ]);
+
+                if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
+                    clearFallbackLoggedOutMarker();
+                    issueFallbackAuthCookie($_SESSION['user'], $newHash);
+                }
+
+                $message = 'Contraseña actualizada correctamente.';
+                $messageType = 'ok';
+            }
+        } catch (Throwable $exception) {
+            $message = 'No se pudo actualizar la contraseña. Inténtalo de nuevo.';
+            $messageType = 'error';
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -121,6 +173,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                         <input id="telefono" name="telefono" type="text" maxlength="30" value="<?php echo safe((string) ($user['telefono'] ?? '')); ?>">
 
                         <button class="btn btn-dark" type="submit" style="margin-top: 10px;">Guardar cambios</button>
+                    </form>
+
+                    <form method="post" class="box" style="margin-top: 10px;">
+                        <input type="hidden" name="csrf_token" value="<?php echo safe(csrfToken()); ?>">
+                        <input type="hidden" name="action" value="password_update">
+
+                        <label for="current_password">Contraseña actual</label>
+                        <input id="current_password" name="current_password" type="password" required>
+
+                        <label for="new_password">Nueva contraseña</label>
+                        <input id="new_password" name="new_password" type="password" minlength="8" required>
+
+                        <label for="repeat_password">Repite nueva contraseña</label>
+                        <input id="repeat_password" name="repeat_password" type="password" minlength="8" required>
+
+                        <button class="btn btn-light" type="submit" style="margin-top: 10px;">Actualizar contraseña</button>
                     </form>
                 </section>
             </main>
