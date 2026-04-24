@@ -131,6 +131,27 @@ function ensureCheckoutUsersTable(PDO $pdo): void
             creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )"
     );
+
+    $columnCheck = $pdo->query('SHOW COLUMNS FROM usuarios');
+    $columns = array_column($columnCheck ? ($columnCheck->fetchAll() ?: []) : [], 'Field');
+
+    if (in_array('email', $columns, true) && !in_array('correo_electronico', $columns, true)) {
+        $pdo->exec('ALTER TABLE usuarios CHANGE COLUMN email correo_electronico VARCHAR(160) NOT NULL');
+    }
+
+    if (in_array('rol', $columns, true) && !in_array('rol_usuario', $columns, true)) {
+        $pdo->exec("ALTER TABLE usuarios CHANGE COLUMN rol rol_usuario ENUM('cliente','admin') NOT NULL DEFAULT 'cliente'");
+    }
+
+    if (!in_array('telefono', $columns, true)) {
+        $pdo->exec('ALTER TABLE usuarios ADD COLUMN telefono VARCHAR(30) NULL AFTER correo_electronico');
+    }
+
+    $indexCheck = $pdo->query('SHOW INDEX FROM usuarios');
+    $indexNames = array_column($indexCheck ? ($indexCheck->fetchAll() ?: []) : [], 'Key_name');
+    if (!in_array('unique_correo_electronico', $indexNames, true)) {
+        $pdo->exec('ALTER TABLE usuarios ADD UNIQUE KEY unique_correo_electronico (correo_electronico)');
+    }
 }
 
 function resolveCheckoutUserId(PDO $pdo, array $user): int
@@ -210,27 +231,12 @@ applySecurityHeaders(true);
 $dbCheckoutAvailable = true;
 try {
     $pdo = db();
+    ensureCheckoutUsersTable($pdo);
+    ensureCheckoutSchema($pdo);
+    $checkoutUserId = resolveCheckoutUserId($pdo, $user);
 } catch (Throwable $exception) {
     $dbCheckoutAvailable = false;
-    $pdo = null;
-}
-
-$checkoutUserId = (int) ($user['id_usuario'] ?? 0);
-if ($dbCheckoutAvailable && $pdo instanceof PDO) {
-    try {
-        ensureCheckoutUsersTable($pdo);
-        ensureCheckoutSchema($pdo);
-    } catch (Throwable $exception) {
-        // En producción puede no haber permisos DDL; seguimos con DML si las tablas ya existen.
-        error_log('Checkout schema ensure skipped: ' . $exception->getMessage());
-    }
-
-    try {
-        $checkoutUserId = resolveCheckoutUserId($pdo, $user);
-    } catch (Throwable $exception) {
-        $dbCheckoutAvailable = false;
-        error_log('Checkout user resolution failed: ' . $exception->getMessage());
-    }
+    $checkoutUserId = (int) ($user['id_usuario'] ?? 0);
 }
 
 $sessionCart = is_array($_SESSION['cart'] ?? null) ? $_SESSION['cart'] : [];
