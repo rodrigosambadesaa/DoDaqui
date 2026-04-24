@@ -465,6 +465,14 @@ function currentUser(): ?array
         return $syncedUser;
     }
 
+    $fallbackRecord = fallbackAuthRecordFromCookie();
+    $fallbackUser = is_array($fallbackRecord) ? ($fallbackRecord['user'] ?? null) : null;
+    if (is_array($fallbackUser)) {
+        $syncedUser = syncUserWithDatabase($fallbackUser);
+        $_SESSION['user'] = $syncedUser;
+        return $syncedUser;
+    }
+
     $demoUser = demoUserFromCookie();
     if ($demoUser !== null) {
         $syncedUser = syncUserWithDatabase($demoUser);

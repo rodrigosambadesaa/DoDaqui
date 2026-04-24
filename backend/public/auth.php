@@ -98,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'telefono' => (string) ($fallbackUser['telefono'] ?? ''),
                     'rol' => (string) ($fallbackUser['rol'] ?? 'cliente'),
                 ];
+                issueFallbackAuthCookie($_SESSION['user'], $fallbackHash);
                 redirect('home.php');
             }
 
@@ -142,8 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'telefono' => (string) ($user['telefono'] ?? ''),
                     'rol' => $user['rol_usuario'],
                 ];
-                clearFallbackAuthCookie();
                 clearDemoAuthCookie();
+                issueFallbackAuthCookie($_SESSION['user'], (string) $user['contrasinal']);
                 redirect('home.php');
             }
 
@@ -229,8 +230,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'telefono' => '',
                         'rol' => 'cliente',
                     ];
-                    clearFallbackAuthCookie();
                     clearDemoAuthCookie();
+                    issueFallbackAuthCookie($_SESSION['user'], $passwordHash);
                     redirect('home.php');
                 }
             }
