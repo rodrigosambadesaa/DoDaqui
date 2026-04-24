@@ -16,6 +16,10 @@ async function wireCartCount() {
 
     try {
         const response = await fetch('cart_api.php?action=count');
+        if (response.status === 401) {
+            counter.textContent = '0';
+            return;
+        }
         const data = await response.json();
         counter.textContent = String(data.count ?? 0);
     } catch (error) {
@@ -56,10 +60,15 @@ function wirePlusButtons() {
                     if (data.ok) {
                         wireCartCount();
                         flashButton(button);
+                        return;
+                    }
+
+                    if (data.message) {
+                        alert(data.message);
                     }
                 })
                 .catch(() => {
-                    flashButton(button);
+                    alert('No se pudo anadir al carrito.');
                 });
         });
     });
@@ -130,6 +139,11 @@ function wireCheckoutBits() {
                     });
 
                     const data = await response.json();
+                    if (response.status === 401) {
+                        window.location.href = 'auth.php';
+                        return;
+                    }
+
                     if (!response.ok || !data.ok) {
                         throw new Error(data.message || 'No se pudo actualizar el carrito.');
                     }
@@ -205,7 +219,12 @@ function wireCheckoutBits() {
                     body: payload.toString(),
                 });
 
-                const result = await response.json();
+                const result = await readJsonSafe(response);
+                if (response.status === 401) {
+                    window.location.href = 'auth.php';
+                    return;
+                }
+
                 if (!response.ok || !result.ok) {
                     throw new Error(result.message || 'No se pudo completar la compra.');
                 }
@@ -226,4 +245,13 @@ function normalizePhone(value) {
         .trim()
         .replace(/[^\d+\s()-]/g, '')
         .replace(/\s+/g, ' ');
+}
+
+async function readJsonSafe(response) {
+    const text = await response.text();
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        return { ok: false, message: 'Respuesta inesperada del servidor.' };
+    }
 }
