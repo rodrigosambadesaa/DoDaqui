@@ -49,6 +49,30 @@ Para velas non é preciso iniciar sesión, para deixalas si
 
 ---
 
+## Planificación do Prototipo 3
+
+### Data de entrega
+19/05/2026
+
+### Funcionalidades pendentes a implementar (segundo o estudo preliminar)
+
+11. **Xestión de produtos (administrador)**
+É preciso ter iniciada sesión como administrador
+
+12. **Xestión de categorías (administrador)**
+É preciso ter iniciada sesión como administrador
+
+13. **Xestión de produtores (administrador)**
+É preciso ter iniciada sesión como administrador
+
+14. **Consulta e xestión de pedidos (administrador)**
+É preciso ter iniciada sesión como administrador
+
+15. **Control de usuarios rexistrados (administrador)**
+É preciso ter iniciada sesión como administrador
+
+---
+
 ### Requirimentos non funcionais
 
 1. **Seguridade da información**
