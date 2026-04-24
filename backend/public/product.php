@@ -166,7 +166,7 @@ try {
                     <a href="/home.php">Inicio</a>
                     <a href="/products.php" class="is-active">Categorías</a>
                     <a href="/cart.php">Carrito</a>
-                    <a href="/cart.php">Pedidos</a>
+                    <a href="/orders.php">Pedidos</a>
                 </nav>
                 <div class="nav-grow"></div>
                 <div class="nav-actions">
@@ -174,6 +174,7 @@ try {
                         <a class="login-link" href="/auth.php">Iniciar sesión</a>
                     <?php else: ?>
                         <span><?php echo safe((string) $user['nome']); ?></span>
+                        <a href="/profile.php">Perfil</a>
                         <a href="/logout.php">Salir</a>
                     <?php endif; ?>
                     <a href="/cart.php" aria-label="Carrito">Carrito</a>

@@ -107,11 +107,11 @@ if ($user !== null) {
     <div class="page-wrap">
         <div class="desktop-shell">
             <header class="top-nav">
-                <a class="brand" href="/home.php">ShopFlow</a>
+                <a class="brand" href="/home.php">DoDaqui</a>
                 <nav class="nav-links desktop-only">
-                    <a href="/products.php">Producto</a>
+                    <a href="/products.php">Categorías</a>
                     <a href="/cart.php" class="is-active">Carrito</a>
-                    <a href="#">Pedidos</a>
+                    <a href="/orders.php">Pedidos</a>
                 </nav>
                 <div class="nav-grow"></div>
                 <div class="nav-actions">
@@ -120,6 +120,7 @@ if ($user !== null) {
                     <?php else: ?>
                         <span class="avatar-mini" aria-hidden="true"></span>
                         <span class="muted-xs"><?php echo safe((string) ($user['nome'] ?? 'Usuario')); ?></span>
+                        <a href="/profile.php">Perfil</a>
                         <a href="/logout.php">Salir</a>
                     <?php endif; ?>
                     <a href="/cart.php" aria-label="Carrito">Carrito</a>

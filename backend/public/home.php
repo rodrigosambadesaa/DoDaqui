@@ -57,7 +57,7 @@ try {
                         <a href="/home.php" class="is-active">Inicio</a>
                         <a href="/products.php">Categorías</a>
                         <a href="/cart.php">Carrito</a>
-                        <a href="/cart.php">Pedidos</a>
+                        <a href="/orders.php">Pedidos</a>
                     </nav>
                     <div class="nav-grow"></div>
                     <div class="nav-actions">
@@ -66,6 +66,7 @@ try {
                         <?php else: ?>
                             <span class="avatar-mini" aria-hidden="true"></span>
                             <span><?php echo safe((string) ($user['nome'] ?? 'Usuario')); ?></span>
+                            <a href="/profile.php">Perfil</a>
                             <a href="/logout.php">Salir</a>
                         <?php endif; ?>
                         <a href="/cart.php" aria-label="Carrito">Carrito</a>
