@@ -71,10 +71,23 @@ A información tratarase de xestionar de forma segura.
 	- Resultado das probas básicas de funcionamento.
 
 ## Prototipo 3
-### Data de entrega: 
+### Data de entrega: 19/05/2026
 ### Funcionalidades implementadas:
+- Xestión de produtos para administrador (alta, modificación e baixa).
+- Xestión de categorías para administrador.
+- Xestión de produtores para administrador.
+- Consulta e xestión de pedidos desde panel de administración.
+- Control de usuarios rexistrados desde o panel de administración.
+
 ### Observacións:
+- Este prototipo céntrase nos fluxos de administración pendentes definidos no estudo preliminar e no documento de análise.
+- Mantense a base técnica PHP + Docker + MySQL, aproveitando a estrutura xa creada nos prototipos anteriores.
+- A validación funcional deste bloque realízase con probas locais e verificación de permisos por rol (cliente/admin).
+
 ### Innovación: 
+- Evolución da aplicación desde tenda de cliente a plataforma completa con operacións de backoffice.
+- Separación máis clara entre funcionalidades de cliente e funcionalidades de administración.
+- Mellora da mantenibilidade ao centralizar xestión de catálogo, pedidos e usuarios nunha capa administrativa.
 
 ## Prototipo 4
 ### Data de entrega: 
