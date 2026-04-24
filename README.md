@@ -104,3 +104,20 @@ docker compose -f docker-compose.restricted.yml up --build
 - Plataforma seleccionada para este proxecto: **DigitalOcean App Platform**.
 - Especificación da app: `.do/app.yaml`.
 - Guía paso a paso: [doc/despregamento_digitalocean.md](doc/despregamento_digitalocean.md).
+
+## Vercel: base de datos y redeploy
+
+Para habilitar login e rexistro reais en Vercel (sen modo demo), configura estas variables en **Production**:
+
+- `DB_HOST`
+- `DB_PORT`
+- `DB_DATABASE`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+
+Tamén se admite `DATABASE_URL`/`MYSQL_URL`/`JAWSDB_URL` se prefires unha URL completa.
+
+Redeploy desde ambos repositorios:
+
+- **GitHub**: Vercel desprega automaticamente cos pushes na rama configurada.
+- **GitLab**: existe unha pipeline en `.gitlab-ci.yml` que dispara un deploy hook de Vercel en cada push a `master`.

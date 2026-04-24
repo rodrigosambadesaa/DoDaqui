@@ -1,0 +1,12 @@
+stages:
+  - deploy
+
+vercel_production_redeploy:
+  stage: deploy
+  image: curlimages/curl:8.11.1
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  script:
+    - echo "Triggering Vercel production redeploy from GitLab..."
+    - curl --fail --show-error --silent -X POST "https://api.vercel.com/v1/integrations/deploy/prj_ZHNPF8E4EKYOZA6akrqq3SfXQhUP/rykSTgRimB"
+    - echo "Vercel redeploy trigger sent."
