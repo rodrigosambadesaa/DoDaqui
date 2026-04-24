@@ -12,10 +12,10 @@
 - Inicio e peche de sesión.
 - Consulta visual de catálogo na portada.
 - Vista de detalle resumida de produtos no layout.
-- Base de xestión de carriño para fluxo a checkout.
-- Realización de pedido
-- Realización de valoracións de produtos
-- Seguridade da información
+- Visualización do carro da compra.
+- Realización de pedido (neste paso almacénase o pedido na base de datos)
+
+A información tratarase de xestionar de forma segura.
 
 ### Observacións:
 - Todo o contorno está dockerizado e arranca cun só comando: `docker compose up --build`.
@@ -34,6 +34,7 @@
 - Consulta do historial de pedidos para usuarios rexistrados.
 - Xestión do perfil de usuario.
 - Preparación de despregamento público en Internet con configuración para DigitalOcean App Platform.
+- Visualización da base de datos nun xestor tipo phpMyAdmin como os que teñen XAMPP ou LAMPP.
 
 ### Observacións:
 - Este prototipo engade máis dos requirimentos funcionais que quedan pendentes no documento de análise.
