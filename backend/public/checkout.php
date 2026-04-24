@@ -107,6 +107,58 @@ function ensureCheckoutSchema(PDO $pdo): void
     );
 }
 
+function ensureCheckoutUsersTable(PDO $pdo): void
+{
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS usuarios (
+            id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(120) NOT NULL,
+            correo_electronico VARCHAR(160) NOT NULL UNIQUE,
+            telefono VARCHAR(30) NULL,
+            contrasinal VARCHAR(255) NOT NULL,
+            rol_usuario ENUM('cliente', 'admin') NOT NULL DEFAULT 'cliente',
+            creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )"
+    );
+}
+
+function resolveCheckoutUserId(PDO $pdo, array $user): int
+{
+    $candidateId = (int) ($user['id_usuario'] ?? 0);
+
+    if ($candidateId > 0) {
+        $byId = $pdo->prepare('SELECT id_usuario FROM usuarios WHERE id_usuario = :id_usuario LIMIT 1');
+        $byId->execute(['id_usuario' => $candidateId]);
+        if ($byId->fetch()) {
+            return $candidateId;
+        }
+    }
+
+    $email = trim((string) ($user['email'] ?? ''));
+    if ($email !== '') {
+        $byEmail = $pdo->prepare('SELECT id_usuario FROM usuarios WHERE correo_electronico = :correo LIMIT 1');
+        $byEmail->execute(['correo' => $email]);
+        $row = $byEmail->fetch();
+        if (is_array($row)) {
+            return (int) ($row['id_usuario'] ?? 0);
+        }
+    }
+
+    $insert = $pdo->prepare(
+        'INSERT INTO usuarios (nome, correo_electronico, telefono, contrasinal, rol_usuario)
+         VALUES (:nome, :correo_electronico, :telefono, :contrasinal, :rol_usuario)'
+    );
+    $insert->execute([
+        'nome' => mb_substr(trim((string) ($user['nome'] ?? 'Usuario')), 0, 120),
+        'correo_electronico' => mb_substr($email !== '' ? $email : 'guest-' . bin2hex(random_bytes(6)) . '@local.invalid', 0, 160),
+        'telefono' => mb_substr(trim((string) ($user['telefono'] ?? '')), 0, 30),
+        'contrasinal' => password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT),
+        'rol_usuario' => 'cliente',
+    ]);
+
+    return (int) $pdo->lastInsertId();
+}
+
 function obterCarrinhoUsuario(PDO $pdo, int $idUsuario): array
 {
     $stmt = $pdo->prepare(
@@ -135,9 +187,6 @@ function obterCarrinhoUsuario(PDO $pdo, int $idUsuario): array
     return $cart;
 }
 
-$pdo = db();
-ensureCheckoutSchema($pdo);
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || (string) ($_POST['action'] ?? '') !== 'realizar_pedido') {
     header('Location: cart.php');
     exit;
@@ -147,7 +196,18 @@ requireValidCsrfToken((string) ($_POST['csrf_token'] ?? ''));
 
 applySecurityHeaders(true);
 
-$cart = obterCarrinhoUsuario($pdo, (int) $user['id_usuario']);
+try {
+    $pdo = db();
+    ensureCheckoutUsersTable($pdo);
+    ensureCheckoutSchema($pdo);
+    $checkoutUserId = resolveCheckoutUserId($pdo, $user);
+} catch (Throwable $exception) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'message' => 'No se pudo inicializar el checkout.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+$cart = obterCarrinhoUsuario($pdo, $checkoutUserId);
 if (count($cart) === 0) {
     http_response_code(422);
     echo json_encode(['ok' => false, 'message' => 'El carrito está vacío.'], JSON_UNESCAPED_UNICODE);
@@ -227,7 +287,7 @@ try {
     );
 
     $insertPedido->execute([
-        'id_usuario' => (int) $user['id_usuario'],
+        'id_usuario' => $checkoutUserId,
         'estado_pedido' => 'confirmado',
         'metodo_pagamento' => 'sin_pasarela',
         'importe_subtotal' => $subtotal,
@@ -262,7 +322,7 @@ try {
     }
 
     $clearCart = $pdo->prepare('DELETE FROM carrito_items WHERE id_usuario = :id_usuario');
-    $clearCart->execute(['id_usuario' => (int) $user['id_usuario']]);
+    $clearCart->execute(['id_usuario' => $checkoutUserId]);
 
     $pdo->commit();
 
