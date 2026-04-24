@@ -4,17 +4,7 @@ Este documento recolle o deseño de interface e o deseño de base de datos do pr
 
 ## Deseño de interface de usuarios
 
-### Esquema (boceto ou wireframe) para pantalla de ordenador
-
-![Wireframe para ordenador](../img/Page_1.png)
-
-- [Ver ficheiro do wireframe de ordenador](../img/Page_1.png)
-
-### Esquema (boceto ou wireframe) para móbil
-
-![Wireframe para móbil](../img/Page_2.png)
-
-- [Ver ficheiro do wireframe de móbil](../img/Page_2.png)
+![Wireframes](../img/Wireframe-Homepage%20Desktop.png)
 
 ## Identidade visual
 
@@ -61,6 +51,7 @@ Para maior comodidade especifícase en texto en vez en de diagramas.
 - `contrasinal` (hash)
 - `enderezo` (para o envío)
 - `rol` (cliente/admin)
+- `telefono`
 
 **produtos**
 - `id_produto` (PK)
@@ -85,6 +76,14 @@ Para maior comodidade especifícase en texto en vez en de diagramas.
 - `cantidade`
 - `prezo_unitario` (para conxelar o prezo da venda)
 
+**opinions_clientes**
+- `id_opinion` (PK)
+- `id_produto` (FK → produtos)
+- `id_cliente` (FK → usuarios)
+- `data`
+- `valoracion`
+- `opinion`
+
 #### 2. Relacións e cardinalidades
 
 - **Usuarios (1) — (N) Pedidos**: Un usuario pode realizar moitos pedidos; un pedido pertence a un só usuario.
@@ -94,7 +93,7 @@ Para maior comodidade especifícase en texto en vez en de diagramas.
 #### 3. Modelo relacional
 
 ```
-usuarios (id_usuario, nome, email, contrasinal, enderezo, rol)
+usuarios (id_usuario, nome, email, contrasinal, enderezo, rol, telefono)
 
 produtos (id_produto, nome, descripcion, prezo, stock, categoria, imaxe_url)
 
@@ -104,4 +103,10 @@ pedidos (id_pedido, id_usuario, data_pedido, total, estado)
 pedido_liñas (id_lina, id_pedido, id_produto, cantidade, prezo_unitario)
     FK: id_pedido → pedidos
     FK: id_produto → produtos
+
+opinions_clientes (id_opinion, id_produto, id_cliente, data, valoracion, opinion)
+    FK: id_produto → produtos
+    FK: id_cliente → usuarios
 ```
+
+

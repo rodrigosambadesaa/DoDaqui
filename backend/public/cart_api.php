@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-session_start();
 require_once __DIR__ . '/bootstrap.php';
-
-header('Content-Type: application/json; charset=utf-8');
+secureSessionStart();
+applySecurityHeaders(true);
 
 $action = $_GET['action'] ?? '';
 
@@ -50,11 +49,21 @@ function ensureCartTable(PDO $pdo): void
 
 function getDbCartCount(PDO $pdo, int $userId): int
 {
-    $stmt = $pdo->prepare('SELECT COUNT(*) AS total FROM carrito_items WHERE id_usuario = :id_usuario');
+    $stmt = $pdo->prepare('SELECT COALESCE(SUM(cantidade), 0) AS total FROM carrito_items WHERE id_usuario = :id_usuario');
     $stmt->execute(['id_usuario' => $userId]);
     $row = $stmt->fetch();
 
     return (int) ($row['total'] ?? 0);
+}
+
+function getSessionCartCount(array $cart): int
+{
+    $count = 0;
+    foreach ($cart as $item) {
+        $count += (int) ($item['quantity'] ?? 0);
+    }
+
+    return $count;
 }
 
 if ($action === 'count') {
@@ -72,11 +81,19 @@ if ($action === 'count') {
         }
     }
 
-    echo json_encode(['count' => count($_SESSION['cart'])], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['count' => getSessionCartCount($_SESSION['cart'])], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 if ($action === 'clear') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['ok' => false, 'message' => 'Método no permitido.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    requireValidCsrfTokenJson((string) ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
+
     $user = currentUser();
     if ($user !== null) {
         try {
@@ -95,14 +112,16 @@ if ($action === 'clear') {
 }
 
 if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireValidCsrfTokenJson((string) ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
+
     $raw = file_get_contents('php://input');
     $payload = json_decode($raw ?: '[]', true);
 
     $id = (string) ($payload['id'] ?? '');
-    $name = trim((string) ($payload['name'] ?? 'Producto'));
+    $name = mb_substr(trim((string) ($payload['name'] ?? 'Producto')), 0, 150);
     $price = (float) ($payload['price'] ?? 0);
 
-    if ($id === '' || $price < 0) {
+    if (!preg_match('/^[a-zA-Z0-9-]{1,80}$/', $id) || $name === '' || $price < 0 || $price > 100000) {
         http_response_code(422);
         echo json_encode(['ok' => false, 'message' => 'Datos de producto inválidos.'], JSON_UNESCAPED_UNICODE);
         exit;
@@ -158,8 +177,86 @@ if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     echo json_encode([
         'ok' => true,
-        'count' => count($_SESSION['cart']),
+        'count' => getSessionCartCount($_SESSION['cart']),
         'item' => $_SESSION['cart'][$id],
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireValidCsrfTokenJson((string) ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
+
+    $raw = file_get_contents('php://input');
+    $payload = json_decode($raw ?: '[]', true);
+
+    $id = (string) ($payload['id'] ?? '');
+    $delta = (int) ($payload['delta'] ?? 0);
+
+    if (!preg_match('/^[a-zA-Z0-9-]{1,80}$/', $id) || !in_array($delta, [-1, 1], true)) {
+        http_response_code(422);
+        echo json_encode(['ok' => false, 'message' => 'Actualización inválida.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $user = currentUser();
+
+    if ($user !== null) {
+        try {
+            $pdo = db();
+            ensureCartTable($pdo);
+
+            $update = $pdo->prepare(
+                'UPDATE carrito_items
+                 SET cantidade = cantidade + :delta
+                 WHERE id_usuario = :id_usuario AND id_produto = :id_produto'
+            );
+
+            $update->execute([
+                'delta' => $delta,
+                'id_usuario' => (int) $user['id_usuario'],
+                'id_produto' => $id,
+            ]);
+
+            $delete = $pdo->prepare('DELETE FROM carrito_items WHERE id_usuario = :id_usuario AND id_produto = :id_produto AND cantidade <= 0');
+            $delete->execute([
+                'id_usuario' => (int) $user['id_usuario'],
+                'id_produto' => $id,
+            ]);
+
+            $fetch = $pdo->prepare('SELECT cantidade FROM carrito_items WHERE id_usuario = :id_usuario AND id_produto = :id_produto');
+            $fetch->execute([
+                'id_usuario' => (int) $user['id_usuario'],
+                'id_produto' => $id,
+            ]);
+            $row = $fetch->fetch();
+
+            echo json_encode([
+                'ok' => true,
+                'quantity' => (int) ($row['cantidade'] ?? 0),
+                'count' => getDbCartCount($pdo, (int) $user['id_usuario']),
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        } catch (Throwable $exception) {
+            // fallback a sesion
+        }
+    }
+
+    if (!isset($_SESSION['cart'][$id])) {
+        echo json_encode(['ok' => true, 'quantity' => 0, 'count' => getSessionCartCount($_SESSION['cart'])], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $_SESSION['cart'][$id]['quantity'] = (int) ($_SESSION['cart'][$id]['quantity'] ?? 0) + $delta;
+    if ((int) $_SESSION['cart'][$id]['quantity'] <= 0) {
+        unset($_SESSION['cart'][$id]);
+        echo json_encode(['ok' => true, 'quantity' => 0, 'count' => getSessionCartCount($_SESSION['cart'])], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    echo json_encode([
+        'ok' => true,
+        'quantity' => (int) $_SESSION['cart'][$id]['quantity'],
+        'count' => getSessionCartCount($_SESSION['cart']),
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }

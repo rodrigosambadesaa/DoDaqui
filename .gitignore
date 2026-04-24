@@ -9,6 +9,19 @@
 .env
 .env.*
 !.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Claves y certificados locales
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cert
+*.der
 
 # Dependencias
 frontend/node_modules/
@@ -36,3 +49,4 @@ Thumbs.db
 
 # Docker overrides locales
 docker-compose.override.yml
+.vercel
