@@ -117,6 +117,17 @@ Para habilitar login e rexistro reais en Vercel (sen modo demo), configura estas
 
 Tamén se admite `DATABASE_URL`/`MYSQL_URL`/`JAWSDB_URL` se prefires unha URL completa.
 
+Configuración automática desde terminal:
+
+```bash
+export DB_HOST='...'
+export DB_PORT='3306'
+export DB_DATABASE='...'
+export DB_USERNAME='...'
+export DB_PASSWORD='...'
+./scripts/vercel/configure-db-env.sh
+```
+
 Redeploy desde ambos repositorios:
 
 - **GitHub**: Vercel desprega automaticamente cos pushes na rama configurada.
