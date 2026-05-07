@@ -983,7 +983,7 @@ function fetchCatalogProducts(PDO $pdo, bool $onlyActive = true): array
 {
     ensureCatalogDataAvailable($pdo);
     $sql =
-        'SELECT p.id_produto, p.nome, p.resumo, p.descripcion, p.prezo, p.activo,
+    'SELECT p.id_produto, p.nome, p.resumo, p.descripcion, p.prezo, p.activo, p.id_categoria, p.id_produtor,
                 c.slug AS categoria_slug, c.nome AS categoria_nome,
                 pr.slug AS produtor_slug, pr.nome AS produtor_nome
          FROM produtos p
