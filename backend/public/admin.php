@@ -394,6 +394,13 @@ try {
                 <section class="box">
                     <h1 class="catalog-title">Panel de administracion</h1>
                     <p class="section-sub">Gestion integral de productos, categorias, productores, pedidos y usuarios.</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                        <a class="btn btn-light" href="#admin-categories">Categorias</a>
+                        <a class="btn btn-light" href="#admin-producers">Productores</a>
+                        <a class="btn btn-light" href="#admin-products">Productos</a>
+                        <a class="btn btn-light" href="#admin-orders">Pedidos</a>
+                        <a class="btn btn-light" href="#admin-users">Usuarios</a>
+                    </div>
                     <div class="order-list" style="margin-top: 10px;">
                         <article class="box" style="margin: 0;">
                             <p><strong>Productos</strong></p>
@@ -426,7 +433,7 @@ try {
                     <section class="box" style="border-color: #b8c8d8; color: #32485e;"><?php echo safe($flashOk); ?></section>
                 <?php endif; ?>
 
-                <section class="box">
+                <section class="box" id="admin-categories">
                     <h2 style="margin-top: 0;">Gestion de categorias</h2>
                     <p class="section-sub">Alta, baja y mantenimiento de categorias del catalogo.</p>
                     <form method="post" class="review-form" style="margin-top: 10px;">
@@ -484,7 +491,7 @@ try {
                     </div>
                 </section>
 
-                <section class="box">
+                <section class="box" id="admin-producers">
                     <h2 style="margin-top: 0;">Gestion de productores</h2>
                     <p class="section-sub">Control de productores y su informacion publica.</p>
                     <form method="post" class="review-form" style="margin-top: 10px;">
@@ -550,7 +557,7 @@ try {
                     </div>
                 </section>
 
-                <section class="box">
+                <section class="box" id="admin-products">
                     <h2 style="margin-top: 0;">Gestion de productos</h2>
                     <p class="section-sub">Alta, modificacion y baja de productos de tienda.</p>
                     <form method="post" class="review-form" style="margin-top: 10px;">
@@ -674,7 +681,7 @@ try {
                     </div>
                 </section>
 
-                <section class="box">
+                <section class="box" id="admin-orders">
                     <h2 style="margin-top: 0;">Gestion de pedidos</h2>
                     <p class="section-sub">Consulta y actualizacion de estados de pedidos de clientes.</p>
                     <?php if (count($orders) === 0): ?>
@@ -708,7 +715,7 @@ try {
                     <?php endif; ?>
                 </section>
 
-                <section class="box">
+                <section class="box" id="admin-users">
                     <h2 style="margin-top: 0;">Gestion de usuarios</h2>
                     <p class="section-sub">Control de cuentas registradas y permisos de administrador.</p>
                     <?php if (count($users) === 0): ?>
