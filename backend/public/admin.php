@@ -195,6 +195,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $flashOk = 'Producto eliminado correctamente.';
             }
         }
+
+        if ($action === 'update_order_status') {
+            $orderId = (int) ($_POST['id_pedido'] ?? 0);
+            $status = mb_substr(trim((string) ($_POST['estado_pedido'] ?? '')), 0, 32);
+            $allowed = ['confirmado', 'preparando', 'enviado', 'entregado', 'cancelado'];
+
+            if ($orderId <= 0 || !in_array($status, $allowed, true)) {
+                $flashError = 'Pedido o estado no valido.';
+            } else {
+                $stmt = $pdoAction->prepare(
+                    'UPDATE pedidos
+                     SET estado_pedido = :estado_pedido
+                     WHERE id_pedido = :id_pedido'
+                );
+                $stmt->execute([
+                    'id_pedido' => $orderId,
+                    'estado_pedido' => $status,
+                ]);
+                $flashOk = 'Estado de pedido actualizado.';
+            }
+        }
     } catch (Throwable $exception) {
         $flashError = 'No se pudo aplicar la accion de administracion.';
     }
@@ -498,6 +519,35 @@ try {
                 <section class="box">
                     <h2 style="margin-top: 0;">Gestion de pedidos</h2>
                     <p class="section-sub">Consulta y actualizacion de estados de pedidos de clientes.</p>
+                    <?php if (count($orders) === 0): ?>
+                        <p class="section-sub">No hay pedidos registrados todavia.</p>
+                    <?php else: ?>
+                        <div class="order-list" style="margin-top: 10px;">
+                            <?php foreach ($orders as $order): ?>
+                                <article class="box" style="margin: 0;">
+                                    <p style="margin: 0;"><strong>Pedido #<?php echo (int) ($order['id_pedido'] ?? 0); ?></strong></p>
+                                    <p class="muted-xs" style="margin: 4px 0;">Cliente: <?php echo safe((string) ($order['cliente_nome'] ?? '')); ?></p>
+                                    <p class="muted-xs" style="margin: 4px 0;">Fecha: <?php echo safe((string) ($order['creado_en'] ?? '')); ?></p>
+                                    <p class="muted-xs" style="margin: 4px 0;">Total: <?php echo formatoEuro((float) ($order['importe_total'] ?? 0)); ?></p>
+                                    <form method="post" style="margin-top: 8px; display: grid; grid-template-columns: minmax(140px, 220px) auto; gap: 8px; align-items: center;">
+                                        <?php echo csrfInput(); ?>
+                                        <input type="hidden" name="action" value="update_order_status">
+                                        <input type="hidden" name="id_pedido" value="<?php echo (int) ($order['id_pedido'] ?? 0); ?>">
+                                        <select name="estado_pedido">
+                                            <?php
+                                            $orderStatus = (string) ($order['estado_pedido'] ?? 'confirmado');
+                                            $options = ['confirmado', 'preparando', 'enviado', 'entregado', 'cancelado'];
+                                            foreach ($options as $option):
+                                            ?>
+                                                <option value="<?php echo safe($option); ?>" <?php echo $orderStatus === $option ? 'selected' : ''; ?>><?php echo safe(ucfirst($option)); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <button class="btn btn-light" type="submit">Actualizar estado</button>
+                                    </form>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </section>
 
                 <section class="box">
