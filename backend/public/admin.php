@@ -216,6 +216,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $flashOk = 'Estado de pedido actualizado.';
             }
         }
+
+        if ($action === 'update_user_role') {
+            $targetUserId = (int) ($_POST['id_usuario'] ?? 0);
+            $newRole = (string) ($_POST['rol_usuario'] ?? 'cliente');
+
+            if ($targetUserId <= 0 || !in_array($newRole, ['cliente', 'admin'], true)) {
+                $flashError = 'Usuario o rol no valido.';
+            } else {
+                $stmt = $pdoAction->prepare(
+                    'UPDATE usuarios
+                     SET rol_usuario = :rol_usuario
+                     WHERE id_usuario = :id_usuario'
+                );
+                $stmt->execute([
+                    'id_usuario' => $targetUserId,
+                    'rol_usuario' => $newRole,
+                ]);
+                $flashOk = 'Rol de usuario actualizado.';
+            }
+        }
+
+        if ($action === 'delete_user') {
+            $targetUserId = (int) ($_POST['id_usuario'] ?? 0);
+            if ($targetUserId <= 0) {
+                $flashError = 'Usuario no valido para eliminar.';
+            } elseif ($targetUserId === (int) ($user['id_usuario'] ?? 0)) {
+                $flashError = 'No puedes eliminar tu propio usuario administrador.';
+            } else {
+                $stmt = $pdoAction->prepare('DELETE FROM usuarios WHERE id_usuario = :id_usuario');
+                $stmt->execute(['id_usuario' => $targetUserId]);
+                $flashOk = 'Usuario eliminado correctamente.';
+            }
+        }
     } catch (Throwable $exception) {
         $flashError = 'No se pudo aplicar la accion de administracion.';
     }
@@ -553,6 +586,40 @@ try {
                 <section class="box">
                     <h2 style="margin-top: 0;">Gestion de usuarios</h2>
                     <p class="section-sub">Control de cuentas registradas y permisos de administrador.</p>
+                    <?php if (count($users) === 0): ?>
+                        <p class="section-sub">No hay usuarios disponibles.</p>
+                    <?php else: ?>
+                        <div class="order-list" style="margin-top: 10px;">
+                            <?php foreach ($users as $entry): ?>
+                                <article class="box" style="margin: 0;">
+                                    <p style="margin: 0;"><strong><?php echo safe((string) ($entry['nome'] ?? 'Usuario')); ?></strong></p>
+                                    <p class="muted-xs" style="margin: 4px 0;">Correo: <?php echo safe((string) ($entry['correo_electronico'] ?? '')); ?></p>
+                                    <p class="muted-xs" style="margin: 4px 0;">Telefono: <?php echo safe((string) ($entry['telefono'] ?? '')); ?></p>
+                                    <p class="muted-xs" style="margin: 4px 0;">Alta: <?php echo safe((string) ($entry['creado_en'] ?? '')); ?></p>
+
+                                    <form method="post" style="margin-top: 8px; display: grid; grid-template-columns: minmax(140px, 220px) auto; gap: 8px; align-items: center;">
+                                        <?php echo csrfInput(); ?>
+                                        <input type="hidden" name="action" value="update_user_role">
+                                        <input type="hidden" name="id_usuario" value="<?php echo (int) ($entry['id_usuario'] ?? 0); ?>">
+                                        <select name="rol_usuario">
+                                            <option value="cliente" <?php echo ((string) ($entry['rol_usuario'] ?? '') === 'cliente') ? 'selected' : ''; ?>>Cliente</option>
+                                            <option value="admin" <?php echo ((string) ($entry['rol_usuario'] ?? '') === 'admin') ? 'selected' : ''; ?>>Admin</option>
+                                        </select>
+                                        <button class="btn btn-light" type="submit">Guardar rol</button>
+                                    </form>
+
+                                    <?php if ((int) ($entry['id_usuario'] ?? 0) !== (int) ($user['id_usuario'] ?? 0)): ?>
+                                        <form method="post" style="margin-top: 8px;">
+                                            <?php echo csrfInput(); ?>
+                                            <input type="hidden" name="action" value="delete_user">
+                                            <input type="hidden" name="id_usuario" value="<?php echo (int) ($entry['id_usuario'] ?? 0); ?>">
+                                            <button class="btn btn-light" type="submit">Eliminar usuario</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </section>
             </main>
         </div>
