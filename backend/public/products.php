@@ -8,62 +8,52 @@ applySecurityHeaders();
 
 $user = currentUser();
 
-$products = [
-    [
-        'id' => 'product-1',
-        'name' => 'Tarro de miel ecológica',
-        'meta' => 'Granja Abeja Feliz',
-        'category' => 'alimentacion',
-        'price' => '12.50',
-        'summary' => 'Miel cruda de producción local, sin mezclas industriales y con cosecha de temporada.',
-    ],
-    [
-        'id' => 'product-2',
-        'name' => 'Cesta de mimbre artesanal',
-        'meta' => 'Colectivo Artesano',
-        'category' => 'artesania',
-        'price' => '45.00',
-        'summary' => 'Pieza trenzada a mano con fibras naturales, ideal para almacenaje y decoración.',
-    ],
-    [
-        'id' => 'product-3',
-        'name' => 'Aceite de oliva prensado en frío',
-        'meta' => 'Valle del Sol',
-        'category' => 'alimentacion',
-        'price' => '18.00',
-        'summary' => 'Aceite virgen extra de primera prensada, con perfil afrutado y acidez baja.',
-    ],
-    [
-        'id' => 'product-4',
-        'name' => 'Pan de masa madre',
-        'meta' => 'Panadería Local',
-        'category' => 'alimentacion',
-        'price' => '6.50',
-        'summary' => 'Pan de fermentación lenta, corteza crujiente y miga alveolada elaborado cada mañana.',
-    ],
-    [
-        'id' => 'product-5',
-        'name' => 'Queso curado artesanal',
-        'meta' => 'Lácteos da Serra',
-        'category' => 'alimentacion',
-        'price' => '15.20',
-        'summary' => 'Queso curado de leche local con maduración lenta y sabor intenso.',
-    ],
-    [
-        'id' => 'product-6',
-        'name' => 'Mermelada de frutos rojos',
-        'meta' => 'Huerta Atlántica',
-        'category' => 'cuidado',
-        'price' => '7.90',
-        'summary' => 'Elaborada en pequeños lotes con fruta de temporada y bajo contenido de azúcar.',
-    ],
-];
+$products = [];
+$allowedCategories = [];
+
+try {
+    $pdo = db();
+    $dbProducts = fetchCatalogProducts($pdo, true);
+    foreach ($dbProducts as $row) {
+        $products[] = [
+            'id' => (string) ($row['id_produto'] ?? ''),
+            'name' => (string) ($row['nome'] ?? ''),
+            'meta' => (string) ($row['produtor_nome'] ?? 'Productor local'),
+            'category' => (string) ($row['categoria_slug'] ?? ''),
+            'price' => (string) ($row['prezo'] ?? '0'),
+            'summary' => (string) ($row['resumo'] ?? ''),
+        ];
+    }
+
+    $dbCategories = fetchCatalogCategories($pdo, true);
+    foreach ($dbCategories as $row) {
+        $slug = (string) ($row['slug'] ?? '');
+        if ($slug !== '') {
+            $allowedCategories[] = $slug;
+        }
+    }
+} catch (Throwable $exception) {
+    foreach (defaultCatalogProducts() as $product) {
+        $products[] = [
+            'id' => (string) $product['id'],
+            'name' => (string) $product['name'],
+            'meta' => 'Productor local',
+            'category' => (string) $product['category_slug'],
+            'price' => (string) $product['price'],
+            'summary' => (string) $product['summary'],
+        ];
+    }
+
+    $allowedCategories = array_map(
+        static fn(array $category): string => (string) ($category['slug'] ?? ''),
+        defaultCatalogCategories()
+    );
+}
 
 $category = strtolower(trim((string) ($_GET['categoria'] ?? '')));
 $query = trim((string) ($_GET['q'] ?? ''));
 $queryLower = strtolower($query);
 $sort = (string) ($_GET['orden'] ?? 'destacados');
-$allowedCategories = ['alimentacion', 'artesania', 'cuidado', 'bebidas', 'hogar', 'regalo'];
 if (!in_array($sort, ['destacados', 'precio_asc', 'precio_desc', 'nombre_asc'], true)) {
     $sort = 'destacados';
 }
