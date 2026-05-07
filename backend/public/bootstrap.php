@@ -679,6 +679,27 @@ function currentUser(): ?array
     return null;
 }
 
+function isAdminUser(?array $user): bool
+{
+    if (!is_array($user)) {
+        return false;
+    }
+
+    return (string) ($user['rol'] ?? '') === 'admin';
+}
+
+function requireAdminUser(): array
+{
+    $user = currentUser();
+    if (!isAdminUser($user)) {
+        http_response_code(403);
+        echo 'Acceso restringido al panel de administracion.';
+        exit;
+    }
+
+    return $user;
+}
+
 /**
  * Sanitize output
  */
