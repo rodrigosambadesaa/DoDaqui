@@ -72,9 +72,9 @@ if ($queryLower !== '') {
         static function (array $product) use ($queryLower): bool {
             $haystack = strtolower(
                 (string) ($product['name'] ?? '') . ' '
-                . (string) ($product['meta'] ?? '') . ' '
-                . (string) ($product['summary'] ?? '') . ' '
-                . (string) ($product['category'] ?? '')
+                    . (string) ($product['meta'] ?? '') . ' '
+                    . (string) ($product['summary'] ?? '') . ' '
+                    . (string) ($product['category'] ?? '')
             );
 
             return str_contains($haystack, $queryLower);

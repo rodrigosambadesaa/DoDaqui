@@ -50,3 +50,4 @@ Thumbs.db
 # Docker overrides locales
 docker-compose.override.yml
 .vercel
+.env*.local
