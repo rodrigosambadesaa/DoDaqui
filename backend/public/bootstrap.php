@@ -749,6 +749,201 @@ function formatoEuro(float $importe): string
     return number_format($importe, 2, ',', '.') . ' €';
 }
 
+function defaultCatalogCategories(): array
+{
+    return [
+        ['slug' => 'alimentacion', 'nome' => 'Alimentacion'],
+        ['slug' => 'artesania', 'nome' => 'Artesania'],
+        ['slug' => 'cuidado', 'nome' => 'Cuidado personal'],
+        ['slug' => 'bebidas', 'nome' => 'Bebidas'],
+        ['slug' => 'hogar', 'nome' => 'Hogar'],
+        ['slug' => 'regalo', 'nome' => 'Regalo'],
+    ];
+}
+
+function defaultCatalogProducers(): array
+{
+    return [
+        ['slug' => 'granja-abeja-feliz', 'nome' => 'Granja Abeja Feliz', 'descripcion' => 'Productor local de miel ecologica.'],
+        ['slug' => 'colectivo-artesano', 'nome' => 'Colectivo Artesano', 'descripcion' => 'Agrupacion de artesanos de cercania.'],
+        ['slug' => 'valle-del-sol', 'nome' => 'Valle del Sol', 'descripcion' => 'Productor de aceite de oliva virgen extra.'],
+        ['slug' => 'panaderia-local', 'nome' => 'Panaderia Local', 'descripcion' => 'Panaderia tradicional de masa madre.'],
+        ['slug' => 'lacteos-da-serra', 'nome' => 'Lacteos da Serra', 'descripcion' => 'Elaboracion artesanal de quesos curados.'],
+        ['slug' => 'huerta-atlantica', 'nome' => 'Huerta Atlantica', 'descripcion' => 'Conservas y mermeladas en pequenos lotes.'],
+    ];
+}
+
+function defaultCatalogProducts(): array
+{
+    return [
+        [
+            'id' => 'product-1',
+            'name' => 'Tarro de miel ecologica',
+            'summary' => 'Miel cruda de produccion local, sin mezclas industriales y con cosecha de temporada.',
+            'description' => 'Este tarro de miel se obtiene en colmenas de proximidad y conserva propiedades naturales al no someterse a procesos industriales.',
+            'category_slug' => 'alimentacion',
+            'producer_slug' => 'granja-abeja-feliz',
+            'price' => 12.50,
+        ],
+        [
+            'id' => 'product-2',
+            'name' => 'Cesta de mimbre artesanal',
+            'summary' => 'Pieza trenzada a mano con fibras naturales, ideal para almacenaje y decoracion.',
+            'description' => 'Cada pieza esta elaborada a mano con mimbre local y acabados resistentes para uso diario en el hogar.',
+            'category_slug' => 'artesania',
+            'producer_slug' => 'colectivo-artesano',
+            'price' => 45.00,
+        ],
+        [
+            'id' => 'product-3',
+            'name' => 'Aceite de oliva prensado en frio',
+            'summary' => 'Aceite virgen extra de primera prensada, con perfil afrutado y acidez baja.',
+            'description' => 'Aceite producido en almazara tradicional, con extraccion en frio para preservar aroma, sabor y calidad nutricional.',
+            'category_slug' => 'alimentacion',
+            'producer_slug' => 'valle-del-sol',
+            'price' => 18.00,
+        ],
+        [
+            'id' => 'product-4',
+            'name' => 'Pan de masa madre',
+            'summary' => 'Pan de fermentacion lenta, corteza crujiente y miga alveolada elaborado cada manana.',
+            'description' => 'Pan horneado diariamente con fermentacion natural y harinas seleccionadas de productores de la zona.',
+            'category_slug' => 'alimentacion',
+            'producer_slug' => 'panaderia-local',
+            'price' => 6.50,
+        ],
+        [
+            'id' => 'product-5',
+            'name' => 'Queso curado artesanal',
+            'summary' => 'Queso curado de leche local con maduracion lenta y sabor intenso.',
+            'description' => 'Queso de produccion limitada con maduracion controlada y notas complejas para tabla o cocina gourmet.',
+            'category_slug' => 'alimentacion',
+            'producer_slug' => 'lacteos-da-serra',
+            'price' => 15.20,
+        ],
+        [
+            'id' => 'product-6',
+            'name' => 'Mermelada de frutos rojos',
+            'summary' => 'Elaborada en pequenos lotes con fruta de temporada y bajo contenido de azucar.',
+            'description' => 'Mermelada artesana cocinada lentamente para conservar sabor y textura, perfecta para desayunos y reposteria.',
+            'category_slug' => 'cuidado',
+            'producer_slug' => 'huerta-atlantica',
+            'price' => 7.90,
+        ],
+    ];
+}
+
+function ensureCatalogSchema(PDO $pdo): void
+{
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS categorias (
+            id_categoria INT AUTO_INCREMENT PRIMARY KEY,
+            slug VARCHAR(80) NOT NULL UNIQUE,
+            nome VARCHAR(120) NOT NULL,
+            activa TINYINT(1) NOT NULL DEFAULT 1,
+            creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS produtores (
+            id_produtor INT AUTO_INCREMENT PRIMARY KEY,
+            slug VARCHAR(80) NOT NULL UNIQUE,
+            nome VARCHAR(150) NOT NULL,
+            descripcion VARCHAR(255) NULL,
+            activo TINYINT(1) NOT NULL DEFAULT 1,
+            creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS produtos (
+            id_produto VARCHAR(80) PRIMARY KEY,
+            nome VARCHAR(150) NOT NULL,
+            resumo VARCHAR(255) NOT NULL,
+            descripcion VARCHAR(800) NULL,
+            prezo DECIMAL(10,2) NOT NULL,
+            id_categoria INT NULL,
+            id_produtor INT NULL,
+            activo TINYINT(1) NOT NULL DEFAULT 1,
+            creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            CONSTRAINT fk_produto_categoria
+                FOREIGN KEY (id_categoria) REFERENCES categorias(id_categoria)
+                ON DELETE SET NULL,
+            CONSTRAINT fk_produto_produtor
+                FOREIGN KEY (id_produtor) REFERENCES produtores(id_produtor)
+                ON DELETE SET NULL
+        )"
+    );
+}
+
+function seedCatalogDefaults(PDO $pdo): void
+{
+    ensureCatalogSchema($pdo);
+
+    $insertCategory = $pdo->prepare(
+        'INSERT INTO categorias (slug, nome, activa)
+         VALUES (:slug, :nome, 1)
+         ON DUPLICATE KEY UPDATE nome = VALUES(nome), activa = VALUES(activa)'
+    );
+    foreach (defaultCatalogCategories() as $category) {
+        $insertCategory->execute([
+            'slug' => (string) $category['slug'],
+            'nome' => (string) $category['nome'],
+        ]);
+    }
+
+    $insertProducer = $pdo->prepare(
+        'INSERT INTO produtores (slug, nome, descripcion, activo)
+         VALUES (:slug, :nome, :descripcion, 1)
+         ON DUPLICATE KEY UPDATE nome = VALUES(nome), descripcion = VALUES(descripcion), activo = VALUES(activo)'
+    );
+    foreach (defaultCatalogProducers() as $producer) {
+        $insertProducer->execute([
+            'slug' => (string) $producer['slug'],
+            'nome' => (string) $producer['nome'],
+            'descripcion' => (string) ($producer['descripcion'] ?? ''),
+        ]);
+    }
+
+    $categoryRows = $pdo->query('SELECT id_categoria, slug FROM categorias')->fetchAll() ?: [];
+    $producerRows = $pdo->query('SELECT id_produtor, slug FROM produtores')->fetchAll() ?: [];
+    $categoryBySlug = [];
+    foreach ($categoryRows as $row) {
+        $categoryBySlug[(string) ($row['slug'] ?? '')] = (int) ($row['id_categoria'] ?? 0);
+    }
+    $producerBySlug = [];
+    foreach ($producerRows as $row) {
+        $producerBySlug[(string) ($row['slug'] ?? '')] = (int) ($row['id_produtor'] ?? 0);
+    }
+
+    $insertProduct = $pdo->prepare(
+        'INSERT INTO produtos (id_produto, nome, resumo, descripcion, prezo, id_categoria, id_produtor, activo)
+         VALUES (:id_produto, :nome, :resumo, :descripcion, :prezo, :id_categoria, :id_produtor, 1)
+         ON DUPLICATE KEY UPDATE
+            nome = VALUES(nome),
+            resumo = VALUES(resumo),
+            descripcion = VALUES(descripcion),
+            prezo = VALUES(prezo),
+            id_categoria = VALUES(id_categoria),
+            id_produtor = VALUES(id_produtor),
+            activo = VALUES(activo)'
+    );
+
+    foreach (defaultCatalogProducts() as $product) {
+        $insertProduct->execute([
+            'id_produto' => (string) $product['id'],
+            'nome' => (string) $product['name'],
+            'resumo' => (string) $product['summary'],
+            'descripcion' => (string) ($product['description'] ?? ''),
+            'prezo' => (float) ($product['price'] ?? 0),
+            'id_categoria' => (int) ($categoryBySlug[(string) ($product['category_slug'] ?? '')] ?? 0) ?: null,
+            'id_produtor' => (int) ($producerBySlug[(string) ($product['producer_slug'] ?? '')] ?? 0) ?: null,
+        ]);
+    }
+}
+
 function ensureOpinionsSchema(PDO $pdo): void
 {
     $pdo->exec(
