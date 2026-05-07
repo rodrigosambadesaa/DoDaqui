@@ -62,6 +62,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        if ($action === 'update_category') {
+            $categoryId = (int) ($_POST['id_categoria'] ?? 0);
+            $name = mb_substr(trim((string) ($_POST['name'] ?? '')), 0, 120);
+            $slug = mb_substr(trim((string) ($_POST['slug'] ?? '')), 0, 80);
+            $slug = strtolower((string) preg_replace('/[^a-z0-9-]+/', '-', $slug));
+            $slug = trim($slug, '-');
+
+            if ($categoryId <= 0 || $name === '' || $slug === '') {
+                $flashError = 'Datos de categoria no validos para actualizar.';
+            } else {
+                $stmt = $pdoAction->prepare(
+                    'UPDATE categorias
+                     SET nome = :nome, slug = :slug
+                     WHERE id_categoria = :id_categoria'
+                );
+                $stmt->execute([
+                    'id_categoria' => $categoryId,
+                    'nome' => $name,
+                    'slug' => $slug,
+                ]);
+                $flashOk = 'Categoria actualizada correctamente.';
+            }
+        }
+
+        if ($action === 'delete_category') {
+            $categoryId = (int) ($_POST['id_categoria'] ?? 0);
+            if ($categoryId <= 0) {
+                $flashError = 'Categoria no valida para eliminar.';
+            } else {
+                $cleanProducts = $pdoAction->prepare('UPDATE produtos SET id_categoria = NULL WHERE id_categoria = :id_categoria');
+                $cleanProducts->execute(['id_categoria' => $categoryId]);
+
+                $stmt = $pdoAction->prepare('DELETE FROM categorias WHERE id_categoria = :id_categoria');
+                $stmt->execute(['id_categoria' => $categoryId]);
+                $flashOk = 'Categoria eliminada correctamente.';
+            }
+        }
+
         if ($action === 'create_producer') {
             $name = mb_substr(trim((string) ($_POST['name'] ?? '')), 0, 150);
             $slugRaw = mb_substr(trim((string) ($_POST['slug'] ?? '')), 0, 80);
@@ -98,6 +136,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 $stmt->execute(['id_produtor' => $producerId]);
                 $flashOk = 'Estado de productor actualizado.';
+            }
+        }
+
+        if ($action === 'update_producer') {
+            $producerId = (int) ($_POST['id_produtor'] ?? 0);
+            $name = mb_substr(trim((string) ($_POST['name'] ?? '')), 0, 150);
+            $slug = mb_substr(trim((string) ($_POST['slug'] ?? '')), 0, 80);
+            $description = mb_substr(trim((string) ($_POST['description'] ?? '')), 0, 255);
+            $slug = strtolower((string) preg_replace('/[^a-z0-9-]+/', '-', $slug));
+            $slug = trim($slug, '-');
+
+            if ($producerId <= 0 || $name === '' || $slug === '') {
+                $flashError = 'Datos de productor no validos para actualizar.';
+            } else {
+                $stmt = $pdoAction->prepare(
+                    'UPDATE produtores
+                     SET nome = :nome, slug = :slug, descripcion = :descripcion
+                     WHERE id_produtor = :id_produtor'
+                );
+                $stmt->execute([
+                    'id_produtor' => $producerId,
+                    'nome' => $name,
+                    'slug' => $slug,
+                    'descripcion' => $description,
+                ]);
+                $flashOk = 'Productor actualizado correctamente.';
+            }
+        }
+
+        if ($action === 'delete_producer') {
+            $producerId = (int) ($_POST['id_produtor'] ?? 0);
+            if ($producerId <= 0) {
+                $flashError = 'Productor no valido para eliminar.';
+            } else {
+                $cleanProducts = $pdoAction->prepare('UPDATE produtos SET id_produtor = NULL WHERE id_produtor = :id_produtor');
+                $cleanProducts->execute(['id_produtor' => $producerId]);
+
+                $stmt = $pdoAction->prepare('DELETE FROM produtores WHERE id_produtor = :id_produtor');
+                $stmt->execute(['id_produtor' => $producerId]);
+                $flashOk = 'Productor eliminado correctamente.';
             }
         }
 
@@ -370,14 +448,36 @@ try {
                     <div class="order-list" style="margin-top: 12px;">
                         <?php foreach ($categories as $category): ?>
                             <article class="box" style="margin: 0;">
-                                <p style="margin: 0;"><strong><?php echo safe((string) ($category['nome'] ?? 'Categoria')); ?></strong></p>
-                                <p class="muted-xs" style="margin: 4px 0;">slug: <?php echo safe((string) ($category['slug'] ?? '')); ?></p>
-                                <p class="muted-xs" style="margin: 4px 0;">Estado: <?php echo ((int) ($category['activa'] ?? 0) === 1) ? 'Activa' : 'Inactiva'; ?></p>
-                                <form method="post" style="margin-top: 8px;">
+                                <form method="post">
+                                    <?php echo csrfInput(); ?>
+                                    <input type="hidden" name="action" value="update_category">
+                                    <input type="hidden" name="id_categoria" value="<?php echo (int) ($category['id_categoria'] ?? 0); ?>">
+                                    <div class="form-grid-2">
+                                        <div class="form-group">
+                                            <label>Nombre</label>
+                                            <input name="name" maxlength="120" value="<?php echo safe((string) ($category['nome'] ?? '')); ?>" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Slug</label>
+                                            <input name="slug" maxlength="80" value="<?php echo safe((string) ($category['slug'] ?? '')); ?>" required>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-dark" style="margin-top: 10px;" type="submit">Guardar cambios</button>
+                                </form>
+
+                                <p class="muted-xs" style="margin: 8px 0 0;">Estado: <?php echo ((int) ($category['activa'] ?? 0) === 1) ? 'Activa' : 'Inactiva'; ?></p>
+                                <form method="post" style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
                                     <?php echo csrfInput(); ?>
                                     <input type="hidden" name="action" value="toggle_category">
                                     <input type="hidden" name="id_categoria" value="<?php echo (int) ($category['id_categoria'] ?? 0); ?>">
                                     <button class="btn btn-light" type="submit">Activar / desactivar</button>
+                                </form>
+
+                                <form method="post" style="margin-top: 8px;">
+                                    <?php echo csrfInput(); ?>
+                                    <input type="hidden" name="action" value="delete_category">
+                                    <input type="hidden" name="id_categoria" value="<?php echo (int) ($category['id_categoria'] ?? 0); ?>">
+                                    <button class="btn btn-light" type="submit">Eliminar categoria</button>
                                 </form>
                             </article>
                         <?php endforeach; ?>
@@ -410,15 +510,40 @@ try {
                     <div class="order-list" style="margin-top: 12px;">
                         <?php foreach ($producers as $producer): ?>
                             <article class="box" style="margin: 0;">
-                                <p style="margin: 0;"><strong><?php echo safe((string) ($producer['nome'] ?? 'Productor')); ?></strong></p>
-                                <p class="muted-xs" style="margin: 4px 0;">slug: <?php echo safe((string) ($producer['slug'] ?? '')); ?></p>
-                                <p class="muted-xs" style="margin: 4px 0;"><?php echo safe((string) ($producer['descripcion'] ?? '')); ?></p>
-                                <p class="muted-xs" style="margin: 4px 0;">Estado: <?php echo ((int) ($producer['activo'] ?? 0) === 1) ? 'Activo' : 'Inactivo'; ?></p>
-                                <form method="post" style="margin-top: 8px;">
+                                <form method="post">
+                                    <?php echo csrfInput(); ?>
+                                    <input type="hidden" name="action" value="update_producer">
+                                    <input type="hidden" name="id_produtor" value="<?php echo (int) ($producer['id_produtor'] ?? 0); ?>">
+                                    <div class="form-grid-2">
+                                        <div class="form-group">
+                                            <label>Nombre</label>
+                                            <input name="name" maxlength="150" value="<?php echo safe((string) ($producer['nome'] ?? '')); ?>" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Slug</label>
+                                            <input name="slug" maxlength="80" value="<?php echo safe((string) ($producer['slug'] ?? '')); ?>" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-top: 8px;">
+                                        <label>Descripcion</label>
+                                        <textarea name="description" rows="2" maxlength="255"><?php echo safe((string) ($producer['descripcion'] ?? '')); ?></textarea>
+                                    </div>
+                                    <button class="btn btn-dark" style="margin-top: 10px;" type="submit">Guardar cambios</button>
+                                </form>
+
+                                <p class="muted-xs" style="margin: 8px 0 0;">Estado: <?php echo ((int) ($producer['activo'] ?? 0) === 1) ? 'Activo' : 'Inactivo'; ?></p>
+                                <form method="post" style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
                                     <?php echo csrfInput(); ?>
                                     <input type="hidden" name="action" value="toggle_producer">
                                     <input type="hidden" name="id_produtor" value="<?php echo (int) ($producer['id_produtor'] ?? 0); ?>">
                                     <button class="btn btn-light" type="submit">Activar / desactivar</button>
+                                </form>
+
+                                <form method="post" style="margin-top: 8px;">
+                                    <?php echo csrfInput(); ?>
+                                    <input type="hidden" name="action" value="delete_producer">
+                                    <input type="hidden" name="id_produtor" value="<?php echo (int) ($producer['id_produtor'] ?? 0); ?>">
+                                    <button class="btn btn-light" type="submit">Eliminar productor</button>
                                 </form>
                             </article>
                         <?php endforeach; ?>
