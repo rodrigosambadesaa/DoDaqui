@@ -17,6 +17,55 @@ $products = [];
 $orders = [];
 $users = [];
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireValidCsrfToken((string) ($_POST['csrf_token'] ?? ''));
+
+    try {
+        $pdoAction = db();
+        ensureCatalogDataAvailable($pdoAction);
+
+        $action = (string) ($_POST['action'] ?? '');
+        if ($action === 'create_category') {
+            $name = mb_substr(trim((string) ($_POST['name'] ?? '')), 0, 120);
+            $slugRaw = mb_substr(trim((string) ($_POST['slug'] ?? '')), 0, 80);
+            $slug = strtolower((string) preg_replace('/[^a-z0-9-]+/', '-', $slugRaw !== '' ? $slugRaw : $name));
+            $slug = trim($slug, '-');
+
+            if (mb_strlen($name) < 2 || $slug === '') {
+                $flashError = 'Indica nombre y slug validos para la categoria.';
+            } else {
+                $stmt = $pdoAction->prepare(
+                    'INSERT INTO categorias (slug, nome, activa)
+                     VALUES (:slug, :nome, 1)
+                     ON DUPLICATE KEY UPDATE nome = VALUES(nome)'
+                );
+                $stmt->execute([
+                    'slug' => $slug,
+                    'nome' => $name,
+                ]);
+                $flashOk = 'Categoria guardada correctamente.';
+            }
+        }
+
+        if ($action === 'toggle_category') {
+            $categoryId = (int) ($_POST['id_categoria'] ?? 0);
+            if ($categoryId <= 0) {
+                $flashError = 'Categoria no valida.';
+            } else {
+                $stmt = $pdoAction->prepare(
+                    'UPDATE categorias
+                     SET activa = CASE WHEN activa = 1 THEN 0 ELSE 1 END
+                     WHERE id_categoria = :id_categoria'
+                );
+                $stmt->execute(['id_categoria' => $categoryId]);
+                $flashOk = 'Estado de categoria actualizado.';
+            }
+        }
+    } catch (Throwable $exception) {
+        $flashError = 'No se pudo aplicar la accion de administracion.';
+    }
+}
+
 try {
     $pdo = db();
     ensureCatalogDataAvailable($pdo);
@@ -114,6 +163,37 @@ try {
                 <section class="box">
                     <h2 style="margin-top: 0;">Gestion de categorias</h2>
                     <p class="section-sub">Alta, baja y mantenimiento de categorias del catalogo.</p>
+                    <form method="post" class="review-form" style="margin-top: 10px;">
+                        <?php echo csrfInput(); ?>
+                        <input type="hidden" name="action" value="create_category">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="category-name">Nombre</label>
+                                <input id="category-name" name="name" maxlength="120" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="category-slug">Slug</label>
+                                <input id="category-slug" name="slug" maxlength="80" placeholder="alimentacion" required>
+                            </div>
+                        </div>
+                        <button class="btn btn-dark" style="margin-top: 10px;" type="submit">Guardar categoria</button>
+                    </form>
+
+                    <div class="order-list" style="margin-top: 12px;">
+                        <?php foreach ($categories as $category): ?>
+                            <article class="box" style="margin: 0;">
+                                <p style="margin: 0;"><strong><?php echo safe((string) ($category['nome'] ?? 'Categoria')); ?></strong></p>
+                                <p class="muted-xs" style="margin: 4px 0;">slug: <?php echo safe((string) ($category['slug'] ?? '')); ?></p>
+                                <p class="muted-xs" style="margin: 4px 0;">Estado: <?php echo ((int) ($category['activa'] ?? 0) === 1) ? 'Activa' : 'Inactiva'; ?></p>
+                                <form method="post" style="margin-top: 8px;">
+                                    <?php echo csrfInput(); ?>
+                                    <input type="hidden" name="action" value="toggle_category">
+                                    <input type="hidden" name="id_categoria" value="<?php echo (int) ($category['id_categoria'] ?? 0); ?>">
+                                    <button class="btn btn-light" type="submit">Activar / desactivar</button>
+                                </form>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
                 </section>
 
                 <section class="box">
