@@ -83,11 +83,19 @@ docker compose -f docker-compose.restricted.yml up --build
 
 ## Sobre a persoa autora
 
-> *Tarefa*: Realiza unha breve descrición de quen es desde unha perspectiva profesional, os teus puntos fortes, tecnoloxías que máis dominas e o motivo de por que te decantaches por este proxecto. **Non máis de 200 palabras**. Indica unha forma fiable de contactar contigo no presente e no futuro.
+Son Rodrigo Sambade Saa, desenvolvedor de aplicacións multiplataforma con experiencia en desenvolvemento web, móbil e investigación en tecnoloxías da linguaxe. Traballei no Concello de Santiago creando aplicacións móbiles e anteriormente no CiTIUS (USC), combinando tarefas de investigación, administración web e refactorización de software. Tamén teño experiencia profesional con Java e contornas empresariais en prácticas en Coremain.
+
+Os meus puntos fortes son a capacidade de entrega rápida sen perder calidade, o enfoque no detalle e o traballo en equipo. As tecnoloxías que máis emprego son PHP, Java, JavaScript, HTML, CSS, SQL, Docker e Git, ademais de experiencia con frameworks e ferramentas modernas de front-end.
+
+Decanteime por este proxecto porque une comercio local, sustentabilidade e tecnoloxía aplicada a un problema real: achegar produtores galegos ao cliente final cunha plataforma clara e útil.
+
+Contacto actual e futuro:
+
+- Correo: rodrigosambadesaa1@gmail.com
 
 ## Licencia
 
-> *Tarefa*: É requisito INDISPENSABLE licenciar explicitamente o proxecto. Crea un ficheiro `LICENSE` na raíz do repositorio.
+Este proxecto distribúese baixo unha licenza propietaria con todos os dereitos reservados. Consulta as condicións completas en [LICENSE](LICENSE).
 
 ## Guía de contribución
 
@@ -104,6 +112,32 @@ docker compose -f docker-compose.restricted.yml up --build
 4. [Planificación e Orzamento](doc/templates/a3_orzamento.md)
 5. [Codificación e Probas](doc/templates/4_codificacion_probas.md)
 6. [Futuro e comercialización](doc/templates/5_manuais.md)
+
+## Futuro e comercialización
+
+### Promoción
+
+- Redes sociais (Instagram/Facebook) con campañas segmentadas en ámbito galego.
+- SEO con palabras clave de produto local e consumo responsable.
+- Colaboracións con produtores e participación en feiras/eventos.
+- Contido multimedia curto para difusión da proposta de valor.
+
+### Modelo de negocio
+
+- Comisión por venda como modelo principal.
+- Plan premium opcional para produtores con funcionalidades avanzadas.
+- Promoción destacada de produtos/produtores como ingreso adicional.
+
+### Melloras futuras
+
+- Integración de pasarela de pagamento real.
+- Xestión avanzada de loxística e notificacións.
+- Analítica para produtores e funcionalidades de fidelización.
+- Melloras de accesibilidade, internacionalización e observabilidade técnica.
+
+Ligazón ao proxecto en GitLab (entrega):
+
+- https://gitlab.iessanclemente.net/dawo/a23rodrigoss
 
 ## Despregamento en Internet
 

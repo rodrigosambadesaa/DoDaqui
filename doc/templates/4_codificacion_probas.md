@@ -90,16 +90,42 @@ A información tratarase de xestionar de forma segura.
 - Mellora da mantenibilidade ao centralizar xestión de catálogo, pedidos e usuarios nunha capa administrativa.
 
 ## Prototipo 4
-### Data de entrega: 
+### Data de entrega: 19/05/2026
 ### Funcionalidades implementadas:
+- Consolidación da API REST para operacións clave de autenticación, catálogo, carriño e pedidos.
+- Estabilización da autenticación segura en contorno de Internet (sesión, CSRF e control de intentos).
+- Melloras de persistencia relacional para manter coherencia entre usuarios, produtos, pedidos e opinións.
+- Adaptación do despregamento a contorno cloud reproducible (Vercel + variables de contorno + validación post-deploy).
+- Execución de probas funcionais de regresión dos fluxos cliente/admin para garantir que non se rompen funcionalidades previas.
+
 ### Observacións: 
+- Este prototipo céntrase nos requirimentos técnicos do estudo preliminar, completando a capa de integración entre frontend e backend.
+- Mantense o desenvolvemento con PHP sen framework e base de datos SQL relacional, coherente coa arquitectura definida no anteproxecto.
+- O traballo inclúe validación en local con Docker e validación en produción tras despregamento.
+
 ### Innovación: 
+- Paso de prototipo funcional local a versión operativa en Internet mantendo trazabilidade técnica dos cambios.
+- Estratexia de fallback controlado para manter accesibles os fluxos críticos en escenarios de indispoñibilidade parcial da base de datos.
+- Reforzo da calidade mediante probas de regresión sobre funcionalidades xa entregadas en prototipos anteriores.
 
 ## Prototipo Final
-### Data de entrega: 
+### Data de entrega: 02/06/2026 (prevista)
 ### Funcionalidades implementadas:
+- Peche integral de todos os requirimentos funcionais do estudo preliminar para cliente e administrador.
+- Hardening final de seguridade e operación (control de sesión, validación de entrada, control de permisos e tratamento de erros).
+- Revisión final da API e da persistencia de datos para garantir consistencia funcional extremo a extremo.
+- Validación final de despregamento reproducible en produción e revisión da configuración de contorno.
+- Preparación da evidencia final de probas funcionais e técnicas para a entrega da memoria.
+
 ### Observacións: 
+- Este bloque corresponde ao peche do proxecto, priorizando estabilidade, calidade e trazabilidade da entrega.
+- Inclúe revisión de documentación técnica e contraste cos obxectivos definidos no anteproxecto e na análise.
+- O resultado esperado é unha versión lista para avaliación, con funcionalidades completas e comportamento consistente.
+
 ### Innovación: 
+- Integración final de requisitos funcionais e técnicos nun ciclo iterativo por prototipos, reducindo risco de regresión.
+- Enfoque DevOps aplicado a un proxecto académico: contorno local reproducible, despregamento cloud e validación continua.
+- Produto final orientado a uso real, con separación clara entre operacións de cliente e backoffice administrativo.
 
 
 
