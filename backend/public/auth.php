@@ -54,6 +54,14 @@ function ensureAuthSchema(PDO $pdo): void
         'contrasinal' => '$2y$10$nZ24rn1voj52FXBw4hezpOtXJAovRyHrNSVfv9zKIyKy5RrUbi2Z6',
         'rol_usuario' => 'cliente',
     ]);
+
+    $stmt->execute([
+        'nome' => 'Admin Demo',
+        'correo_electronico' => 'admin@tenda.gal',
+        'telefono' => '+34600000001',
+        'contrasinal' => '$2y$12$CC2u/AbEKwxtlnQKtJ6bl.MN9qPfiEEG6313jaIRcsFeW6tyV3R1i',
+        'rol_usuario' => 'admin',
+    ]);
 }
 
 $pdo = null;
@@ -86,7 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fallbackUser = is_array($fallbackRecord) ? ($fallbackRecord['user'] ?? null) : null;
             $fallbackHash = is_array($fallbackRecord) ? (string) ($fallbackRecord['password_hash'] ?? '') : '';
 
-            if (is_array($fallbackUser)
+            if (
+                is_array($fallbackUser)
                 && strtolower((string) ($fallbackUser['email'] ?? '')) === $email
                 && $fallbackHash !== ''
                 && password_verify($password, $fallbackHash)
@@ -113,6 +122,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ];
                 clearFallbackLoggedOutMarker();
                 issueDemoAuthCookie();
+                redirect('home.php');
+            }
+
+            if ($email === 'admin@tenda.gal' && $password === 'Admin1234!') {
+                $_SESSION['user'] = [
+                    'id_usuario' => 2,
+                    'nome' => 'Admin Demo',
+                    'email' => 'admin@tenda.gal',
+                    'telefono' => '+34600000001',
+                    'rol' => 'admin',
+                ];
+                clearFallbackLoggedOutMarker();
+                clearDemoAuthCookie();
+                issueFallbackAuthCookie($_SESSION['user'], '$2y$12$CC2u/AbEKwxtlnQKtJ6bl.MN9qPfiEEG6313jaIRcsFeW6tyV3R1i');
                 redirect('home.php');
             }
 

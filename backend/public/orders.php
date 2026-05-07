@@ -121,10 +121,16 @@ if (count($orders) === 0) {
                     <a href="/products.php">Categorías</a>
                     <a href="/cart.php">Carrito</a>
                     <a href="/orders.php" class="is-active">Pedidos</a>
+                    <?php if (isAdminUser($user)): ?>
+                        <a href="/admin.php">Admin</a>
+                    <?php endif; ?>
                 </nav>
                 <div class="nav-grow"></div>
                 <div class="nav-actions">
                     <span><?php echo safe((string) ($user['nome'] ?? 'Usuario')); ?></span>
+                    <?php if (isAdminUser($user)): ?>
+                        <a href="/admin.php">Panel admin</a>
+                    <?php endif; ?>
                     <a href="/logout.php">Salir</a>
                 </div>
             </header>

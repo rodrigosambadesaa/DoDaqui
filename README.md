@@ -33,11 +33,17 @@ docker compose -f docker-compose.restricted.yml up --build
 
 - Portada da tenda: `http://localhost:8080`
 - Acceso e rexistro: `http://localhost:8080/auth.php`
+- Panel de administración (usuario admin): `http://localhost:8080/admin.php`
 
 Usuario de proba (sempre dispoñible):
 
 - Correo: `demo@tenda.gal`
 - Contrasinal: `Demo1234!`
+
+Usuario administrador local (sempre dispoñible):
+
+- Correo: `admin@tenda.gal`
+- Contrasinal: `Admin1234!`
 
 Requisitos de contrasinal para rexistro:
 

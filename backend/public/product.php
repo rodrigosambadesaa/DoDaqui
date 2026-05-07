@@ -14,68 +14,36 @@ if (!preg_match('/^[a-zA-Z0-9-]{1,80}$/', $productId)) {
 $reviewError = '';
 $reviewOk = (string) ($_GET['review'] ?? '') === 'ok';
 
-$products = [
-    [
-        'id' => 'product-1',
-        'name' => 'Tarro de miel ecológica',
-        'meta' => 'Granja Abeja Feliz',
-        'category' => 'alimentacion',
-        'price' => 12.50,
-        'summary' => 'Miel cruda de producción local, sin mezclas industriales y con cosecha de temporada.',
-        'description' => 'Este tarro de miel se obtiene en colmenas de proximidad y conserva propiedades naturales al no someterse a procesos industriales.',
-    ],
-    [
-        'id' => 'product-2',
-        'name' => 'Cesta de mimbre artesanal',
-        'meta' => 'Colectivo Artesano',
-        'category' => 'artesania',
-        'price' => 45.00,
-        'summary' => 'Pieza trenzada a mano con fibras naturales, ideal para almacenaje y decoración.',
-        'description' => 'Cada pieza está elaborada a mano con mimbre local y acabados resistentes para uso diario en el hogar.',
-    ],
-    [
-        'id' => 'product-3',
-        'name' => 'Aceite de oliva prensado en frío',
-        'meta' => 'Valle del Sol',
-        'category' => 'alimentacion',
-        'price' => 18.00,
-        'summary' => 'Aceite virgen extra de primera prensada, con perfil afrutado y acidez baja.',
-        'description' => 'Aceite producido en almazara tradicional, con extracción en frío para preservar aroma, sabor y calidad nutricional.',
-    ],
-    [
-        'id' => 'product-4',
-        'name' => 'Pan de masa madre',
-        'meta' => 'Panadería Local',
-        'category' => 'alimentacion',
-        'price' => 6.50,
-        'summary' => 'Pan de fermentación lenta, corteza crujiente y miga alveolada elaborado cada mañana.',
-        'description' => 'Pan horneado diariamente con fermentación natural y harinas seleccionadas de productores de la zona.',
-    ],
-    [
-        'id' => 'product-5',
-        'name' => 'Queso curado artesanal',
-        'meta' => 'Lácteos da Serra',
-        'category' => 'alimentacion',
-        'price' => 15.20,
-        'summary' => 'Queso curado de leche local con maduración lenta y sabor intenso.',
-        'description' => 'Queso de producción limitada con maduración controlada y notas complejas para tabla o cocina gourmet.',
-    ],
-    [
-        'id' => 'product-6',
-        'name' => 'Mermelada de frutos rojos',
-        'meta' => 'Huerta Atlántica',
-        'category' => 'cuidado',
-        'price' => 7.90,
-        'summary' => 'Elaborada en pequeños lotes con fruta de temporada y bajo contenido de azúcar.',
-        'description' => 'Mermelada artesana cocinada lentamente para conservar sabor y textura, perfecta para desayunos y repostería.',
-    ],
-];
-
 $product = null;
-foreach ($products as $candidate) {
-    if ((string) $candidate['id'] === $productId) {
-        $product = $candidate;
-        break;
+
+try {
+    $pdo = db();
+    $row = $productId !== '' ? fetchCatalogProductById($pdo, $productId) : null;
+    if (is_array($row) && (int) ($row['activo'] ?? 0) === 1) {
+        $product = [
+            'id' => (string) ($row['id_produto'] ?? ''),
+            'name' => (string) ($row['nome'] ?? ''),
+            'meta' => (string) ($row['produtor_nome'] ?? 'Productor local'),
+            'category' => (string) ($row['categoria_slug'] ?? ''),
+            'price' => (float) ($row['prezo'] ?? 0),
+            'summary' => (string) ($row['resumo'] ?? ''),
+            'description' => (string) ($row['descripcion'] ?? ''),
+        ];
+    }
+} catch (Throwable $exception) {
+    foreach (defaultCatalogProducts() as $candidate) {
+        if ((string) $candidate['id'] === $productId) {
+            $product = [
+                'id' => (string) $candidate['id'],
+                'name' => (string) $candidate['name'],
+                'meta' => 'Productor local',
+                'category' => (string) $candidate['category_slug'],
+                'price' => (float) ($candidate['price'] ?? 0),
+                'summary' => (string) $candidate['summary'],
+                'description' => (string) ($candidate['description'] ?? ''),
+            ];
+            break;
+        }
     }
 }
 
@@ -167,6 +135,9 @@ try {
                     <a href="/products.php" class="is-active">Categorías</a>
                     <a href="/cart.php">Carrito</a>
                     <a href="/orders.php">Pedidos</a>
+                    <?php if (isAdminUser($user)): ?>
+                        <a href="/admin.php">Admin</a>
+                    <?php endif; ?>
                 </nav>
                 <div class="nav-grow"></div>
                 <div class="nav-actions">
@@ -174,6 +145,9 @@ try {
                         <a class="login-link" href="/auth.php">Iniciar sesión</a>
                     <?php else: ?>
                         <span><?php echo safe((string) $user['nome']); ?></span>
+                        <?php if (isAdminUser($user)): ?>
+                            <a href="/admin.php">Panel admin</a>
+                        <?php endif; ?>
                         <a href="/profile.php">Perfil</a>
                         <a href="/logout.php">Salir</a>
                     <?php endif; ?>
