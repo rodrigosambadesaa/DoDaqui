@@ -58,6 +58,9 @@ try {
                         <a href="/products.php">Categorías</a>
                         <a href="/cart.php">Carrito</a>
                         <a href="/orders.php">Pedidos</a>
+                        <?php if (isAdminUser($user)): ?>
+                            <a href="/admin.php">Admin</a>
+                        <?php endif; ?>
                     </nav>
                     <div class="nav-grow"></div>
                     <div class="nav-actions">
@@ -66,6 +69,9 @@ try {
                         <?php else: ?>
                             <span class="avatar-mini" aria-hidden="true"></span>
                             <span><?php echo safe((string) ($user['nome'] ?? 'Usuario')); ?></span>
+                            <?php if (isAdminUser($user)): ?>
+                                <a href="/admin.php">Panel admin</a>
+                            <?php endif; ?>
                             <a href="/profile.php">Perfil</a>
                             <a href="/logout.php">Salir</a>
                         <?php endif; ?>
