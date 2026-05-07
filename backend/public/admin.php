@@ -16,6 +16,7 @@ $producers = [];
 $products = [];
 $orders = [];
 $users = [];
+$dbAdminAvailable = true;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     requireValidCsrfToken((string) ($_POST['csrf_token'] ?? ''));
@@ -357,7 +358,64 @@ try {
     );
     $users = $usersStmt ? ($usersStmt->fetchAll() ?: []) : [];
 } catch (Throwable $exception) {
-    $flashError = 'No se pudo cargar el panel de administracion en este momento.';
+    $dbAdminAvailable = false;
+
+    $categoryFallbackId = 1;
+    foreach (defaultCatalogCategories() as $entry) {
+        $categories[] = [
+            'id_categoria' => $categoryFallbackId++,
+            'slug' => (string) ($entry['slug'] ?? ''),
+            'nome' => (string) ($entry['nome'] ?? ''),
+            'activa' => 1,
+        ];
+    }
+
+    $producerFallbackId = 1;
+    foreach (defaultCatalogProducers() as $entry) {
+        $producers[] = [
+            'id_produtor' => $producerFallbackId++,
+            'slug' => (string) ($entry['slug'] ?? ''),
+            'nome' => (string) ($entry['nome'] ?? ''),
+            'descripcion' => (string) ($entry['descripcion'] ?? ''),
+            'activo' => 1,
+        ];
+    }
+
+    $categoryBySlug = [];
+    foreach ($categories as $entry) {
+        $categoryBySlug[(string) ($entry['slug'] ?? '')] = (int) ($entry['id_categoria'] ?? 0);
+    }
+
+    $producerBySlug = [];
+    foreach ($producers as $entry) {
+        $producerBySlug[(string) ($entry['slug'] ?? '')] = (int) ($entry['id_produtor'] ?? 0);
+    }
+
+    foreach (defaultCatalogProducts() as $entry) {
+        $products[] = [
+            'id_produto' => (string) ($entry['id'] ?? ''),
+            'nome' => (string) ($entry['name'] ?? ''),
+            'resumo' => (string) ($entry['summary'] ?? ''),
+            'descripcion' => (string) ($entry['description'] ?? ''),
+            'prezo' => (float) ($entry['price'] ?? 0),
+            'activo' => 1,
+            'id_categoria' => (int) ($categoryBySlug[(string) ($entry['category_slug'] ?? '')] ?? 0),
+            'id_produtor' => (int) ($producerBySlug[(string) ($entry['producer_slug'] ?? '')] ?? 0),
+        ];
+    }
+
+    $users[] = [
+        'id_usuario' => (int) ($user['id_usuario'] ?? 0),
+        'nome' => (string) ($user['nome'] ?? 'Admin Demo'),
+        'correo_electronico' => (string) ($user['email'] ?? 'admin@tenda.gal'),
+        'telefono' => (string) ($user['telefono'] ?? '+34600000001'),
+        'rol_usuario' => (string) ($user['rol'] ?? 'admin'),
+        'creado_en' => date('Y-m-d H:i:s'),
+    ];
+
+    if ($flashError === '') {
+        $flashOk = 'Panel en modo fallback: la base de datos no esta disponible y se muestran datos de referencia.';
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -431,6 +489,12 @@ try {
 
                 <?php if ($flashOk !== ''): ?>
                     <section class="box" style="border-color: #b8c8d8; color: #32485e;"><?php echo safe($flashOk); ?></section>
+                <?php endif; ?>
+
+                <?php if (!$dbAdminAvailable): ?>
+                    <section class="box" style="border-color: #d7dfea; color: #32485e;">
+                        Las operaciones de alta, edicion y baja estan desactivadas temporalmente porque la base de datos no responde en este entorno.
+                    </section>
                 <?php endif; ?>
 
                 <section class="box" id="admin-categories">
