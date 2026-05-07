@@ -100,6 +100,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $flashOk = 'Estado de productor actualizado.';
             }
         }
+
+        if ($action === 'create_product') {
+            $productId = mb_substr(trim((string) ($_POST['id_produto'] ?? '')), 0, 80);
+            $name = mb_substr(trim((string) ($_POST['name'] ?? '')), 0, 150);
+            $summary = mb_substr(trim((string) ($_POST['summary'] ?? '')), 0, 255);
+            $description = mb_substr(trim((string) ($_POST['description'] ?? '')), 0, 800);
+            $price = (float) ($_POST['price'] ?? 0);
+            $categoryId = (int) ($_POST['id_categoria'] ?? 0);
+            $producerId = (int) ($_POST['id_produtor'] ?? 0);
+
+            if (!preg_match('/^[a-zA-Z0-9-]{1,80}$/', $productId) || $name === '' || $summary === '' || $price < 0) {
+                $flashError = 'Datos de producto no validos.';
+            } else {
+                $stmt = $pdoAction->prepare(
+                    'INSERT INTO produtos (id_produto, nome, resumo, descripcion, prezo, id_categoria, id_produtor, activo)
+                     VALUES (:id_produto, :nome, :resumo, :descripcion, :prezo, :id_categoria, :id_produtor, 1)
+                     ON DUPLICATE KEY UPDATE
+                        nome = VALUES(nome),
+                        resumo = VALUES(resumo),
+                        descripcion = VALUES(descripcion),
+                        prezo = VALUES(prezo),
+                        id_categoria = VALUES(id_categoria),
+                        id_produtor = VALUES(id_produtor)'
+                );
+                $stmt->execute([
+                    'id_produto' => $productId,
+                    'nome' => $name,
+                    'resumo' => $summary,
+                    'descripcion' => $description,
+                    'prezo' => $price,
+                    'id_categoria' => $categoryId > 0 ? $categoryId : null,
+                    'id_produtor' => $producerId > 0 ? $producerId : null,
+                ]);
+                $flashOk = 'Producto guardado correctamente.';
+            }
+        }
     } catch (Throwable $exception) {
         $flashError = 'No se pudo aplicar la accion de administracion.';
     }
@@ -279,6 +315,65 @@ try {
                 <section class="box">
                     <h2 style="margin-top: 0;">Gestion de productos</h2>
                     <p class="section-sub">Alta, modificacion y baja de productos de tienda.</p>
+                    <form method="post" class="review-form" style="margin-top: 10px;">
+                        <?php echo csrfInput(); ?>
+                        <input type="hidden" name="action" value="create_product">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="product-id">ID producto</label>
+                                <input id="product-id" name="id_produto" maxlength="80" placeholder="product-10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-name">Nombre</label>
+                                <input id="product-name" name="name" maxlength="150" required>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 8px;">
+                            <label for="product-summary">Resumen</label>
+                            <input id="product-summary" name="summary" maxlength="255" required>
+                        </div>
+                        <div class="form-group" style="margin-top: 8px;">
+                            <label for="product-description">Descripcion</label>
+                            <textarea id="product-description" name="description" rows="2" maxlength="800"></textarea>
+                        </div>
+                        <div class="form-grid-2" style="margin-top: 8px;">
+                            <div class="form-group">
+                                <label for="product-price">Precio</label>
+                                <input id="product-price" name="price" type="number" min="0" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-category">Categoria</label>
+                                <select id="product-category" name="id_categoria">
+                                    <option value="0">Sin categoria</option>
+                                    <?php foreach ($categories as $category): ?>
+                                        <option value="<?php echo (int) ($category['id_categoria'] ?? 0); ?>"><?php echo safe((string) ($category['nome'] ?? '')); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 8px;">
+                            <label for="product-producer">Productor</label>
+                            <select id="product-producer" name="id_produtor">
+                                <option value="0">Sin productor</option>
+                                <?php foreach ($producers as $producer): ?>
+                                    <option value="<?php echo (int) ($producer['id_produtor'] ?? 0); ?>"><?php echo safe((string) ($producer['nome'] ?? '')); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <button class="btn btn-dark" style="margin-top: 10px;" type="submit">Guardar producto</button>
+                    </form>
+
+                    <div class="order-list" style="margin-top: 12px;">
+                        <?php foreach ($products as $product): ?>
+                            <article class="box" style="margin: 0;">
+                                <p style="margin: 0;"><strong><?php echo safe((string) ($product['nome'] ?? 'Producto')); ?></strong></p>
+                                <p class="muted-xs" style="margin: 4px 0;">ID: <?php echo safe((string) ($product['id_produto'] ?? '')); ?></p>
+                                <p class="muted-xs" style="margin: 4px 0;">Categoria: <?php echo safe((string) ($product['categoria_nome'] ?? 'Sin categoria')); ?></p>
+                                <p class="muted-xs" style="margin: 4px 0;">Productor: <?php echo safe((string) ($product['produtor_nome'] ?? 'Sin productor')); ?></p>
+                                <p class="muted-xs" style="margin: 4px 0;">Precio: <?php echo formatoEuro((float) ($product['prezo'] ?? 0)); ?></p>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
                 </section>
 
                 <section class="box">
