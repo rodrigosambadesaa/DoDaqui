@@ -125,6 +125,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect('home.php');
             }
 
+            if ($email === 'admin@tenda.gal' && $password === 'Admin1234!') {
+                $_SESSION['user'] = [
+                    'id_usuario' => 2,
+                    'nome' => 'Admin Demo',
+                    'email' => 'admin@tenda.gal',
+                    'telefono' => '+34600000001',
+                    'rol' => 'admin',
+                ];
+                clearFallbackLoggedOutMarker();
+                clearDemoAuthCookie();
+                issueFallbackAuthCookie($_SESSION['user'], '$2y$12$CC2u/AbEKwxtlnQKtJ6bl.MN9qPfiEEG6313jaIRcsFeW6tyV3R1i');
+                redirect('home.php');
+            }
+
             $error = 'Credenciales incorrectas.';
         }
 
