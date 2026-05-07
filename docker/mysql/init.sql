@@ -22,6 +22,20 @@ ON DUPLICATE KEY UPDATE
 	contrasinal = VALUES(contrasinal),
 	rol_usuario = VALUES(rol_usuario);
 
+INSERT INTO usuarios (nome, correo_electronico, telefono, contrasinal, rol_usuario)
+VALUES (
+	'Admin Demo',
+	'admin@tenda.gal',
+	'+34600000001',
+	'$2y$12$CC2u/AbEKwxtlnQKtJ6bl.MN9qPfiEEG6313jaIRcsFeW6tyV3R1i',
+	'admin'
+)
+ON DUPLICATE KEY UPDATE
+	nome = VALUES(nome),
+	telefono = VALUES(telefono),
+	contrasinal = VALUES(contrasinal),
+	rol_usuario = VALUES(rol_usuario);
+
 CREATE TABLE IF NOT EXISTS carrito_items (
 	id_item INT AUTO_INCREMENT PRIMARY KEY,
 	id_usuario INT NOT NULL,
