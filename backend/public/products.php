@@ -111,6 +111,9 @@ if ($sort === 'precio_asc') {
                     <a href="/products.php" class="is-active">Categorías</a>
                     <a href="/cart.php">Carrito</a>
                     <a href="/orders.php">Pedidos</a>
+                    <?php if (isAdminUser($user)): ?>
+                        <a href="/admin.php">Admin</a>
+                    <?php endif; ?>
                 </nav>
                 <div class="nav-grow"></div>
                 <div class="nav-actions">
@@ -118,6 +121,9 @@ if ($sort === 'precio_asc') {
                         <a class="login-link" href="/auth.php">Iniciar sesión</a>
                     <?php else: ?>
                         <span><?php echo safe((string) ($user['nome'] ?? 'Usuario')); ?></span>
+                        <?php if (isAdminUser($user)): ?>
+                            <a href="/admin.php">Panel admin</a>
+                        <?php endif; ?>
                         <a href="/profile.php">Perfil</a>
                         <a href="/logout.php">Salir</a>
                     <?php endif; ?>
