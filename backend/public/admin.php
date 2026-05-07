@@ -61,6 +61,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $flashOk = 'Estado de categoria actualizado.';
             }
         }
+
+        if ($action === 'create_producer') {
+            $name = mb_substr(trim((string) ($_POST['name'] ?? '')), 0, 150);
+            $slugRaw = mb_substr(trim((string) ($_POST['slug'] ?? '')), 0, 80);
+            $description = mb_substr(trim((string) ($_POST['description'] ?? '')), 0, 255);
+            $slug = strtolower((string) preg_replace('/[^a-z0-9-]+/', '-', $slugRaw !== '' ? $slugRaw : $name));
+            $slug = trim($slug, '-');
+
+            if (mb_strlen($name) < 2 || $slug === '') {
+                $flashError = 'Indica nombre y slug validos para el productor.';
+            } else {
+                $stmt = $pdoAction->prepare(
+                    'INSERT INTO produtores (slug, nome, descripcion, activo)
+                     VALUES (:slug, :nome, :descripcion, 1)
+                     ON DUPLICATE KEY UPDATE nome = VALUES(nome), descripcion = VALUES(descripcion)'
+                );
+                $stmt->execute([
+                    'slug' => $slug,
+                    'nome' => $name,
+                    'descripcion' => $description,
+                ]);
+                $flashOk = 'Productor guardado correctamente.';
+            }
+        }
+
+        if ($action === 'toggle_producer') {
+            $producerId = (int) ($_POST['id_produtor'] ?? 0);
+            if ($producerId <= 0) {
+                $flashError = 'Productor no valido.';
+            } else {
+                $stmt = $pdoAction->prepare(
+                    'UPDATE produtores
+                     SET activo = CASE WHEN activo = 1 THEN 0 ELSE 1 END
+                     WHERE id_produtor = :id_produtor'
+                );
+                $stmt->execute(['id_produtor' => $producerId]);
+                $flashOk = 'Estado de productor actualizado.';
+            }
+        }
     } catch (Throwable $exception) {
         $flashError = 'No se pudo aplicar la accion de administracion.';
     }
@@ -199,6 +238,42 @@ try {
                 <section class="box">
                     <h2 style="margin-top: 0;">Gestion de productores</h2>
                     <p class="section-sub">Control de productores y su informacion publica.</p>
+                    <form method="post" class="review-form" style="margin-top: 10px;">
+                        <?php echo csrfInput(); ?>
+                        <input type="hidden" name="action" value="create_producer">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="producer-name">Nombre</label>
+                                <input id="producer-name" name="name" maxlength="150" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="producer-slug">Slug</label>
+                                <input id="producer-slug" name="slug" maxlength="80" required>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 8px;">
+                            <label for="producer-description">Descripcion</label>
+                            <textarea id="producer-description" name="description" rows="2" maxlength="255"></textarea>
+                        </div>
+                        <button class="btn btn-dark" style="margin-top: 10px;" type="submit">Guardar productor</button>
+                    </form>
+
+                    <div class="order-list" style="margin-top: 12px;">
+                        <?php foreach ($producers as $producer): ?>
+                            <article class="box" style="margin: 0;">
+                                <p style="margin: 0;"><strong><?php echo safe((string) ($producer['nome'] ?? 'Productor')); ?></strong></p>
+                                <p class="muted-xs" style="margin: 4px 0;">slug: <?php echo safe((string) ($producer['slug'] ?? '')); ?></p>
+                                <p class="muted-xs" style="margin: 4px 0;"><?php echo safe((string) ($producer['descripcion'] ?? '')); ?></p>
+                                <p class="muted-xs" style="margin: 4px 0;">Estado: <?php echo ((int) ($producer['activo'] ?? 0) === 1) ? 'Activo' : 'Inactivo'; ?></p>
+                                <form method="post" style="margin-top: 8px;">
+                                    <?php echo csrfInput(); ?>
+                                    <input type="hidden" name="action" value="toggle_producer">
+                                    <input type="hidden" name="id_produtor" value="<?php echo (int) ($producer['id_produtor'] ?? 0); ?>">
+                                    <button class="btn btn-light" type="submit">Activar / desactivar</button>
+                                </form>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
                 </section>
 
                 <section class="box">
