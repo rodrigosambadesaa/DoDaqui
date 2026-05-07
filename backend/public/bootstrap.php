@@ -944,6 +944,80 @@ function seedCatalogDefaults(PDO $pdo): void
     }
 }
 
+function ensureCatalogDataAvailable(PDO $pdo): void
+{
+    ensureCatalogSchema($pdo);
+
+    $countStmt = $pdo->query('SELECT COUNT(*) AS total FROM produtos');
+    $total = (int) (($countStmt ? $countStmt->fetch() : [])['total'] ?? 0);
+    if ($total === 0) {
+        seedCatalogDefaults($pdo);
+    }
+}
+
+function fetchCatalogCategories(PDO $pdo, bool $onlyActive = true): array
+{
+    ensureCatalogDataAvailable($pdo);
+    $sql = 'SELECT id_categoria, slug, nome, activa FROM categorias';
+    if ($onlyActive) {
+        $sql .= ' WHERE activa = 1';
+    }
+    $sql .= ' ORDER BY nome ASC, id_categoria ASC';
+
+    return $pdo->query($sql)->fetchAll() ?: [];
+}
+
+function fetchCatalogProducers(PDO $pdo, bool $onlyActive = true): array
+{
+    ensureCatalogDataAvailable($pdo);
+    $sql = 'SELECT id_produtor, slug, nome, descripcion, activo FROM produtores';
+    if ($onlyActive) {
+        $sql .= ' WHERE activo = 1';
+    }
+    $sql .= ' ORDER BY nome ASC, id_produtor ASC';
+
+    return $pdo->query($sql)->fetchAll() ?: [];
+}
+
+function fetchCatalogProducts(PDO $pdo, bool $onlyActive = true): array
+{
+    ensureCatalogDataAvailable($pdo);
+    $sql =
+        'SELECT p.id_produto, p.nome, p.resumo, p.descripcion, p.prezo, p.activo,
+                c.slug AS categoria_slug, c.nome AS categoria_nome,
+                pr.slug AS produtor_slug, pr.nome AS produtor_nome
+         FROM produtos p
+         LEFT JOIN categorias c ON c.id_categoria = p.id_categoria
+         LEFT JOIN produtores pr ON pr.id_produtor = p.id_produtor';
+
+    if ($onlyActive) {
+        $sql .= ' WHERE p.activo = 1';
+    }
+
+    $sql .= ' ORDER BY p.actualizado_en DESC, p.id_produto ASC';
+
+    return $pdo->query($sql)->fetchAll() ?: [];
+}
+
+function fetchCatalogProductById(PDO $pdo, string $id): ?array
+{
+    ensureCatalogDataAvailable($pdo);
+    $stmt = $pdo->prepare(
+        'SELECT p.id_produto, p.nome, p.resumo, p.descripcion, p.prezo, p.activo,
+                c.slug AS categoria_slug, c.nome AS categoria_nome,
+                pr.slug AS produtor_slug, pr.nome AS produtor_nome
+         FROM produtos p
+         LEFT JOIN categorias c ON c.id_categoria = p.id_categoria
+         LEFT JOIN produtores pr ON pr.id_produtor = p.id_produtor
+         WHERE p.id_produto = :id_produto
+         LIMIT 1'
+    );
+    $stmt->execute(['id_produto' => $id]);
+    $row = $stmt->fetch();
+
+    return is_array($row) ? $row : null;
+}
+
 function ensureOpinionsSchema(PDO $pdo): void
 {
     $pdo->exec(
