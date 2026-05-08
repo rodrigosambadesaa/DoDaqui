@@ -169,7 +169,7 @@ if ($sort === 'precio_asc') {
                             <option value="precio_desc" <?php echo $sort === 'precio_desc' ? 'selected' : ''; ?>>Precio: mayor a menor</option>
                             <option value="nombre_asc" <?php echo $sort === 'nombre_asc' ? 'selected' : ''; ?>>Nombre A-Z</option>
                         </select>
-                        <noscript><button class="btn btn-light" type="submit">Aplicar</button></noscript>
+                        <button class="btn btn-light" type="submit">Aplicar</button>
                     </form>
 
                     <div class="catalog-grid">
