@@ -155,7 +155,7 @@ if ($sort === 'precio_asc') {
                         <button class="btn btn-dark" type="submit">Buscar</button>
                     </form>
 
-                    <form method="get" class="box" style="margin-bottom: 12px; display: grid; grid-template-columns: auto auto auto auto; gap: 8px; align-items: center;">
+                    <form method="get" class="box catalog-sort-form" style="margin-bottom: 12px; display: grid; grid-template-columns: auto auto auto auto; gap: 8px; align-items: center;">
                         <?php if ($category !== ''): ?>
                             <input type="hidden" name="categoria" value="<?php echo safe($category); ?>">
                         <?php endif; ?>
@@ -163,13 +163,13 @@ if ($sort === 'precio_asc') {
                             <input type="hidden" name="q" value="<?php echo safe($query); ?>">
                         <?php endif; ?>
                         <label for="orden" class="muted-xs">Ordenar por</label>
-                        <select id="orden" name="orden" onchange="this.form.submit()">
+                        <select id="orden" name="orden" class="catalog-sort-select" onchange="this.form.submit()">
                             <option value="destacados" <?php echo $sort === 'destacados' ? 'selected' : ''; ?>>Destacados</option>
                             <option value="precio_asc" <?php echo $sort === 'precio_asc' ? 'selected' : ''; ?>>Precio: menor a mayor</option>
                             <option value="precio_desc" <?php echo $sort === 'precio_desc' ? 'selected' : ''; ?>>Precio: mayor a menor</option>
                             <option value="nombre_asc" <?php echo $sort === 'nombre_asc' ? 'selected' : ''; ?>>Nombre A-Z</option>
                         </select>
-                        <button class="btn btn-light" type="submit">Aplicar</button>
+                        <button class="btn btn-light catalog-sort-apply" type="submit">Aplicar</button>
                     </form>
 
                     <div class="catalog-grid">
