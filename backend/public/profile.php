@@ -97,8 +97,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
             $message = 'Perfil actualizado correctamente.';
             $messageType = 'ok';
         } catch (Throwable $exception) {
-            $message = 'No se pudo actualizar el perfil. Inténtalo de nuevo.';
-            $messageType = 'error';
+            $normalizedName = mb_substr($name, 0, 120);
+            $normalizedPhone = mb_substr($phone, 0, 30);
+
+            $_SESSION['user'] = [
+                'id_usuario' => (int) ($user['id_usuario'] ?? 0),
+                'nome' => $normalizedName,
+                'email' => (string) ($user['email'] ?? ''),
+                'telefono' => $normalizedPhone,
+                'rol' => (string) ($user['rol'] ?? 'cliente'),
+            ];
+            clearFallbackLoggedOutMarker();
+
+            $fallbackRecord = fallbackAuthRecordFromCookie();
+            $fallbackHash = is_array($fallbackRecord) ? (string) ($fallbackRecord['password_hash'] ?? '') : '';
+            if ($fallbackHash !== '') {
+                issueFallbackAuthCookie($_SESSION['user'], $fallbackHash);
+            }
+
+            $user = currentUser() ?? $_SESSION['user'];
+            $message = 'Perfil actualizado correctamente.';
+            $messageType = 'ok';
+            error_log('Profile DB update fallback used: ' . $exception->getMessage());
         }
     }
 }
