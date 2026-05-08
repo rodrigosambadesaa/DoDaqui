@@ -315,6 +315,23 @@ a {
     gap: 8px;
 }
 
+.catalog-sort-form {
+    grid-template-columns: auto minmax(200px, 1fr) auto;
+}
+
+.catalog-sort-select {
+    min-height: 34px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: #f8f9fb;
+    padding: 0 10px;
+    font-size: 12px;
+}
+
+.catalog-sort-apply {
+    min-width: 90px;
+}
+
 .chip {
     display: inline-flex;
     align-items: center;
