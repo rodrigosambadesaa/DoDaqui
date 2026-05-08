@@ -101,7 +101,18 @@ Decanteime por este proxecto porque une comercio local, sustentabilidade e tecno
 
 Contacto actual e futuro:
 
-- Correo: rodrigosambadesaa1@gmail.com
+- Correos:
+  - rodrigosambadesaa@gmail.com
+  - rodrigosambadesaa1@gmail.com
+  - rodrigosambadesaa2@gmail.com
+  - rodrigosambadesaa@outlook.com
+  - rodrigosambadesaa@outlook.es
+  - rodrigo.sambade.saa@protonmail.com
+  - rodrigosambadesaa@yahoo.com
+  - rodrigosambadesaa@yahoo.es
+  - rodrigosambadesaa@aol.com
+- Teléfono: 608030077
+- LinkedIn: https://es.linkedin.com/in/rodrigo-sambade-5675bb186/es
 
 ## Licencia
 
