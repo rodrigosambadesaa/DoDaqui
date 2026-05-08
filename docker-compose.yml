@@ -47,8 +47,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: app_user
-      PMA_PASSWORD: app_pass
+      PMA_ARBITRARY: 1
       UPLOAD_LIMIT: 64M
     depends_on:
       db:

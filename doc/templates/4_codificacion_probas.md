@@ -30,11 +30,10 @@ A información tratarase de xestionar de forma segura.
 ## Prototipo 2
 ### Data de entrega: 24/04/2026 (iteración local en curso)
 ### Funcionalidades implementadas:
-- Busca por texto e filtrado combinado por categoría no catálogo.
-- Ordenación de produtos por prezo e nome no catálogo.
-- Consulta do historial de pedidos para usuarios rexistrados con detalle de liñas por pedido.
-- Xestión do perfil de usuario (actualización de nome/teléfono e cambio de contrasinal).
-- Visualización da base de datos con phpMyAdmin no contorno local Docker.
+- Buscar produtos por texto.
+- Consulta do historial de pedidos para usuarios rexistrados
+- Xestión do perfil de usuario (actualización de nome/teléfono e cambio de contrasinal). (revisar)
+- Visualización da base de datos con phpMyAdmin no contorno local Docker. (arreglar)
 
 ### Observacións:
 - Este prototipo engade máis dos requirimentos funcionais pendentes no documento de análise.

@@ -31,27 +31,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
     } else {
         try {
             $pdo = db();
+            ensureUserSchema($pdo);
             $stmt = $pdo->prepare(
                 'UPDATE usuarios
                  SET nome = :nome, telefono = :telefono
                  WHERE id_usuario = :id_usuario'
             );
 
+            $normalizedName = mb_substr($name, 0, 120);
+            $normalizedPhone = mb_substr($phone, 0, 30);
+            $userId = (int) ($user['id_usuario'] ?? 0);
             $stmt->execute([
-                'nome' => mb_substr($name, 0, 120),
-                'telefono' => mb_substr($phone, 0, 30),
-                'id_usuario' => (int) ($user['id_usuario'] ?? 0),
+                'nome' => $normalizedName,
+                'telefono' => $normalizedPhone,
+                'id_usuario' => $userId,
             ]);
 
+            if ($stmt->rowCount() === 0) {
+                $email = trim((string) ($user['email'] ?? ''));
+                if ($email !== '') {
+                    $updateByEmail = $pdo->prepare(
+                        'UPDATE usuarios
+                         SET nome = :nome, telefono = :telefono
+                         WHERE correo_electronico = :correo_electronico'
+                    );
+                    $updateByEmail->execute([
+                        'nome' => $normalizedName,
+                        'telefono' => $normalizedPhone,
+                        'correo_electronico' => $email,
+                    ]);
+                }
+            }
+
             $passwordHashStmt = $pdo->prepare('SELECT contrasinal FROM usuarios WHERE id_usuario = :id_usuario LIMIT 1');
-            $passwordHashStmt->execute(['id_usuario' => (int) ($user['id_usuario'] ?? 0)]);
+            $passwordHashStmt->execute(['id_usuario' => $userId]);
             $row = $passwordHashStmt->fetch();
 
+            if (!is_array($row)) {
+                $email = trim((string) ($user['email'] ?? ''));
+                if ($email !== '') {
+                    $passwordHashByEmailStmt = $pdo->prepare('SELECT contrasinal FROM usuarios WHERE correo_electronico = :correo_electronico LIMIT 1');
+                    $passwordHashByEmailStmt->execute(['correo_electronico' => $email]);
+                    $row = $passwordHashByEmailStmt->fetch();
+                }
+            }
+
             $_SESSION['user'] = [
-                'id_usuario' => (int) ($user['id_usuario'] ?? 0),
-                'nome' => mb_substr($name, 0, 120),
+                'id_usuario' => $userId,
+                'nome' => $normalizedName,
                 'email' => (string) ($user['email'] ?? ''),
-                'telefono' => mb_substr($phone, 0, 30),
+                'telefono' => $normalizedPhone,
                 'rol' => (string) ($user['rol'] ?? 'cliente'),
             ];
             clearFallbackLoggedOutMarker();

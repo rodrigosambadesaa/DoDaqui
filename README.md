@@ -28,6 +28,7 @@ docker compose -f docker-compose.restricted.yml up --build
 
 - web: PHP 8.2 + Apache en http://localhost:8080
 - db: MySQL 8.0 en localhost:3306
+- phpmyadmin: cliente SQL web en http://localhost:8081 (ou o porto definido en `PHPMYADMIN_PORT`)
 
 ## Acceso á aplicación
 
@@ -58,6 +59,15 @@ Podes cambiar os portos temporalmente:
 ```bash
 set WEB_PORT=8081
 set DB_PORT=3307
+docker compose up --build
+```
+
+Exemplo recomendado para evitar conflitos de porto en local:
+
+```bash
+export WEB_PORT=8080
+export DB_PORT=3307
+export PHPMYADMIN_PORT=8082
 docker compose up --build
 ```
 

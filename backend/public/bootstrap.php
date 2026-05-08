@@ -616,6 +616,64 @@ function db(): PDO
     return $pdo;
 }
 
+function ensureUserSchema(PDO $pdo): void
+{
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS usuarios (
+            id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(120) NOT NULL,
+            correo_electronico VARCHAR(160) NOT NULL UNIQUE,
+            telefono VARCHAR(30) NULL,
+            contrasinal VARCHAR(255) NOT NULL,
+            rol_usuario ENUM('cliente', 'admin') NOT NULL DEFAULT 'cliente',
+            creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )"
+    );
+
+    $columnCheck = $pdo->query('SHOW COLUMNS FROM usuarios');
+    $columns = array_column($columnCheck->fetchAll(), 'Field');
+
+    if (in_array('email', $columns, true) && !in_array('correo_electronico', $columns, true)) {
+        $pdo->exec('ALTER TABLE usuarios CHANGE COLUMN email correo_electronico VARCHAR(160) NOT NULL');
+    }
+
+    if (in_array('rol', $columns, true) && !in_array('rol_usuario', $columns, true)) {
+        $pdo->exec("ALTER TABLE usuarios CHANGE COLUMN rol rol_usuario ENUM('cliente','admin') NOT NULL DEFAULT 'cliente'");
+    }
+
+    if (!in_array('telefono', $columns, true)) {
+        $pdo->exec('ALTER TABLE usuarios ADD COLUMN telefono VARCHAR(30) NULL AFTER correo_electronico');
+    }
+
+    $indexCheck = $pdo->query('SHOW INDEX FROM usuarios');
+    $indexNames = array_column($indexCheck->fetchAll(), 'Key_name');
+    if (!in_array('unique_correo_electronico', $indexNames, true)) {
+        $pdo->exec('ALTER TABLE usuarios ADD UNIQUE KEY unique_correo_electronico (correo_electronico)');
+    }
+
+    $stmt = $pdo->prepare(
+        'INSERT INTO usuarios (nome, correo_electronico, telefono, contrasinal, rol_usuario)
+            VALUES (:nome, :correo_electronico, :telefono, :contrasinal, :rol_usuario)
+            ON DUPLICATE KEY UPDATE nome = VALUES(nome), telefono = VALUES(telefono), contrasinal = VALUES(contrasinal), rol_usuario = VALUES(rol_usuario)'
+    );
+
+    $stmt->execute([
+        'nome' => 'Usuario Demo',
+        'correo_electronico' => 'demo@tenda.gal',
+        'telefono' => '+34600000000',
+        'contrasinal' => '$2y$10$nZ24rn1voj52FXBw4hezpOtXJAovRyHrNSVfv9zKIyKy5RrUbi2Z6',
+        'rol_usuario' => 'cliente',
+    ]);
+
+    $stmt->execute([
+        'nome' => 'Admin Demo',
+        'correo_electronico' => 'admin@tenda.gal',
+        'telefono' => '+34600000001',
+        'contrasinal' => '$2y$12$CC2u/AbEKwxtlnQKtJ6bl.MN9qPfiEEG6313jaIRcsFeW6tyV3R1i',
+        'rol_usuario' => 'admin',
+    ]);
+}
+
 function syncUserWithDatabase(array $sessionUser): array
 {
     $email = trim((string) ($sessionUser['email'] ?? ''));
