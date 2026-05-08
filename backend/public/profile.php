@@ -31,7 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
     } else {
         try {
             $pdo = db();
-            ensureUserSchema($pdo);
+            try {
+                ensureUserSchema($pdo);
+            } catch (Throwable $exception) {
+                // In managed environments, DB users may not have DDL privileges.
+                error_log('Profile ensureUserSchema skipped: ' . $exception->getMessage());
+            }
             $stmt = $pdo->prepare(
                 'UPDATE usuarios
                  SET nome = :nome, telefono = :telefono
