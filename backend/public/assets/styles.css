@@ -1106,6 +1106,18 @@ a {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .catalog-sort-form {
+        grid-template-columns: 1fr;
+    }
+
+    .catalog-sort-form .muted-xs {
+        font-size: 11px;
+    }
+
+    .catalog-sort-apply {
+        width: 100%;
+    }
+
     .cart-title {
         font-size: 34px;
     }
