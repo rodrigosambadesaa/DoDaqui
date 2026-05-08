@@ -50,18 +50,18 @@ A información tratarase de xestionar de forma segura.
 ## Despregamento da web na Internet
 
 ### Plataforma elixida
-- DigitalOcean App Platform + MySQL xestionado.
+- Vercel + base de datos MySQL externa (configurada por variables de contorno).
 
 ### Xustificación técnica
-- O proxecto xa parte dun `Dockerfile` para PHP+Apache, polo que o encaixe con App Platform é directo.
-- Evita administrar máquina virtual completa (IaaS) para esta fase.
-- Permite publicar versións novas de forma máis rápida desde o repositorio.
+- Permite despregamento continuo automático en cada push á rama configurada.
+- Encaixa co fluxo actual do proxecto e coa configuración existente en `vercel.json`.
+- Reduce carga operativa fronte a administración manual de infraestrutura.
 
 ### Estado da publicación
-- Configuración lista: `.do/app.yaml`.
-- Guía de despregamento: `doc/despregamento_digitalocean.md`.
-- Proba de CLI realizada: `doctl` operativo.
-- Bloqueo actual: falta token de conta para executar `doctl auth init` e crear a app no provedor.
+- Configuración lista: `vercel.json`.
+- Guía de despregamento: `doc/despregamento_vercel.md`.
+- Variables de contorno de base de datos dispoñibles para contorno de produción (`DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`).
+- Automatización dispoñible: script `scripts/vercel/configure-db-env.sh` para cargar variables e facilitar redeploy.
 
 ### Entrega en Issues (GitLab)
 - Ao completar a publicación, crear unha issue en GitLab con:

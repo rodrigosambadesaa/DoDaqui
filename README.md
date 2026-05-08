@@ -162,9 +162,9 @@ Ligazón ao proxecto en GitLab (entrega):
 
 ## Despregamento en Internet
 
-- Plataforma seleccionada para este proxecto: **DigitalOcean App Platform**.
-- Especificación da app: `.do/app.yaml`.
-- Guía paso a paso: [doc/despregamento_digitalocean.md](doc/despregamento_digitalocean.md).
+- Plataforma seleccionada para este proxecto: **Vercel**.
+- Configuración principal de despregamento: `vercel.json`.
+- Guía paso a paso: [doc/despregamento_vercel.md](doc/despregamento_vercel.md).
 
 ## Vercel: base de datos y redeploy
 
